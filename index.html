@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>吃心絕對 預購單｜巴拿巴宣教學院募款</title>
+<meta name="description" content="手工豆乾、肉桂捲、永生花束、苔球，支持巴拿巴宣教學院海外短宣。">
+<!-- FB 分享預覽 -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="吃心絕對 預購單｜巴拿巴宣教學院募款">
+<meta property="og:description" content="手工豆乾、肉桂捲、永生花束、苔球，支持肯亞、日本短宣隊。點開即可線上預購。">
+<!-- 想讓 FB 預覽有圖片：把 og-image.jpg（建議 1200×630）上傳到同一個 repo，再把下面網址改成你的網址並取消註解 -->
+<!-- <meta property="og:image" content="https://你的帳號.github.io/chixin/og-image.jpg"> -->
+<style>
+  :root{
+    --red:#b3261e; --red-dark:#8c1d17; --green:#1f6b43; --cream:#fff8ee;
+    --ink:#2b2522; --muted:#6b625c; --line:#eadfce;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+    background:var(--cream); color:var(--ink); line-height:1.6;
+    min-height:100vh; -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:480px;margin:0 auto;padding:44px 20px 40px}
+  .hint{
+    position:relative; background:var(--red); color:#fff; border-radius:14px;
+    padding:16px 18px; margin:6px 0 22px; font-size:19px; font-weight:700;
+    box-shadow:0 4px 14px rgba(179,38,30,.25);
+  }
+  .hint small{display:block;font-weight:400;font-size:15px;opacity:.95;margin-top:4px}
+  .arrow{
+    position:absolute; top:-30px; right:6px; font-size:34px; line-height:1;
+    animation:bob 1.1s ease-in-out infinite;
+  }
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .dots{display:inline-block;background:#fff;color:var(--red);border-radius:6px;padding:0 7px;margin:0 2px;font-weight:900}
+  .brand{font-size:14px;color:var(--muted);margin:0}
+  h1{font-size:28px;margin:2px 0 4px;color:var(--red-dark)}
+  .sub{margin:0 0 18px;color:var(--green);font-weight:600}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+  .card h2{font-size:17px;margin:0 0 10px}
+  ol{margin:0;padding-left:22px;font-size:17px}
+  ol li{margin:6px 0}
+  .btn{
+    display:block;width:100%;border:0;border-radius:12px;padding:15px 12px;
+    font-size:18px;font-weight:700;text-align:center;text-decoration:none;
+    cursor:pointer;margin:10px 0;font-family:inherit;
+  }
+  .btn-main{background:var(--green);color:#fff}
+  .btn-copy{background:#fff;color:var(--green);border:2px solid var(--green)}
+  .btn-ghost{background:transparent;color:var(--muted);font-size:15px;font-weight:400;text-decoration:underline;padding:8px}
+  .toast{
+    position:fixed;left:50%;bottom:28px;transform:translateX(-50%);
+    background:#222;color:#fff;padding:10px 18px;border-radius:999px;font-size:15px;
+    opacity:0;transition:opacity .2s;pointer-events:none;
+  }
+  .toast.show{opacity:1}
+  .center{text-align:center;padding-top:30vh;color:var(--muted)}
+  .hidden{display:none}
+  .url{word-break:break-all;font-size:13px;color:var(--muted);background:#faf6f0;border-radius:8px;padding:8px;margin-top:6px}
+</style>
+</head>
+<body>
+
+<!-- 一般瀏覽器：直接轉址時短暫顯示 -->
+<div id="go" class="center">
+  <p>正在開啟「吃心絕對」預購單…</p>
+  <p><a id="goLink" href="#">沒有自動跳轉？請點這裡</a></p>
+</div>
+
+<!-- FB／IG／Messenger 內建瀏覽器：顯示教學 -->
+<div id="iab" class="wrap hidden">
+  <div class="hint">
+    <span class="arrow">👆</span>
+    請點右上角 <span class="dots">⋯</span><br>選「在外部瀏覽器開啟」
+    <small id="hintSmall">Facebook 內建瀏覽器打不開預購單（會是白畫面），換個瀏覽器就能正常下單喔！</small>
+  </div>
+
+  <p class="brand">巴拿巴宣教學院・國際志工募款</p>
+  <h1>吃心絕對 預購單 🎄</h1>
+  <p class="sub">手工豆乾・肉桂捲・永生花束・苔球</p>
+
+  <div class="card">
+    <button id="btnExternal" class="btn btn-main">用瀏覽器開啟預購單</button>
+    <button id="btnCopy" class="btn btn-copy">複製連結（貼到 Safari / Chrome）</button>
+    <div id="urlBox" class="url"></div>
+  </div>
+
+  <div class="card">
+    <h2>上面的按鈕沒反應？三步驟就好：</h2>
+    <ol>
+      <li>點畫面<b>右上角「⋯」</b></li>
+      <li>選<b>「在外部瀏覽器開啟」</b>（iPhone 可能寫「以 Safari 開啟」）</li>
+      <li>預購單就會正常打開 🙌</li>
+    </ol>
+  </div>
+
+  <a id="btnHere" class="btn btn-ghost" href="#">我想直接在這裡試試看</a>
+</div>
+
+<div id="toast" class="toast">已複製連結</div>
+
+<script>
+(function () {
+  // ====== 設定：Apps Script 訂購頁網址（重新部署網址不變就不用改）======
+  var TARGET = 'https://script.google.com/macros/s/AKfycbynCbGcHSBtHLNn897vHd6y_x1Tj9jP7w9CW0kTJ5F8PleA6eBeTIZNyOw0-K9X_dRwSw/exec';
+
+  // ====== 同學代碼 → 姓名（?s=代碼 會換成 ?s=姓名；也可以直接用 ?s=中文姓名）======
+  // 代碼與 TinyURL 短網址 chixin-xxx 的 xxx 相同。新增同學就加一行。
+  var ALIAS = {
+    guozheng:'溫國政', yuwen:'李玉雯', yifen:'李益芬', yicai:'呂衣綵', huichun:'房惠純',
+    h3k9:'吳雨儂', chuanxia:'王傳霞', wenqi:'楊雯祺',
+    shufen:'周淑芬', yaling:'曾雅玲', liru:'陳麗如', yuhua:'符玉華', feibi:'Feibi 君愛',
+    huimin:'房惠敏', xiaowen:'林筱雯',
+    naiyi:'劉乃一', yuping:'劉玉萍', huiying:'馮惠英', yingxuan:'沈盈暄', lingzhi:'翁玲芝',
+    xiangying:'陳湘盈', naiqing:'李乃青', zhenyi:'江貞儀'
+  };
+
+  // ---- 組出最終網址：保留 s、b 等參數，丟掉 FB 追蹤參數 ----
+  var params = new URLSearchParams(location.search);
+  var out = new URLSearchParams();
+  params.forEach(function (v, k) {
+    if (k === 'fbclid' || k.indexOf('utm_') === 0) return;
+    if (k === 's') {
+      var key = v.trim().toLowerCase();
+      v = ALIAS.hasOwnProperty(key) ? ALIAS[key] : v.trim();
+      if (!v) return;
+    }
+    out.append(k, v);
+  });
+  var qs = out.toString();
+  var url = TARGET + (qs ? '?' + qs : '');
+
+  // ---- 判斷是不是 FB / IG / Messenger / Threads 內建瀏覽器 ----
+  var ua = navigator.userAgent || '';
+  var isIAB = /FBAN|FBAV|FB_IAB|FB4A|FBIOS|FBSS|Instagram|Messenger|Barcelona/i.test(ua);
+  var isAndroid = /Android/i.test(ua);
+  var isIOS = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && 'ontouchend' in document);
+
+  // 一般瀏覽器（含 LINE）：直接轉過去
+  if (!isIAB) {
+    document.getElementById('goLink').href = url;
+    location.replace(url);
+    return;
+  }
+
+  // ---- 內建瀏覽器：顯示教學頁 ----
+  document.getElementById('go').classList.add('hidden');
+  document.getElementById('iab').classList.remove('hidden');
+  var shown = url; try { shown = decodeURI(url); } catch (e) {}
+  document.getElementById('urlBox').textContent = shown;
+  document.getElementById('btnHere').href = url;
+  if (isAndroid) {
+    document.querySelector('.hint').innerHTML =
+      '<span class="arrow">👆</span>請點右上角 <span class="dots">⋮</span><br>選「在外部瀏覽器開啟」' +
+      '<small>Facebook 內建瀏覽器打不開預購單（會是白畫面），換個瀏覽器就能正常下單喔！</small>';
+    document.querySelector('.card ol li').innerHTML = '點畫面<b>右上角「⋮」或「⋯」</b>';
+  }
+
+  // 「用瀏覽器開啟」：Android 叫 Chrome；iPhone 試著叫 Safari（iOS 17 以上較可能成功）
+  var noPrefix = url.replace(/^https:\/\//, '');
+  var androidIntent = 'intent://' + noPrefix +
+    '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' +
+    encodeURIComponent(url) + ';end';
+  var iosSafari = 'x-safari-https://' + noPrefix;
+
+  function openExternal() {
+    if (isAndroid) location.href = androidIntent;
+    else if (isIOS) location.href = iosSafari;
+    else location.href = url;
+  }
+  document.getElementById('btnExternal').addEventListener('click', openExternal);
+
+  // Android 自動嘗試一次（有 fallback，不會壞）；iPhone 不自動，避免跳出錯誤頁
+  if (isAndroid) setTimeout(openExternal, 400);
+
+  // 複製連結
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(function () { t.classList.remove('show'); }, 2200);
+  }
+  function fallbackCopy() {
+    var ta = document.createElement('textarea');
+    ta.value = url; ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, url.length);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    toast(ok ? '已複製，請貼到 Safari / Chrome 網址列' : '請長按下方網址手動複製');
+  }
+  document.getElementById('btnCopy').addEventListener('click', function () {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(url).then(function () {
+        toast('已複製，請貼到 Safari / Chrome 網址列');
+      }, fallbackCopy);
+    } else {
+      fallbackCopy();
+    }
+  });
+})();
+</script>
+</body>
+</html>
