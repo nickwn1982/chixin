@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>管理後台｜巴拿巴宣教學院募款</title>
+<link rel="stylesheet" href="../boothview.css">
 <style>
   :root { --red:#a8321f; --red-d:#7f2416; --cream:#f6f3ee; --ink:#2e2a26; --mute:#7a7168; --line:#ddd2bf; --green:#2f6b4f; --gold:#c8963e; --blue:#2b4a7a; }
   * { box-sizing:border-box; }
@@ -61,12 +62,13 @@
   </section>
 </div>
 
+<script src="../boothview.js"></script>
 <script>
 var API = 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';
 var $ = function (id) { return document.getElementById(id); };
-var TABS = [['vendors', '廠商'], ['products', '商品對照'], ['members', '同學通知'], ['settings', '通知設定與紀錄']];
+var TABS = [['boards', '各攤與總覽'], ['vendors', '廠商'], ['products', '商品與成本'], ['members', '同學通知'], ['booths', '各攤權限'], ['settings', '通知設定與紀錄']];
 var TYPES = { deadline: '截止提醒', final: '最終出貨單', payment: '收款提醒' };
-var S = { code: '', d: null, tab: 'vendors', busy: false };
+var S = { code: '', d: null, tab: 'boards', busy: false, boards: null, bsel: 'total' };
 
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function api(body) {
@@ -108,7 +110,7 @@ function render() {
     (st.lastWarn ? '<div class="msg warn">' + esc(st.lastWarn) + '</div>' : '') +
     '<button class="btn o" id="reload">重新整理</button>';
   $('tabs').innerHTML = TABS.map(function (t) { return '<button type="button" data-tab="' + t[0] + '" aria-selected="' + (S.tab === t[0]) + '">' + t[1] + '</button>'; }).join('');
-  ({ vendors: rVendors, products: rProducts, members: rMembers, settings: rSettings })[S.tab]();
+  ({ boards: rBoards, vendors: rVendors, products: rProducts, members: rMembers, booths: rBooths, settings: rSettings })[S.tab]();
 }
 
 function ownerOptions(sel) {
@@ -135,14 +137,45 @@ function rVendors() {
 function rProducts() {
   var vs = S.d.vendors.map(function (v) { return v.name; });
   var unm = S.d.products.filter(function (p) { return !p.vendor; }).length;
-  var h = '<div class="card"><h2>商品對照廠商</h2><div class="hint">系統自動列出三攤所有上架商品。<b style="color:#b00">紅底</b>＝還沒對照到廠商（該品項不會通知任何廠商）；<b style="color:#8a6a00">金框</b>＝系統依分類預設的建議，按「儲存」後才正式生效。新商品上架後會自動出現在這裡。</div>' +
-    (unm ? '<div class="msg err">有 ' + unm + ' 項商品尚未對照廠商</div>' : '') + '<div class="scroll"><table><tr><th>攤位</th><th>代碼</th><th>品名／規格</th><th>廠商</th></tr>';
+  var h = '<div class="card"><h2>商品：廠商、接洽組、對接同學、成本</h2><div class="hint">系統自動列出三攤所有上架商品。<b style="color:#b00">紅底</b>＝還沒對照到廠商；<b style="color:#8a6a00">金框</b>＝系統依分類預設的建議，按「儲存」後才生效。<br>「接洽組」＝由哪一組負責接洽（利潤歸該組）；「對接同學」＝該商品的對接窗口，會一併收到該商品的新單通知，並在廠商專區看到該商品；「成本」＝單價成本（只有組長與統籌看得到，沒填就不算利潤）。</div>' +
+    (unm ? '<div class="msg err">有 ' + unm + ' 項商品尚未對照廠商</div>' : '') + '<div class="scroll"><table><tr><th>攤位</th><th>代碼</th><th>品名／規格</th><th>廠商</th><th>接洽組</th><th>對接同學</th><th>成本</th></tr>';
   S.d.products.forEach(function (p, i) {
-    h += '<tr class="' + (p.vendor ? (p.auto ? 'auto' : '') : 'unm') + '"><td>' + esc(p.stallName) + '</td><td>' + esc(p.code) + '</td><td>' + esc(p.name) + (p.spec ? '（' + esc(p.spec) + '）' : '') + '</td>' +
-      '<td class="v"><select data-sec="products" data-i="' + i + '" data-k="vendor"><option value="">（未對照）</option>' + vs.map(function (v) { return '<option' + (v === p.vendor ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('') + '</select></td></tr>';
+    h += '<tr class="' + (p.vendor ? (p.auto ? 'auto' : '') : 'unm') + '"><td>' + esc(p.stallName) + '</td><td>' + esc(p.code) + '</td><td>' + esc(p.name) + (p.spec ? '（' + esc(p.spec) + '）' : '') + '<div class="hint">售價 ' + esc(p.price) + '</div></td>' +
+      '<td class="v"><select data-sec="products" data-i="' + i + '" data-k="vendor"><option value="">（未對照）</option>' + vs.map(function (v) { return '<option' + (v === p.vendor ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('') + '</select></td>' +
+      '<td><select data-sec="products" data-i="' + i + '" data-k="booth">' + ['s1', 's2', 's3'].map(function (b) { return '<option value="' + b + '"' + (b === p.booth ? ' selected' : '') + '>第' + b.slice(1) + '攤</option>'; }).join('') + '</select></td>' +
+      '<td><select data-sec="products" data-i="' + i + '" data-k="liaison">' + ownerOptions(p.liaison).replace('（未指定）', '（無）') + '</select></td>' +
+      '<td><input type="number" min="0" step="1" style="width:84px" data-sec="products" data-i="' + i + '" data-k="cost" value="' + esc(p.cost) + '"></td></tr>';
   });
-  h += '</table></div><button class="btn g" data-save="products">儲存商品對照</button></div>';
+  h += '</table></div><button class="btn g" data-save="products">儲存商品設定</button></div>';
   $('body').innerHTML = h;
+}
+
+function rBooths() {
+  var h = '<div class="card"><h2>各攤管理權限</h2><div class="hint">這裡設定誰能進「各攤管理」頁（/booth/，用個人通關碼）。<b>檢視</b>＝只能看；<b>編輯</b>＝還能修改本組接洽商品的廠商、對接同學、成本，以及本組專屬廠商的 email。統籌（您）永遠能在這個後台看全部。</div><div class="scroll"><table><tr><th>攤位</th><th>同學</th><th>角色</th><th></th></tr>';
+  S.d.booths.forEach(function (b, i) {
+    h += '<tr><td><select data-sec="booths" data-i="' + i + '" data-k="booth">' + ['s1', 's2', 's3'].map(function (k) { return '<option value="' + k + '"' + (k === b.booth ? ' selected' : '') + '>第' + k.slice(1) + '攤</option>'; }).join('') + '</select></td>' +
+      '<td><select data-sec="booths" data-i="' + i + '" data-k="name">' + ownerOptions(b.name) + '</select></td>' +
+      '<td><select data-sec="booths" data-i="' + i + '" data-k="role"><option value="view"' + (b.role === 'view' ? ' selected' : '') + '>檢視</option><option value="edit"' + (b.role === 'edit' ? ' selected' : '') + '>編輯</option></select></td>' +
+      '<td><button class="btn r" style="margin:0;padding:6px 10px" data-del="booths" data-i="' + i + '">刪</button></td></tr>';
+  });
+  h += '</table></div><button class="btn o" data-add="booths">＋新增</button><button class="btn g" data-save="booths">儲存各攤權限</button></div>';
+  $('body').innerHTML = h;
+}
+
+function rBoards() {
+  $('body').innerHTML = '<div class="card"><h2>各攤與三攤總覽</h2><div id="bsw"></div><div id="bview"><div class="hint">載入中…（需要讀取三份訂單表，約數秒）</div></div></div>';
+  function draw() {
+    var B = S.boards, opts = [['total', '三攤合計']].concat(B.booths.map(function (b) { return [b.booth, '第' + b.booth.slice(1) + '攤']; }));
+    $('bsw').innerHTML = '<div class="tabs" style="margin-top:0">' + opts.map(function (o) { return '<button type="button" data-bsel="' + o[0] + '" aria-selected="' + (S.bsel === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>';
+    var P = S.bsel === 'total' ? B.total : B.booths.filter(function (b) { return b.booth === S.bsel; })[0];
+    $('bview').innerHTML = '<h3 style="margin:10px 0 0">' + esc(P.label) + '</h3><div id="bvroot"></div>';
+    BoothView.render(P, $('bvroot'));
+  }
+  if (S.boards) { draw(); return; }
+  api({ action: 'adminBoards' }).then(function (r) {
+    if (!r || !r.ok) { $('bview').innerHTML = '<div class="msg err">' + esc((r && r.error) || '載入失敗') + '</div>'; return; }
+    S.boards = r; if (S.tab === 'boards') draw();
+  })['catch'](function () { $('bview').innerHTML = '<div class="msg err">網路不穩，請按上方「重新整理」再試</div>'; });
 }
 
 function rMembers() {
@@ -188,7 +221,8 @@ function collect(sec) {
   var d = S.d;
   if (sec === 'vendors') return d.vendors;
   if (sec === 'members') return d.members;
-  if (sec === 'products') return d.products.map(function (p) { return { stall: p.stall, code: p.code, name: p.name, spec: p.spec, vendor: p.vendor }; });
+  if (sec === 'products') return d.products.map(function (p) { return { stall: p.stall, code: p.code, name: p.name, spec: p.spec, vendor: p.vendor, booth: p.booth, liaison: p.liaison, cost: p.cost }; });
+  if (sec === 'booths') return d.booths;
   if (sec === 'reminders') return d.reminders;
   if (sec === 'settings') return [{ interval: $('s_interval').value, hour: $('s_hour').value, adminEmail: $('s_admin').value.trim() }];
 }
@@ -202,7 +236,7 @@ function save(sec) {
   flash('儲存中…', 'warn');
   api({ action: 'adminSave', section: sec, rows: rows }).then(function (r) {
     if (!r || !r.ok) { flash((r && r.error) || '儲存失敗', 'err'); return; }
-    reload('已儲存 ✓');
+    S.boards = null; reload('已儲存 ✓');
   })['catch'](function () { flash('網路不穩，請稍後確認是否已儲存', 'err'); });
 }
 function act(name) {
@@ -234,11 +268,13 @@ function edit(t) {
 document.addEventListener('click', function (ev) {
   var e = ev.target;
   var tb = e.closest('[data-tab]'); if (tb) { S.tab = tb.dataset.tab; flash(''); render(); return; }
-  if (e.id === 'reload') { reload(); return; }
+  var bs = e.closest('[data-bsel]'); if (bs) { S.bsel = bs.dataset.bsel; rBoards(); return; }
+  if (e.id === 'reload') { S.boards = null; reload(); return; }
   var sv = e.closest('[data-save]'); if (sv) { save(sv.dataset.save); return; }
   var ac = e.closest('[data-act]'); if (ac) { act(ac.dataset.act); return; }
   var ad = e.closest('[data-add]'); if (ad) {
     if (ad.dataset.add === 'vendors') S.d.vendors.push({ name: '新廠商', owner: '', email: '', enabled: true, note: '' });
+    else if (ad.dataset.add === 'booths') S.d.booths.push({ booth: 's1', name: '', role: 'view' });
     else S.d.reminders.push({ date: '', type: 'deadline', desc: '', enabled: true });
     render(); return;
   }
