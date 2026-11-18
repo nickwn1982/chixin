@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>廠商專區｜巴拿巴宣教學院募款</title>
+<style>
+  :root { --red:#a8321f; --red-d:#7f2416; --cream:#fbf6ec; --ink:#2e2a26; --mute:#7a7168; --line:#e4d8c4; --green:#2f6b4f; --gold:#c8963e; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--cream); color:var(--ink); font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif; font-size:18px; line-height:1.6; }
+  .wrap { max-width:600px; margin:0 auto; padding:0 16px 48px; }
+  header { background:var(--green); color:#fff; padding:20px 16px 16px; text-align:center; border-bottom:5px solid var(--gold); }
+  header .sub { font-size:14px; opacity:.92; letter-spacing:.08em; }
+  header h1 { margin:4px 0 0; font-size:24px; line-height:1.3; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; margin-top:14px; }
+  .card h2 { font-size:18px; margin:0 0 10px; color:var(--red-d); }
+  label.f { display:block; font-weight:700; margin:12px 0 4px; }
+  label.f:first-of-type { margin-top:0; }
+  label.f small { font-weight:400; color:var(--mute); }
+  input[type=password], select { width:100%; font:inherit; padding:12px; border:2px solid var(--line); border-radius:10px; background:#fff; color:var(--ink); }
+  input:focus, select:focus, button:focus-visible, a:focus-visible { outline:3px solid #e9b949; outline-offset:1px; }
+  .btn { display:block; width:100%; font:inherit; font-size:20px; font-weight:700; padding:14px; border:0; border-radius:12px; background:var(--red); color:#fff; cursor:pointer; margin-top:16px; text-align:center; text-decoration:none; }
+  .btn:disabled { opacity:.55; }
+  .btn.ghost { background:#fff; color:var(--green); border:2px solid var(--green); }
+  .btn.small { font-size:16px; padding:9px 12px; margin-top:8px; display:inline-block; width:auto; }
+  .err { background:#fdecea; border:2px solid #e2a79e; color:#8a1f10; border-radius:10px; padding:10px 14px; margin-top:12px; font-weight:700; }
+  .chk { display:flex; align-items:center; gap:8px; margin-top:12px; font-size:16px; color:var(--mute); }
+  .chk input { width:22px; height:22px; accent-color:var(--red); }
+  .hint { font-size:14px; color:var(--mute); }
+  .hello { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .hello b { font-size:21px; }
+  .link { background:none; border:0; color:var(--mute); text-decoration:underline; font:inherit; font-size:15px; cursor:pointer; padding:6px; }
+  .tabs { display:flex; gap:6px; margin-top:14px; flex-wrap:wrap; }
+  .tabs button { flex:1; min-width:120px; font:inherit; font-size:16px; font-weight:700; padding:10px 6px; border:2px solid var(--line); border-radius:12px; background:#fff; color:var(--mute); cursor:pointer; line-height:1.3; }
+  .tabs button[aria-selected=true] { border-color:var(--green); color:var(--green); background:#eef7f1; }
+  table { width:100%; border-collapse:collapse; font-size:16px; }
+  th, td { text-align:left; padding:7px 4px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--mute); font-size:13px; font-weight:400; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  tr.sum td { font-weight:700; border-bottom:0; color:var(--red-d); }
+  .stall { font-size:12px; color:var(--mute); display:block; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 2px; }
+  .chips button { font:inherit; font-size:14px; padding:4px 12px; border:1.5px solid var(--line); border-radius:99px; background:#fff; color:var(--mute); cursor:pointer; }
+  .chips button[aria-pressed=true] { background:var(--green); border-color:var(--green); color:#fff; }
+  .ord { border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-top:10px; font-size:16px; }
+  .ord.x { opacity:.55; background:#f6f2ea; }
+  .ord .top { display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
+  .ord .top b { font-size:19px; }
+  .ord .amt { font-weight:700; color:var(--red-d); font-size:19px; white-space:nowrap; }
+  .ord .meta { color:var(--mute); font-size:14px; }
+  .ord a.tel { color:var(--green); font-weight:700; }
+  .tag { display:inline-block; font-size:13px; border-radius:99px; padding:1px 10px; margin:6px 4px 0 0; background:#eee; color:#555; }
+  .tag.ok { background:#dcefe2; color:#17472f; } .tag.no { background:#fde3e3; color:#8a1c1c; }
+  .loading { text-align:center; padding:36px 0; color:var(--mute); }
+  .spin { width:36px; height:36px; margin:0 auto 10px; border:4px solid var(--line); border-top-color:var(--green); border-radius:50%; animation:sp .8s linear infinite; }
+  @keyframes sp { to { transform:rotate(360deg); } }
+  [hidden] { display:none !important; }
+  footer { text-align:center; color:var(--mute); font-size:13px; margin-top:22px; }
+  @media print { header, .tabs, .chips, .btn, .link, footer, #orders { display:none !important; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="sub">巴拿巴宣教學院・國際志工募款</div>
+  <h1>廠商專區</h1>
+</header>
+<div class="wrap">
+  <section id="vLoading" class="loading"><div class="spin"></div><div>載入中…</div></section>
+  <section id="vFail" class="card" hidden><h2>連不上系統</h2><p>可能是網路不太穩，請再試一次。</p><button type="button" class="btn" id="retry">重新載入</button></section>
+
+  <section id="vLogin" class="card" hidden>
+    <h2>廠商負責人｜登入</h2>
+    <label class="f" for="who">我的名字</label>
+    <select id="who"></select>
+    <label class="f" for="code">我的通關碼 <small>（與「我的預購總覽」同一組）</small></label>
+    <input type="password" id="code" inputmode="numeric" autocomplete="off" maxlength="12">
+    <label class="chk"><input type="checkbox" id="remember"> 記住這支手機（下次免輸入）</label>
+    <div class="err" id="err" hidden role="alert"></div>
+    <button type="button" class="btn" id="go">進入廠商專區</button>
+  </section>
+
+  <section id="vMain" hidden>
+    <div class="card">
+      <div class="hello"><div><b id="hName"></b><div class="hint" id="hUpd"></div></div>
+        <button type="button" class="link" id="logout">登出</button></div>
+      <button type="button" class="btn ghost small" id="refresh">重新整理</button>
+      <a class="btn ghost small" href="../my/">我的預購總覽</a>
+    </div>
+    <div id="none" class="card" hidden><h2>目前沒有指派廠商</h2><p>您還不是任何廠商的負責人。如需負責廠商，請聯絡統籌溫國政。</p></div>
+    <div class="tabs" id="tabs" role="tablist"></div>
+    <div class="card" id="ship"></div>
+    <div class="card" id="orders"></div>
+  </section>
+  <footer>內含買家個資，請勿外流。出貨單只計算「有效」訂單。</footer>
+</div>
+
+<script>
+var API = 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';
+var $ = function (id) { return document.getElementById(id); };
+var S = { data: null, tab: 0, filter: 'all', sending: false };
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function money(n) { return '$' + String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function show(id) { ['vLoading', 'vFail', 'vLogin', 'vMain'].forEach(function (v) { $(v).hidden = v !== id; }); window.scrollTo(0, 0); }
+function store(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function api(body) {
+  var ctl = window.AbortController ? new AbortController() : null;
+  var timer = ctl ? setTimeout(function () { ctl.abort(); }, 60000) : 0;
+  return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body),
+    credentials: 'omit', redirect: 'follow', cache: 'no-store', signal: ctl ? ctl.signal : undefined })
+    .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }, function (e) { clearTimeout(timer); throw e; });
+}
+function showErr(m) { var el = $('err'); el.textContent = m || ''; el.hidden = !m; }
+
+function start() {
+  show('vLoading');
+  api({ action: 'names' }).then(function (r) {
+    if (!r || !r.ok) throw new Error('names');
+    var saved = load('nm');
+    $('who').innerHTML = '<option value="">請選擇自己的名字</option>' + r.names.map(function (n) { return '<option>' + esc(n.name) + '</option>'; }).join('');
+    if (saved) $('who').value = saved;
+    var savedCode = load('cd');
+    if (savedCode && saved) { $('code').value = savedCode; $('remember').checked = true; login(true); return; }
+    show('vLogin');
+  })['catch'](function (e) { if (window.console) console.error(e); show('vFail'); });
+}
+function login(auto) {
+  var name = $('who').value, code = $('code').value.trim();
+  if (!name || !code) { showErr('請選擇名字並輸入通關碼'); show('vLogin'); return; }
+  if (S.sending) return; S.sending = true; showErr('');
+  $('go').disabled = true; $('go').textContent = '載入中…';
+  if (auto) show('vLoading');
+  api({ action: 'vendor', name: name, code: code }).then(function (r) {
+    S.sending = false; $('go').disabled = false; $('go').textContent = '進入廠商專區';
+    if (!r || !r.ok) { if (auto) store('cd', null); showErr((r && r.error) || '查詢失敗，請再試一次'); show('vLogin'); return; }
+    if ($('remember').checked) { store('nm', name); store('cd', code); }
+    S.data = r; S.tab = 0; S.filter = 'all'; render(); show('vMain');
+  })['catch'](function (e) {
+    S.sending = false; $('go').disabled = false; $('go').textContent = '進入廠商專區';
+    if (window.console) console.error(e); showErr('網路好像不太穩，請再按一次'); show('vLogin');
+  });
+}
+function render() {
+  var d = S.data;
+  $('hName').textContent = d.name + '（廠商負責人）'; $('hUpd').textContent = '資料時間 ' + d.updated;
+  var none = !d.vendors.length;
+  $('none').hidden = !none; $('ship').hidden = none; $('orders').hidden = none; $('tabs').hidden = none || d.vendors.length < 2;
+  if (none) return;
+  if (S.tab >= d.vendors.length) S.tab = 0;
+  $('tabs').innerHTML = d.vendors.map(function (v, i) { return '<button type="button" role="tab" data-t="' + i + '" aria-selected="' + (i === S.tab) + '">' + esc(v.name) + '</button>'; }).join('');
+  renderShip(); renderOrders();
+}
+function renderShip() {
+  var v = S.data.vendors[S.tab], t = v.totals;
+  var h = '<h2>出貨單｜' + esc(v.name) + '</h2><div class="hint">跨三攤合計，只算有效訂單' + (v.note ? '｜' + esc(v.note) : '') + '</div>';
+  if (!t.items.length) h += '<p>目前還沒有訂單。</p>';
+  else {
+    h += '<table><tr><th>品項</th><th class="n">數量</th><th class="n">金額</th></tr>';
+    t.items.forEach(function (i) { h += '<tr><td>' + esc(i.name) + (i.spec ? '（' + esc(i.spec) + '）' : '') + '<span class="stall">' + esc(i.stallName) + '・' + esc(i.code) + '</span></td><td class="n">' + i.qty + '</td><td class="n">' + money(i.amount) + '</td></tr>'; });
+    h += '<tr class="sum"><td>合計</td><td class="n">' + t.totalQty + '</td><td class="n">' + money(t.totalAmount) + '</td></tr></table>';
+  }
+  $('ship').innerHTML = h;
+}
+function renderOrders() {
+  var v = S.data.vendors[S.tab], f = S.filter;
+  var cnt = v.orders.filter(function (o) { return o.cancelled; }).length;
+  var list = v.orders.filter(function (o) {
+    if (f === 'all') return !o.cancelled;
+    if (f === 'unpaid') return !o.cancelled && !o.paid;
+    if (f === 'pending') return !o.cancelled && !o.delivered;
+    if (f === 'cancel') return o.cancelled;
+    return true;
+  });
+  var h = '<h2>訂單明細</h2><div class="chips">' + [['all', '全部'], ['unpaid', '未收款'], ['pending', '待交貨'], ['cancel', '已取消 (' + cnt + ')']].map(function (c) {
+    return '<button type="button" data-f="' + c[0] + '" aria-pressed="' + (f === c[0]) + '">' + c[1] + '</button>'; }).join('') + '</div>';
+  if (!list.length) h += '<p class="hint" style="margin-top:12px">這個分類目前沒有訂單。</p>';
+  list.forEach(function (o) {
+    h += '<div class="ord' + (o.cancelled ? ' x' : '') + '"><div class="top"><b>' + esc(o.buyer) + '</b><span class="amt">' + money(o.vendorAmount) + '</span></div>' +
+      '<div class="meta">' + (o.phone ? '<a class="tel" href="tel:' + esc(o.phone) + '">' + esc(o.phone) + '</a>・' : '') + esc(o.id) + '・' + esc(o.time) + '</div>' +
+      '<div class="meta">' + esc(o.stallName) + '｜介紹同學：' + esc(o.seller) + '</div>' +
+      o.lines.map(function (l) { return '<div>' + esc(l.name) + (l.spec ? '（' + esc(l.spec) + '）' : '') + ' × ' + l.qty + '</div>'; }).join('') +
+      (o.note ? '<div class="meta">備註：' + esc(o.note) + '</div>' : '') +
+      (o.cancelled ? '<span class="tag no">已取消</span>' : '<span class="tag ' + (o.paid ? 'ok">已收款' : 'no">未收款') + '</span><span class="tag ' + (o.delivered ? 'ok">已交貨' : '">待交貨') + '</span>') + '</div>';
+  });
+  $('orders').innerHTML = h;
+}
+document.addEventListener('click', function (ev) {
+  var t = ev.target.closest('[data-t]'); if (t) { S.tab = +t.dataset.t; S.filter = 'all'; render(); return; }
+  var f = ev.target.closest('[data-f]'); if (f) { S.filter = f.dataset.f; renderOrders(); }
+});
+$('go').addEventListener('click', function () { login(false); });
+$('code').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(false); });
+$('refresh').addEventListener('click', function () { $('remember').checked = !!load('cd'); login(true); });
+$('logout').addEventListener('click', function () { store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
+$('retry').addEventListener('click', start);
+start();
+</script>
+</body>
+</html>
