@@ -85,7 +85,7 @@
       <div class="hello"><div><b id="hName"></b><div class="hint" id="hUpd"></div></div>
         <button type="button" class="link" id="logout">登出</button></div>
       <button type="button" class="btn ghost small" id="refresh">重新整理</button>
-      <a class="btn ghost small" href="../my/">我的預購總覽</a>
+      <a class="btn ghost small" href="../my/">回我的入口</a>
     </div>
     <div id="none" class="card" hidden><h2>目前沒有指派廠商</h2><p>您還不是任何廠商的負責人。如需負責廠商，請聯絡統籌溫國政。</p></div>
     <div class="tabs" id="tabs" role="tablist"></div>
@@ -103,7 +103,8 @@ function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function
 function money(n) { return '$' + String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 function show(id) { ['vLoading', 'vFail', 'vLogin', 'vMain'].forEach(function (v) { $(v).hidden = v !== id; }); window.scrollTo(0, 0); }
 function store(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
-function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function load(k) { try { return localStorage.getItem(k) || sessionStorage.getItem(k); } catch (e) { return null; } }
+function persisted() { try { return !!localStorage.getItem('cd'); } catch (e) { return false; } }
 function api(body) {
   var ctl = window.AbortController ? new AbortController() : null;
   var timer = ctl ? setTimeout(function () { ctl.abort(); }, 60000) : 0;
@@ -126,7 +127,7 @@ function start() {
     pick = pick || saved || '';
     if (pick) $('who').value = pick;
     var savedCode = load('cd');
-    if (savedCode && saved && (!pick || pick === saved)) { $('code').value = savedCode; $('remember').checked = true; login(true); return; }
+    if (savedCode && saved && (!pick || pick === saved)) { $('code').value = savedCode; $('remember').checked = persisted(); login(true); return; }
     show('vLogin');
   })['catch'](function (e) { if (window.console) console.error(e); show('vFail'); });
 }
@@ -196,8 +197,8 @@ document.addEventListener('click', function (ev) {
 });
 $('go').addEventListener('click', function () { login(false); });
 $('code').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(false); });
-$('refresh').addEventListener('click', function () { $('remember').checked = !!load('cd'); login(true); });
-$('logout').addEventListener('click', function () { store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
+$('refresh').addEventListener('click', function () { $('remember').checked = persisted(); login(true); });
+$('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); } catch (e) {} store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
 $('retry').addEventListener('click', start);
 start();
 </script>
