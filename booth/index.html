@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>各攤管理｜巴拿巴宣教學院募款</title>
+<link rel="stylesheet" href="../boothview.css">
+<style>
+  :root { --red:#a8321f; --red-d:#7f2416; --cream:#fbf6ec; --ink:#2e2a26; --mute:#7a7168; --line:#e4d8c4; --green:#2f6b4f; --gold:#c8963e; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--cream); color:var(--ink); font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif; font-size:17px; line-height:1.6; }
+  .wrap { max-width:640px; margin:0 auto; padding:0 14px 48px; }
+  header { background:#7f2416; color:#fff; padding:18px 16px 14px; text-align:center; border-bottom:5px solid var(--gold); }
+  header .sub { font-size:14px; opacity:.92; letter-spacing:.08em; }
+  header h1 { margin:4px 0 0; font-size:23px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px; margin-top:14px; }
+  .card h2 { font-size:18px; margin:0 0 8px; color:var(--red-d); }
+  label.f { display:block; font-weight:700; margin:12px 0 4px; }
+  label.f:first-of-type { margin-top:0; }
+  label.f small { font-weight:400; color:var(--mute); }
+  input[type=password], input[type=text], input[type=email], input[type=number], select { width:100%; font:inherit; padding:10px; border:2px solid var(--line); border-radius:10px; background:#fff; color:var(--ink); }
+  input:focus, select:focus, button:focus-visible, a:focus-visible { outline:3px solid #e9b949; outline-offset:1px; }
+  .btn { display:block; width:100%; font:inherit; font-size:19px; font-weight:700; padding:13px; border:0; border-radius:12px; background:var(--red); color:#fff; cursor:pointer; margin-top:14px; text-align:center; text-decoration:none; }
+  .btn:disabled { opacity:.55; }
+  .btn.ghost { background:#fff; color:var(--green); border:2px solid var(--green); }
+  .btn.small { font-size:15px; padding:8px 12px; margin-top:8px; display:inline-block; width:auto; }
+  .err { background:#fdecea; border:2px solid #e2a79e; color:#8a1f10; border-radius:10px; padding:10px 14px; margin-top:12px; font-weight:700; }
+  .ok { background:#dcefe2; color:#17472f; border-radius:10px; padding:10px 14px; margin-top:12px; font-weight:700; }
+  .chk { display:flex; align-items:center; gap:8px; margin-top:12px; font-size:16px; color:var(--mute); }
+  .chk input { width:22px; height:22px; accent-color:var(--red); }
+  .hint { font-size:14px; color:var(--mute); }
+  .hello { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .hello b { font-size:20px; }
+  .link { background:none; border:0; color:var(--mute); text-decoration:underline; font:inherit; font-size:15px; cursor:pointer; padding:6px; }
+  .btabs { display:flex; gap:6px; margin-top:14px; flex-wrap:wrap; }
+  .btabs button { flex:1; min-width:140px; font:inherit; font-weight:700; padding:10px 6px; border:2px solid var(--line); border-radius:12px; background:#fff; color:var(--mute); cursor:pointer; }
+  .btabs button[aria-selected=true] { border-color:var(--red); color:var(--red-d); background:#fff4f0; }
+  .ed table { width:100%; border-collapse:collapse; font-size:15px; }
+  .ed th, .ed td { text-align:left; padding:6px 3px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  .ed th { font-size:12px; color:var(--mute); font-weight:400; }
+  .ed .scroll { overflow-x:auto; } .ed .scroll table { min-width:480px; }
+  .ed input[type=checkbox] { width:22px; height:22px; }
+  .loading { text-align:center; padding:36px 0; color:var(--mute); }
+  .spin { width:36px; height:36px; margin:0 auto 10px; border:4px solid var(--line); border-top-color:var(--red); border-radius:50%; animation:sp .8s linear infinite; }
+  @keyframes sp { to { transform:rotate(360deg); } }
+  [hidden] { display:none !important; }
+  footer { text-align:center; color:var(--mute); font-size:13px; margin-top:22px; }
+</style>
+</head>
+<body>
+<header><div class="sub">巴拿巴宣教學院・國際志工募款</div><h1>各攤管理（組長專用）</h1></header>
+<div class="wrap">
+  <section id="vLoading" class="loading"><div class="spin"></div><div>載入中…</div></section>
+  <section id="vFail" class="card" hidden><h2>連不上系統</h2><p>可能是網路不太穩，請再試一次。</p><button type="button" class="btn" id="retry">重新載入</button></section>
+  <section id="vLogin" class="card" hidden>
+    <h2>組長登入</h2>
+    <label class="f" for="who">我的名字</label><select id="who"></select>
+    <label class="f" for="code">我的通關碼 <small>（與「我的預購總覽」同一組）</small></label>
+    <input type="password" id="code" inputmode="numeric" autocomplete="off" maxlength="12">
+    <label class="chk"><input type="checkbox" id="remember"> 記住這支手機（下次免輸入）</label>
+    <div class="err" id="err" hidden role="alert"></div>
+    <button type="button" class="btn" id="go">進入各攤管理</button>
+  </section>
+  <section id="vMain" hidden>
+    <div class="card">
+      <div class="hello"><div><b id="hName"></b><div class="hint" id="hUpd"></div></div><button type="button" class="link" id="logout">登出</button></div>
+      <button type="button" class="btn ghost small" id="refresh">重新整理</button>
+      <a class="btn ghost small" href="../my/">我的預購總覽</a>
+    </div>
+    <div id="none" class="card" hidden><h2>您目前沒有各攤管理權限</h2><p>如需權限，請聯絡統籌溫國政。</p></div>
+    <div class="btabs" id="btabs"></div>
+    <div class="card" id="view"></div>
+  </section>
+  <footer>含成本與利潤資料，僅供組長查看，請勿外流。</footer>
+</div>
+<script src="../boothview.js"></script>
+<script>
+var API = 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';
+var $ = function (id) { return document.getElementById(id); };
+var esc = BoothView.esc;
+var S = { data: null, i: 0, sending: false, name: '', code: '' };
+function show(id) { ['vLoading', 'vFail', 'vLogin', 'vMain'].forEach(function (v) { $(v).hidden = v !== id; }); window.scrollTo(0, 0); }
+function store(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function api(body) {
+  var ctl = window.AbortController ? new AbortController() : null;
+  var timer = ctl ? setTimeout(function () { ctl.abort(); }, 60000) : 0;
+  return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body), credentials: 'omit', redirect: 'follow', cache: 'no-store', signal: ctl ? ctl.signal : undefined })
+    .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }, function (e) { clearTimeout(timer); throw e; });
+}
+function showErr(m) { var el = $('err'); el.textContent = m || ''; el.hidden = !m; }
+
+function start() {
+  show('vLoading');
+  api({ action: 'names' }).then(function (r) {
+    if (!r || !r.ok) throw new Error('names');
+    var saved = load('nm');
+    $('who').innerHTML = '<option value="">請選擇自己的名字</option>' + r.names.map(function (n) { return '<option>' + esc(n.name) + '</option>'; }).join('');
+    if (saved) $('who').value = saved;
+    var sc = load('cd');
+    if (sc && saved) { $('code').value = sc; $('remember').checked = true; login(true); return; }
+    show('vLogin');
+  })['catch'](function (e) { if (window.console) console.error(e); show('vFail'); });
+}
+function login(auto) {
+  var name = $('who').value, code = $('code').value.trim();
+  if (!name || !code) { showErr('請選擇名字並輸入通關碼'); show('vLogin'); return; }
+  if (S.sending) return; S.sending = true; showErr('');
+  $('go').disabled = true; $('go').textContent = '載入中…';
+  if (auto) show('vLoading');
+  api({ action: 'booth', name: name, code: code }).then(function (r) {
+    S.sending = false; $('go').disabled = false; $('go').textContent = '進入各攤管理';
+    if (!r || !r.ok) { if (auto) store('cd', null); showErr((r && r.error) || '查詢失敗，請再試一次'); show('vLogin'); return; }
+    if ($('remember').checked) { store('nm', name); store('cd', code); }
+    S.name = name; S.code = code; S.data = r; if (S.i >= r.booths.length) S.i = 0; render(); show('vMain');
+  })['catch'](function (e) {
+    S.sending = false; $('go').disabled = false; $('go').textContent = '進入各攤管理';
+    if (window.console) console.error(e); showErr('網路好像不太穩，請再按一次'); show('vLogin');
+  });
+}
+function render() {
+  var d = S.data;
+  $('hName').textContent = d.name; $('hUpd').textContent = '資料時間 ' + d.updated;
+  var none = !d.booths.length;
+  $('none').hidden = !none; $('view').hidden = none; $('btabs').hidden = d.booths.length < 2;
+  if (none) return;
+  $('btabs').innerHTML = d.booths.map(function (b, i) { return '<button type="button" data-b="' + i + '" aria-selected="' + (i === S.i) + '">' + esc(b.label) + '</button>'; }).join('');
+  var P = d.booths[S.i];
+  var opts = {};
+  if (P.role === 'edit') opts.extraTabs = [{ key: 'ed', label: '編輯', render: function (el) { renderEdit(P, el); } }];
+  var h = '<h2>' + esc(P.label) + '<span class="hint">　' + (P.role === 'edit' ? '（可編輯）' : '（僅檢視）') + '</span></h2><div id="bvroot"></div>';
+  $('view').innerHTML = h;
+  BoothView.render(P, $('bvroot'), opts);
+}
+
+function sel(opts, cur, attrs) {
+  return '<select ' + attrs + '><option value="">（無）</option>' + opts.map(function (o) { return '<option' + (o === cur ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select>';
+}
+function renderEdit(P, el) {
+  var E = P.edit;
+  var h = '<div class="ed"><p class="hint">只能修改「本組接洽」的商品。成本只有組長看得到。改完按該區的儲存。</p><h3>商品：廠商／對接同學／成本</h3><div class="scroll"><table><tr><th>商品</th><th>廠商</th><th>對接同學</th><th>成本(單價)</th></tr>';
+  E.products.forEach(function (p, i) {
+    h += '<tr><td>' + esc(p.name) + (p.spec ? '（' + esc(p.spec) + '）' : '') + '<div class="hint">' + esc(p.code) + '</div></td>' +
+      '<td>' + sel(E.vendorNames, p.vendor, 'data-e="p" data-i="' + i + '" data-k="vendor"') + '</td>' +
+      '<td>' + sel(E.memberNames, p.liaison, 'data-e="p" data-i="' + i + '" data-k="liaison"') + '</td>' +
+      '<td><input type="number" min="0" step="1" inputmode="numeric" data-e="p" data-i="' + i + '" data-k="cost" value="' + esc(p.cost) + '"></td></tr>';
+  });
+  h += '</table></div><button type="button" class="btn small" data-save="products">儲存商品設定</button>';
+  if (E.vendors.length) {
+    h += '<h3>本組專屬廠商：通知 email</h3><div class="scroll"><table><tr><th>廠商</th><th>負責人</th><th>Email</th><th>通知</th></tr>';
+    E.vendors.forEach(function (v, i) {
+      h += '<tr><td>' + esc(v.name) + '</td><td>' + esc(v.owner || '—') + '</td><td><input type="email" data-e="v" data-i="' + i + '" data-k="email" value="' + esc(v.email) + '"></td><td><input type="checkbox" data-e="v" data-i="' + i + '" data-k="enabled"' + (v.enabled ? ' checked' : '') + '></td></tr>';
+    });
+    h += '</table></div><button type="button" class="btn small" data-save="vendors">儲存廠商 email</button><p class="hint">跨兩攤共用的廠商（例如永生花）請聯絡統籌修改。</p>';
+  }
+  h += '<div id="edmsg"></div></div>';
+  el.innerHTML = h;
+  el.oninput = el.onchange = function (ev) {
+    var t = ev.target, k = t.getAttribute('data-e'); if (!k) return;
+    var row = (k === 'p' ? E.products : E.vendors)[+t.getAttribute('data-i')], key = t.getAttribute('data-k');
+    row[key] = t.type === 'checkbox' ? t.checked : t.value;
+  };
+  el.onclick = function (ev) {
+    var b = ev.target.closest('[data-save]'); if (!b) return;
+    var sec = b.getAttribute('data-save'), msg = el.querySelector('#edmsg');
+    var rows = sec === 'products' ? E.products.map(function (p) { return { stall: p.stall, code: p.code, vendor: p.vendor, liaison: p.liaison, cost: p.cost }; }) : E.vendors.map(function (v) { return { name: v.name, email: v.email, enabled: v.enabled }; });
+    b.disabled = true; msg.innerHTML = '<div class="hint">儲存中…</div>';
+    api({ action: 'boothSave', name: S.name, code: S.code, booth: P.booth, section: sec, rows: rows }).then(function (r) {
+      b.disabled = false;
+      msg.innerHTML = r && r.ok ? '<div class="ok">已儲存 ✓（按「重新整理」會更新數字）</div>' : '<div class="err">' + esc((r && r.error) || '儲存失敗') + '</div>';
+    })['catch'](function () { b.disabled = false; msg.innerHTML = '<div class="err">網路不穩，請稍後再試</div>'; });
+  };
+}
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest('[data-b]'); if (b) { S.i = +b.getAttribute('data-b'); render(); }
+});
+$('go').addEventListener('click', function () { login(false); });
+$('code').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(false); });
+$('refresh').addEventListener('click', function () { $('remember').checked = !!load('cd'); login(true); });
+$('logout').addEventListener('click', function () { store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
+$('retry').addEventListener('click', start);
+start();
+</script>
+</body>
+</html>
