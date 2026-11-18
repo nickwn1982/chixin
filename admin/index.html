@@ -66,7 +66,7 @@
 <script>
 var API = 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';
 var $ = function (id) { return document.getElementById(id); };
-var TABS = [['boards', '各攤與總覽'], ['vendors', '廠商'], ['products', '商品與成本'], ['members', '同學通知'], ['booths', '各攤權限'], ['settings', '通知設定與紀錄']];
+var TABS = [['boards', '各攤與總覽'], ['vendors', '廠商'], ['products', '商品與成本'], ['members', '同學通知'], ['booths', '各攤權限'], ['codes', '同學通關碼'], ['settings', '通知設定與紀錄']];
 var TYPES = { deadline: '截止提醒', final: '最終出貨單', payment: '收款提醒' };
 var S = { code: '', d: null, tab: 'boards', busy: false, boards: null, bsel: 'total' };
 
@@ -110,7 +110,7 @@ function render() {
     (st.lastWarn ? '<div class="msg warn">' + esc(st.lastWarn) + '</div>' : '') +
     '<button class="btn o" id="reload">重新整理</button>';
   $('tabs').innerHTML = TABS.map(function (t) { return '<button type="button" data-tab="' + t[0] + '" aria-selected="' + (S.tab === t[0]) + '">' + t[1] + '</button>'; }).join('');
-  ({ boards: rBoards, vendors: rVendors, products: rProducts, members: rMembers, booths: rBooths, settings: rSettings })[S.tab]();
+  ({ boards: rBoards, vendors: rVendors, products: rProducts, members: rMembers, booths: rBooths, codes: rCodes, settings: rSettings })[S.tab]();
 }
 
 function ownerOptions(sel) {
@@ -160,6 +160,40 @@ function rBooths() {
   });
   h += '</table></div><button class="btn o" data-add="booths">＋新增</button><button class="btn g" data-save="booths">儲存各攤權限</button></div>';
   $('body').innerHTML = h;
+}
+
+function rCodes() {
+  var q = S.codeQ || '';
+  var h = '<div class="card"><h2>同學通關碼：重設／解除鎖定</h2><div class="hint">同學忘記通關碼時，按「重設」會產生新的 6 位數通關碼（也可以自己填一組：6～12 個英文字母或數字）。新通關碼<b>只會顯示這一次</b>，請馬上用 LINE 私訊給本人；舊的立刻失效。同學平常可以自己在「我的入口」頁更改通關碼。輸錯 5 次被鎖住的人，按「解除鎖定」就能馬上再試。</div>' +
+    '<input type="text" id="cq" placeholder="搜尋姓名" value="' + esc(q) + '" style="margin-top:8px">' +
+    '<div id="cres"></div><div class="scroll"><table><tr><th>同學</th><th>自訂新通關碼（可留空）</th><th></th></tr>';
+  S.d.members.forEach(function (m, i) {
+    if (q && m.name.indexOf(q) < 0) return;
+    h += '<tr><td>' + esc(m.name) + '<div class="hint">' + esc(m.booth) + '</div></td>' +
+      '<td><input type="text" id="cc' + i + '" maxlength="12" autocomplete="off" placeholder="留空＝隨機 6 位數"></td>' +
+      '<td><button class="btn r" style="margin:0 6px 0 0;padding:6px 10px" data-reset="' + i + '">重設</button><button class="btn o" style="margin:0;padding:6px 10px" data-unlock="' + i + '">解除鎖定</button></td></tr>';
+  });
+  h += '</table></div></div>';
+  $('body').innerHTML = h;
+  $('cq').addEventListener('input', function () { S.codeQ = $('cq').value.trim(); var p = $('cq').selectionStart; rCodes(); $('cq').focus(); try { $('cq').setSelectionRange(p, p); } catch (e) {} });
+}
+function resetCode(i) {
+  var m = S.d.members[i], nc = ($('cc' + i).value || '').trim();
+  if (nc && !/^[A-Za-z0-9]{6,12}$/.test(nc)) { flash('通關碼請用 6～12 個英文字母或數字', 'err'); return; }
+  if (!confirm('確定重設「' + m.name + '」的通關碼？舊的會立刻失效。')) return;
+  flash('處理中…', 'warn');
+  api({ action: 'adminResetCode', name: m.name, newCode: nc }).then(function (r) {
+    if (!r || !r.ok) { flash((r && r.error) || '重設失敗', 'err'); return; }
+    flash('', 'ok');
+    $('cres').innerHTML = '<div class="msg ok">已重設 <b>' + esc(r.name) + '</b> 的通關碼：<b style="font-size:22px;letter-spacing:2px">' + esc(r.code) + '</b><div class="hint" style="color:inherit;margin-top:6px">只顯示這一次。可貼給本人：<br>' +
+      esc(r.name) + ' 您好，您的通關碼已重設為 ' + esc(r.code) + '。請到 https://nickwn1982.github.io/chixin/my/?s=' + esc(m.slug || '') + ' 登入，登入後可在「帳號設定」改成自己的通關碼。</div></div>';
+    $('cc' + i).value = ''; $('cres').scrollIntoView({ block: 'nearest' });
+  })['catch'](function () { flash('網路不穩，請稍後確認是否已重設', 'err'); });
+}
+function unlockCode(i) {
+  var m = S.d.members[i];
+  api({ action: 'adminUnlock', name: m.name }).then(function (r) { flash(r && r.ok ? '已解除「' + m.name + '」的鎖定 ✓' : ((r && r.error) || '失敗'), r && r.ok ? 'ok' : 'err'); })
+    ['catch'](function () { flash('網路不穩，請稍後再試', 'err'); });
 }
 
 function rBoards() {
@@ -270,6 +304,8 @@ document.addEventListener('click', function (ev) {
   var tb = e.closest('[data-tab]'); if (tb) { S.tab = tb.dataset.tab; flash(''); render(); return; }
   var bs = e.closest('[data-bsel]'); if (bs) { S.bsel = bs.dataset.bsel; rBoards(); return; }
   if (e.id === 'reload') { S.boards = null; reload(); return; }
+  var rs = e.closest('[data-reset]'); if (rs) { resetCode(+rs.dataset.reset); return; }
+  var ul = e.closest('[data-unlock]'); if (ul) { unlockCode(+ul.dataset.unlock); return; }
   var sv = e.closest('[data-save]'); if (sv) { save(sv.dataset.save); return; }
   var ac = e.closest('[data-act]'); if (ac) { act(ac.dataset.act); return; }
   var ad = e.closest('[data-add]'); if (ad) {
