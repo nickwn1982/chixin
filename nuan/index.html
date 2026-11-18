@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>巴拿巴宣教募款｜第2攤 天父的暖暖包 聖誕團購</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="巴拿巴宣教募款｜第2攤 天父的暖暖包 聖誕團購">
+<meta property="og:description" content="一杯咖啡・一份祝福。支持巴拿巴宣教學院 2027 海外短宣，點開即可線上預購。">
+<style>
+  :root { --red:#a4262c; --red-d:#7d1c21; --green:#1f5a3d; --cream:#fbf6ec; --card:#fff; --ink:#2b2520; --mute:#6f665e; --line:#e5dccb; --gold:#c8963e; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--cream); color:var(--ink); font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif; font-size:18px; line-height:1.6; }
+  .wrap { max-width:560px; margin:0 auto; padding:0 16px 48px; }
+  header { background:var(--red); color:#fff; padding:22px 16px 20px; text-align:center; border-bottom:5px solid var(--gold); }
+  header .sub { font-size:15px; opacity:.92; letter-spacing:.08em; }
+  header h1 { margin:4px 0 2px; font-size:27px; line-height:1.3; }
+  header .tag2 { font-size:16px; opacity:.95; margin-bottom:8px; }
+  header .dl { display:inline-block; background:var(--gold); color:#2b2110; font-weight:700; font-size:16px; border-radius:99px; padding:3px 14px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 16px; margin-top:16px; }
+  .card h2 { margin:0 0 10px; font-size:20px; color:var(--red-d); }
+  .intro { font-size:16px; color:var(--mute); }
+  label.f { display:block; font-weight:700; margin:14px 0 6px; }
+  label.f small { font-weight:400; color:var(--mute); }
+  input[type=text], input[type=tel], input[type=password], select, textarea { width:100%; font:inherit; padding:12px; border:2px solid var(--line); border-radius:10px; background:#fff; color:var(--ink); }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--green); }
+  .locked { background:#eef5ef; border:2px solid #b9d3c0; border-radius:10px; padding:12px; font-weight:700; }
+  .prod { padding:14px 0; border-top:1px dashed var(--line); }
+  .prod:first-of-type { border-top:none; padding-top:4px; }
+  .prod .pic { width:100%; max-height:260px; object-fit:contain; background:#faf7f0; border-radius:10px; margin-bottom:8px; display:none; cursor:zoom-in; }
+  .prod .pn { font-weight:700; font-size:20px; line-height:1.35; }
+  .prod .pd { color:var(--mute); font-size:15px; margin:2px 0 4px; }
+  .cat { display:inline-block; font-size:13px; background:#f3e3c3; color:#5a4210; border-radius:99px; padding:0 10px; margin-bottom:4px; }
+  .item { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; }
+  .item .nm { font-weight:700; font-size:18px; }
+  .item .pr { color:var(--red-d); font-size:16px; font-weight:700; }
+  .item.off { opacity:.55; }
+  .step { display:flex; align-items:center; gap:6px; flex:none; }
+  .step button { width:46px; height:46px; border-radius:50%; border:2px solid var(--green); background:#fff; color:var(--green); font-size:26px; line-height:1; font-weight:700; cursor:pointer; }
+  .step button:active { background:var(--green); color:#fff; }
+  .step input { width:60px; text-align:center; font-size:21px; font-weight:700; padding:8px 4px; }
+  .soon { font-size:14px; background:#eee; border-radius:99px; padding:2px 12px; color:var(--mute); }
+  .total { background:#fff8e6; border:2px solid var(--gold); border-radius:12px; padding:12px 14px; margin-top:12px; display:flex; justify-content:space-between; align-items:baseline; font-weight:700; }
+  .total .amt { font-size:28px; color:var(--red); }
+  .radio { display:flex; gap:10px; align-items:flex-start; padding:12px; border:2px solid var(--line); border-radius:10px; margin-top:8px; cursor:pointer; }
+  .radio input { width:22px; height:22px; margin-top:4px; accent-color:var(--green); flex:none; }
+  .btn { display:block; width:100%; font:inherit; font-size:21px; font-weight:700; padding:15px; border:none; border-radius:12px; background:var(--red); color:#fff; cursor:pointer; margin-top:18px; }
+  .btn:disabled { opacity:.55; }
+  .btn.ghost { background:#fff; color:var(--green); border:2px solid var(--green); }
+  .err { background:#fdecec; border:2px solid #e8a5a5; color:#8a1c1c; border-radius:10px; padding:10px 14px; margin-top:14px; font-weight:700; }
+  .err ul { margin:0; padding-left:20px; }
+  table.rc { width:100%; border-collapse:collapse; }
+  table.rc td { padding:7px 0; border-bottom:1px dashed var(--line); vertical-align:top; }
+  table.rc td:first-child { color:var(--mute); width:6.5em; }
+  .big { text-align:center; font-size:22px; font-weight:700; color:var(--green); }
+  .oid { text-align:center; font-size:30px; font-weight:700; letter-spacing:.05em; color:var(--red-d); margin:4px 0 10px; }
+  .pay { background:#eef5ef; border-radius:10px; padding:12px; font-weight:700; text-align:center; }
+  .hide { display:none !important; }
+  .linkbox { word-break:break-all; background:#f6f1e6; border-radius:10px; padding:10px; font-size:15px; margin-top:10px; }
+  .ord { border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:10px; font-size:16px; }
+  .ord b { font-size:18px; }
+  .tag { display:inline-block; font-size:13px; border-radius:99px; padding:1px 10px; margin-left:4px; background:#eee; }
+  .tag.ok { background:#dcefe2; color:#17472f; } .tag.no { background:#fde3e3; color:#8a1c1c; }
+  #zoom { position:fixed; inset:0; background:rgba(0,0,0,.82); display:none; align-items:center; justify-content:center; z-index:9; }
+  #zoom img { max-width:94vw; max-height:90vh; border-radius:8px; background:#fff; }
+  footer { text-align:center; color:var(--mute); font-size:14px; margin-top:22px; }
+  footer a { color:var(--green); }
+</style>
+</head>
+<body>
+<header>
+  <div class="sub">巴拿巴宣教學院 2027 海外短宣募款</div>
+  <h1>第2攤 天父的暖暖包</h1>
+  <div class="tag2">一杯咖啡・一份祝福</div>
+  <span class="dl" id="dl"></span>
+</header>
+<div class="wrap">
+<div id="v-loading" style="text-align:center;padding:48px 0;color:var(--mute)">預購單載入中…</div>
+<div id="v-fail" class="hide"><div class="card"><div class="big" style="color:var(--red-d)">預購單載入失敗</div><p>可能是網路不太穩，請再試一次。</p><button class="btn" id="retry" type="button">重新載入</button><p class="intro" style="margin-top:12px">一直打不開？<a id="oldLink" href="#">改用備用網址開啟</a></p></div></div>
+
+<!-- ===== 訂購頁 ===== -->
+<div id="v-order" class="hide">
+  <div class="card intro">感謝您支持海外短宣！義賣所得扣除成本後，全數用於本屆短宣公費與物資。<br>預購截止後統一向廠商下單，到貨後由介紹您的同學交貨給您（不提供郵寄）。</div>
+  <div class="card">
+    <h2>① 訂購人</h2>
+    <label class="f" for="name">姓名</label>
+    <input type="text" id="name" maxlength="30" autocomplete="name">
+    <label class="f" for="phone">手機 <small>（聯絡取貨用）</small></label>
+    <input type="tel" id="phone" inputmode="numeric" maxlength="12" placeholder="0912345678" autocomplete="tel">
+    <label class="f">介紹您的同學 <small>（付款與取貨都由他協助）</small></label>
+    <div id="sellerLocked" class="locked hide"></div>
+    <div id="sellerPick" class="hide">
+      <select id="seller"></select>
+      <input type="text" id="sellerOther" class="hide" maxlength="20" placeholder="請填寫同學姓名" style="margin-top:8px">
+    </div>
+  </div>
+  <div class="card">
+    <h2>② 選擇商品與數量</h2>
+    <div id="products"></div>
+    <div class="total"><span id="sumQty">共 0 件</span><span>應付 <span class="amt" id="sumAmt">$0</span></span></div>
+  </div>
+  <div class="card">
+    <h2>③ 取貨方式</h2>
+    <div id="pickups"></div>
+    <label class="f" for="note">備註 <small>（選填）</small></label>
+    <textarea id="note" rows="2" maxlength="200"></textarea>
+  </div>
+  <div id="err" class="err hide"></div>
+  <button class="btn" id="toConfirm">下一步：確認訂單</button>
+</div>
+
+<!-- ===== 確認頁 ===== -->
+<div id="v-confirm" class="hide">
+  <div class="card">
+    <h2>請確認您的訂單</h2>
+    <table class="rc" id="recap"></table>
+    <div class="total"><span id="cQty"></span><span>應付 <span class="amt" id="cAmt"></span></span></div>
+  </div>
+  <div id="err2" class="err hide"></div>
+  <button class="btn" id="send">確認送出</button>
+  <button class="btn ghost" id="back">← 回上一步修改</button>
+</div>
+
+<!-- ===== 完成頁 ===== -->
+<div id="v-done" class="hide">
+  <div class="card">
+    <div class="big">✅ 預購成功，謝謝您！</div>
+    <div style="text-align:center;color:var(--mute);margin-top:8px">您的訂單編號</div>
+    <div class="oid" id="dId"></div>
+    <div class="pay" id="dPay"></div>
+    <p class="intro" style="margin-bottom:0">建議截圖保存這個畫面。<br>要更改或取消，請直接告訴介紹您的同學，並提供訂單編號。</p>
+  </div>
+  <button class="btn ghost" id="again">再訂一筆（幫親友代訂）</button>
+</div>
+
+<!-- ===== 已截止 ===== -->
+<div id="v-closed" class="hide">
+  <div class="card"><div class="big" style="color:var(--red-d)">預購已截止</div>
+  <p>預購已於 <b id="clDl"></b> 截止，謝謝您的支持！<br>歡迎 12/12（六）–12/13（日）到大安森林公園聖誕市集找我們。</p></div>
+</div>
+
+<footer id="foot">同學專用：<a href="../my/">我的預購總覽（專屬連結、我名下的訂單）</a></footer>
+</div>
+<div id="zoom"><img alt=""></div>
+
+<script>
+var BOOT = null;
+var API = 'https://script.google.com/macros/s/AKfycbzxrsWpZad2dExrd6GJ3oE89WWI-BKIEMexIoVf4VGG5N4MYAaQdxXd23zMMRoUam7I/exec';
+var ALIAS = { guozheng:'溫國政', yuwen:'李玉雯', yifen:'李益芬', yicai:'呂衣綵', huichun:'房惠純', h3k9:'吳雨儂', yunong:'吳雨儂', chuanxia:'王傳霞', wenqi:'楊雯祺',
+  shufen:'周淑芬', yaling:'曾雅玲', liru:'陳麗如', yuhua:'符玉華', feibi:'Feibi 君愛', huimin:'房惠敏', xiaowen:'林筱雯',
+  naiyi:'劉乃一', yuping:'劉玉萍', huiying:'馮惠英', yingxuan:'沈盈暄', lingzhi:'翁玲芝', xiangying:'陳湘盈', naiqing:'李乃青', zhenyi:'江貞儀' };
+function api(body, ms) {
+  var ctl = window.AbortController ? new AbortController() : null;
+  var timer = ctl ? setTimeout(function () { ctl.abort(); }, ms || 30000) : 0;
+  return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body),
+    credentials: 'omit', redirect: 'follow', cache: 'no-store', signal: ctl ? ctl.signal : undefined })
+    .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }, function (e) { clearTimeout(timer); throw e; });
+}
+function bootParams() {
+  var qs = new URLSearchParams(location.search), s = (qs.get('s') || '').trim(), k = s.toLowerCase();
+  return { s: ALIAS.hasOwnProperty(k) ? ALIAS[k] : s };
+}
+function startPage() {
+(function () {
+  function $(id) { return document.getElementById(id); }
+  function show(v) { ['order','confirm','done','closed'].forEach(function (k) { $('v-' + k).classList.toggle('hide', k !== v); }); window.scrollTo(0, 0); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function errBox(el, list) { if (!list || !list.length) { el.classList.add('hide'); return; } el.innerHTML = '<ul>' + list.map(function (e) { return '<li>' + esc(e) + '</li>'; }).join('') + '</ul>'; el.classList.remove('hide'); el.scrollIntoView({behavior:'smooth', block:'center'}); }
+  function money(n) { return '$' + Number(n).toLocaleString('en-US'); }
+  function fillSel(sel, first, withOther) { var h = '<option value="">' + first + '</option>'; BOOT.sellers.forEach(function (n) { h += '<option>' + esc(n) + '</option>'; }); if (withOther) h += '<option value="__other__">其他同學（自行填寫）</option>'; sel.innerHTML = h; }
+
+  /* 商品清單（扁平） */
+  var SPECS = [];
+  BOOT.groups.forEach(function (g) { g.specs.forEach(function (s) { SPECS.push({ code: s.code, name: g.name, spec: s.spec, price: s.price, unit: s.unit, open: s.open }); }); });
+  function qv(code) { var el = $('q_' + code); var n = parseInt(String(el.value).replace(/\D/g, ''), 10); return isNaN(n) ? 0 : Math.min(n, BOOT.maxQty); }
+  function cart() { var items = {}, qty = 0, amount = 0, lines = []; SPECS.forEach(function (s) { if (!s.open) return; var n = qv(s.code); if (n > 0) { items[s.code] = n; qty += n; amount += n * s.price; lines.push({ s: s, n: n }); } }); return { items: items, qty: qty, amount: amount, lines: lines }; }
+  function refresh() { var c = cart(); $('sumQty').textContent = '共 ' + c.qty + ' 件'; $('sumAmt').textContent = money(c.amount); }
+
+  $('dl').textContent = '預購截止：' + BOOT.deadlineText;
+  $('clDl').textContent = BOOT.deadlineText;
+
+  /* ---------- 訂購 ---------- */
+  var html = '';
+  BOOT.groups.forEach(function (g, gi) {
+    html += '<div class="prod"><span class="cat">' + esc(g.cat) + '</span>' +
+      (g.img ? '<img class="pic" id="pic' + gi + '" alt="' + esc(g.name) + '">' : '') +
+      '<div class="pn">' + esc(g.name) + '</div>' + (g.desc ? '<div class="pd">' + esc(g.desc) + '</div>' : '');
+    g.specs.forEach(function (s) {
+      html += '<div class="item' + (s.open ? '' : ' off') + '"><div><div class="nm">' + esc(s.spec || g.name) + '</div><div class="pr">' + (s.open ? money(s.price) + '／' + esc(s.unit) : '') + '</div></div>' +
+        (s.open ? '<div class="step"><button type="button" data-c="' + esc(s.code) + '" data-d="-1" aria-label="減一">−</button><input type="tel" id="q_' + esc(s.code) + '" inputmode="numeric" value="0" maxlength="2" aria-label="數量"><button type="button" data-c="' + esc(s.code) + '" data-d="1" aria-label="加一">＋</button></div>'
+          : '<span class="soon">即將開放</span><input type="hidden" id="q_' + esc(s.code) + '" value="0">') + '</div>';
+    });
+    html += '</div>';
+  });
+  $('products').innerHTML = html || '<p class="intro">商品整理中，請稍後再來。</p>';
+  Array.prototype.forEach.call(document.querySelectorAll('.step button'), function (b) {
+    b.addEventListener('click', function () { var c = b.getAttribute('data-c'); var n = qv(c) + parseInt(b.getAttribute('data-d'), 10); $('q_' + c).value = Math.max(0, Math.min(BOOT.maxQty, n)); refresh(); });
+  });
+  SPECS.forEach(function (s) {
+    if (!s.open) return; var el = $('q_' + s.code);
+    el.addEventListener('input', refresh);
+    el.addEventListener('focus', function () { if (this.value === '0') this.value = ''; });
+    el.addEventListener('blur', function () { this.value = qv(s.code); refresh(); });
+  });
+  /* 商品圖：由伺服器讀雲端硬碟後回傳，載入完才顯示 */
+  BOOT.groups.forEach(function (g, gi) {
+    if (!g.img) return;
+    api({ action: 'img', ref: g.img }, 45000).then(function (r) { var el = $('pic' + gi); if (r && r.uri && el) { el.src = r.uri; el.style.display = 'block'; } })['catch'](function () {});
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.pic'), function (im) {
+    im.addEventListener('click', function () { $('zoom').firstChild.src = im.src; $('zoom').style.display = 'flex'; });
+  });
+  $('zoom').addEventListener('click', function () { this.style.display = 'none'; });
+
+  if (BOOT.seller) { $('sellerLocked').textContent = BOOT.seller; $('sellerLocked').classList.remove('hide'); }
+  else { fillSel($('seller'), '請選擇', true); $('sellerPick').classList.remove('hide'); }
+  $('seller').addEventListener('change', function () { $('sellerOther').classList.toggle('hide', this.value !== '__other__'); });
+  $('pickups').innerHTML = BOOT.pickups.map(function (p) { return '<label class="radio"><input type="radio" name="pickup" value="' + esc(p) + '"' + (BOOT.pickups.length === 1 ? ' checked' : '') + '><span>' + esc(p) + '</span></label>'; }).join('');
+
+  function collect() {
+    var pk = document.querySelector('input[name=pickup]:checked');
+    return { name: $('name').value.trim(), phone: $('phone').value.replace(/[\s\-]/g, ''),
+      seller: BOOT.seller || $('seller').value, sellerOther: $('sellerOther').value.trim(),
+      items: cart().items, pickup: pk ? pk.value : '', note: $('note').value.trim() };
+  }
+  function check(o) {
+    var e = [];
+    if (!o.name) e.push('請填寫訂購人姓名');
+    if (!/^09\d{8}$/.test(o.phone)) e.push('手機請填 10 碼，例如 0912345678');
+    if (!o.seller) e.push('請選擇介紹您的同學');
+    if (o.seller === '__other__' && !o.sellerOther) e.push('請填寫介紹您的同學姓名');
+    if (!Object.keys(o.items).length) e.push('請至少選 1 件商品（按 ＋ 增加數量）');
+    if (!o.pickup) e.push('請選擇取貨方式');
+    return e;
+  }
+  var pending = null;
+  $('toConfirm').addEventListener('click', function () {
+    var o = collect(), e = check(o); errBox($('err'), e); if (e.length) return;
+    pending = o; var c = cart();
+    var sName = o.seller === '__other__' ? o.sellerOther : o.seller;
+    var rows = [['訂購人', o.name], ['手機', o.phone], ['介紹同學', sName]];
+    c.lines.forEach(function (l) { rows.push([l.s.name + (l.s.spec ? '（' + l.s.spec + '）' : ''), l.n + ' ' + l.s.unit + '　' + money(l.n * l.s.price)]); });
+    rows.push(['取貨方式', o.pickup]); if (o.note) rows.push(['備註', o.note]);
+    $('recap').innerHTML = rows.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td><b>' + esc(r[1]) + '</b></td></tr>'; }).join('');
+    $('cQty').textContent = '共 ' + c.qty + ' 件'; $('cAmt').textContent = money(c.amount);
+    errBox($('err2'), []); show('confirm');
+  });
+  $('back').addEventListener('click', function () { show('order'); });
+  $('send').addEventListener('click', function () {
+    var btn = this; btn.disabled = true; btn.textContent = '送出中，請稍候…'; errBox($('err2'), []);
+    function reset() { btn.disabled = false; btn.textContent = '確認送出'; }
+    api({ action: 'submit', order: pending }, 60000).then(function (r) {
+      reset();
+      if (!r || !r.ok) { errBox($('err2'), (r && r.errors) || ['送出失敗，請再試一次']); return; }
+      $('dId').textContent = r.id;
+      $('dPay').innerHTML = '共 ' + r.qty + ' 件，請將 <span style="color:var(--red);font-size:24px">' + money(r.amount) + '</span><br>交給 ' + esc(String(r.seller).replace(/^其他：/, '')) + '，他會與您約取貨';
+      show('done');
+    })['catch'](function () { reset(); errBox($('err2'), ['網路不穩，訂單尚未送出，請再按一次「確認送出」']); });
+  });
+  $('again').addEventListener('click', function () { $('name').value = ''; $('phone').value = ''; SPECS.forEach(function (s) { $('q_' + s.code).value = 0; }); $('note').value = ''; refresh(); show('order'); });
+
+  refresh();
+  show(BOOT.closed ? 'closed' : 'order');
+})();
+}
+function $(id) { return document.getElementById(id); }
+function loadBoot() {
+  $('v-loading').classList.remove('hide'); $('v-fail').classList.add('hide');
+  var p = bootParams(), qs = new URLSearchParams(p).toString();
+  $('oldLink').href = API + (qs ? '?' + qs : '');
+  api({ action: 'boot', params: p }, 30000).then(function (r) {
+    if (!r || !r.ok || !r.boot) throw new Error('bad boot');
+    BOOT = r.boot; if (BOOT.title) document.title = BOOT.title;
+    $('v-loading').classList.add('hide'); startPage();
+  })['catch'](function (e) { if (window.console) console.error(e); $('v-loading').classList.add('hide'); $('v-fail').classList.remove('hide'); });
+}
+document.addEventListener('DOMContentLoaded', function () { $('retry').addEventListener('click', loadBoot); loadBoot(); });
+</script>
+</body>
+</html>
