@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>我的預購總覽｜巴拿巴宣教學院募款</title>
+<style>
+  :root { --red:#a8321f; --red-d:#7f2416; --cream:#fbf6ec; --ink:#2e2a26; --mute:#7a7168; --line:#e4d8c4; --green:#2f6b4f; --gold:#c8963e; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--cream); color:var(--ink); font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif; font-size:18px; line-height:1.6; }
+  .wrap { max-width:560px; margin:0 auto; padding:0 16px 48px; }
+  header { background:var(--red); color:#fff; padding:20px 16px 16px; text-align:center; border-bottom:5px solid var(--gold); }
+  header .sub { font-size:14px; opacity:.92; letter-spacing:.08em; }
+  header h1 { margin:4px 0 0; font-size:24px; line-height:1.3; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; margin-top:14px; }
+  .card h2 { font-size:18px; margin:0 0 10px; color:var(--red-d); }
+  label.f { display:block; font-weight:700; margin:12px 0 4px; }
+  label.f:first-of-type { margin-top:0; }
+  label.f small { font-weight:400; color:var(--mute); }
+  input[type=text], input[type=password], input[type=tel], select { width:100%; font:inherit; padding:12px; border:2px solid var(--line); border-radius:10px; background:#fff; color:var(--ink); }
+  input:focus, select:focus, button:focus-visible, a:focus-visible { outline:3px solid #e9b949; outline-offset:1px; }
+  .btn { display:block; width:100%; font:inherit; font-size:20px; font-weight:700; padding:14px; border:0; border-radius:12px; background:var(--red); color:#fff; cursor:pointer; margin-top:16px; text-align:center; text-decoration:none; }
+  .btn:disabled { opacity:.55; cursor:not-allowed; }
+  .btn.ghost { background:#fff; color:var(--green); border:2px solid var(--green); }
+  .btn.small { font-size:16px; padding:9px 12px; margin-top:8px; display:inline-block; width:auto; }
+  .row { display:flex; gap:10px; }
+  .row > * { flex:1; min-width:0; }
+  .err { background:#fdecea; border:2px solid #e2a79e; color:#8a1f10; border-radius:10px; padding:10px 14px; margin-top:12px; font-weight:700; }
+  .chk { display:flex; align-items:center; gap:8px; margin-top:12px; font-size:16px; color:var(--mute); }
+  .chk input { width:22px; height:22px; accent-color:var(--red); }
+  .hint { font-size:14px; color:var(--mute); }
+  .hello { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .hello b { font-size:21px; }
+  .link { background:none; border:0; color:var(--mute); text-decoration:underline; font:inherit; font-size:15px; cursor:pointer; padding:6px; }
+  .tot { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
+  .tot div { background:#faf5ea; border-radius:10px; padding:8px 10px; }
+  .tot small { display:block; color:var(--mute); font-size:13px; }
+  .tot b { font-size:21px; font-variant-numeric:tabular-nums; }
+  .tot .g b { color:var(--green); } .tot .r b { color:var(--red); }
+  .tabs { display:flex; gap:6px; margin-top:14px; }
+  .tabs button { flex:1; font:inherit; font-size:15px; font-weight:700; padding:8px 4px; border:2px solid var(--line); border-radius:12px; background:#fff; color:var(--mute); cursor:pointer; line-height:1.3; }
+  .tabs button small { display:block; font-weight:400; font-size:12px; }
+  .tabs button[aria-selected=true] { border-color:var(--red); color:var(--red-d); background:#fff4f0; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 2px; }
+  .chips button { font:inherit; font-size:14px; padding:4px 12px; border:1.5px solid var(--line); border-radius:99px; background:#fff; color:var(--mute); cursor:pointer; }
+  .chips button[aria-pressed=true] { background:var(--green); border-color:var(--green); color:#fff; }
+  .ord { border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-top:10px; font-size:16px; background:#fff; }
+  .ord.x { opacity:.55; background:#f6f2ea; }
+  .ord .top { display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
+  .ord .top b { font-size:19px; }
+  .ord .amt { font-weight:700; color:var(--red-d); font-size:19px; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .ord .meta { color:var(--mute); font-size:14px; }
+  .ord a.tel { color:var(--green); font-weight:700; }
+  .tag { display:inline-block; font-size:13px; border-radius:99px; padding:1px 10px; margin:6px 4px 0 0; background:#eee; color:#555; }
+  .tag.ok { background:#dcefe2; color:#17472f; } .tag.no { background:#fde3e3; color:#8a1c1c; }
+  .linkbox { word-break:break-all; background:#f6f1e6; border-radius:10px; padding:8px 10px; font-size:14px; margin-top:6px; }
+  .lk h3 { margin:12px 0 0; font-size:17px; }
+  .loading { text-align:center; padding:36px 0; color:var(--mute); }
+  .spin { width:36px; height:36px; margin:0 auto 10px; border:4px solid var(--line); border-top-color:var(--red); border-radius:50%; animation:sp .8s linear infinite; }
+  @keyframes sp { to { transform:rotate(360deg); } }
+  [hidden] { display:none !important; }
+  footer { text-align:center; color:var(--mute); font-size:13px; margin-top:22px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="sub">巴拿巴宣教學院・國際志工募款</div>
+  <h1>我的預購總覽</h1>
+</header>
+<div class="wrap">
+
+  <section id="vLoading" class="loading"><div class="spin"></div><div>載入中…</div></section>
+
+  <section id="vFail" class="card" hidden>
+    <h2>連不上系統</h2>
+    <p>可能是網路不太穩，請再試一次。</p>
+    <button type="button" class="btn" id="retry">重新載入</button>
+  </section>
+
+  <section id="vLogin" class="card" hidden>
+    <h2>同學專用｜登入</h2>
+    <label class="f" for="who">我的名字</label>
+    <select id="who"></select>
+    <label class="f" for="code">我的通關碼 <small>（每人一組，看 LINE 記事本）</small></label>
+    <input type="password" id="code" inputmode="numeric" autocomplete="off" maxlength="12">
+    <label class="chk"><input type="checkbox" id="remember"> 記住這支手機（下次免輸入）</label>
+    <div class="err" id="err" hidden role="alert"></div>
+    <button type="button" class="btn" id="go">查看我的訂單</button>
+    <p class="hint" style="margin-top:12px">通關碼只有您自己的，請不要轉給別人。忘記請聯絡統籌溫國政。</p>
+  </section>
+
+  <section id="vMain" hidden>
+    <div class="card">
+      <div class="hello"><div><b id="hName"></b> 的預購總覽<div class="hint" id="hUpd"></div></div>
+        <button type="button" class="link" id="logout">登出</button></div>
+      <div class="tot" id="tot"></div>
+      <div class="row"><button type="button" class="btn ghost small" id="refresh">重新整理</button></div>
+    </div>
+
+    <div class="tabs" id="tabs" role="tablist"></div>
+    <div class="card" id="stallBox"></div>
+
+    <div class="card lk" id="links"></div>
+  </section>
+
+  <footer>款項請依各攤約定交給負責同學；訂單內容如需更改，請聯絡統籌。</footer>
+</div>
+
+<script>
+// ====== 設定（部署後只需要改這一行：整合查詢 API 的 /exec 網址）======
+var API = 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';
+var BASE = 'https://nickwn1982.github.io/chixin/';      // GitHub Pages 根網址（第 1 攤）
+var STALL_PATH = { s1: '', s2: 'nuan/', s3: 'bobo/' };    // 各攤的 GitHub Pages 路徑
+var S3_READY = true;   // 第3攤 GitHub 訂購頁（bobo/）上線後，改成 true 才會顯示第3攤的專屬連結
+var STALL_TITLE = { s1: '吃心絕對', s2: '天父的暖暖包', s3: '啵啵 快樂製造所' };
+
+var $ = function (id) { return document.getElementById(id); };
+var S = { data: null, tab: 's1', filter: 'all', sending: false };
+
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function money(n) { return '$' + String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function show(id) { ['vLoading', 'vFail', 'vLogin', 'vMain'].forEach(function (v) { $(v).hidden = v !== id; }); window.scrollTo(0, 0); }
+function store(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+function api(body) {
+  var ctl = window.AbortController ? new AbortController() : null;
+  var timer = ctl ? setTimeout(function () { ctl.abort(); }, 45000) : 0;
+  return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body),
+    credentials: 'omit', redirect: 'follow', cache: 'no-store', signal: ctl ? ctl.signal : undefined })
+    .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); },
+          function (e) { clearTimeout(timer); throw e; });
+}
+
+function showErr(msg) { var el = $('err'); el.textContent = msg || ''; el.hidden = !msg; }
+
+function start() {
+  show('vLoading');
+  api({ action: 'names' }).then(function (r) {
+    if (!r || !r.ok) throw new Error('names');
+    var qs = new URLSearchParams(location.search), want = (qs.get('s') || '').trim().toLowerCase();
+    var saved = load('nm'), pick = '';
+    $('who').innerHTML = '<option value="">請選擇自己的名字</option>' + r.names.map(function (n) {
+      if (want && n.slug.toLowerCase() === want) pick = n.name;
+      return '<option>' + esc(n.name) + '</option>';
+    }).join('');
+    pick = pick || saved || '';
+    if (pick) $('who').value = pick;
+    var savedCode = load('cd');
+    if (savedCode && saved && (!pick || pick === saved)) { $('code').value = savedCode; $('remember').checked = true; login(true); return; }
+    show('vLogin');
+  })['catch'](function (e) { if (window.console) console.error(e); show('vFail'); });
+}
+
+function login(auto) {
+  var name = $('who').value, code = $('code').value.trim();
+  if (!name || !code) { showErr('請選擇名字並輸入通關碼'); show('vLogin'); return; }
+  if (S.sending) return; S.sending = true; showErr('');
+  $('go').disabled = true; $('go').textContent = '查詢中…';
+  if (auto) show('vLoading');
+  api({ action: 'login', name: name, code: code }).then(function (r) {
+    S.sending = false; $('go').disabled = false; $('go').textContent = '查看我的訂單';
+    if (!r || !r.ok) {
+      if (auto) { store('cd', null); }
+      showErr((r && r.error) || '查詢失敗，請再試一次'); show('vLogin'); return;
+    }
+    if ($('remember').checked) { store('nm', name); store('cd', code); } else { store('nm', null); store('cd', null); }
+    S.data = r; S.tab = firstTab(r); S.filter = 'all'; render(); show('vMain');
+  })['catch'](function (e) {
+    S.sending = false; $('go').disabled = false; $('go').textContent = '查看我的訂單';
+    if (window.console) console.error(e);
+    showErr('網路好像不太穩，請再按一次'); show('vLogin');
+  });
+}
+
+function firstTab(r) { var f = r.stalls.filter(function (s) { return s.summary.count > 0; })[0]; return f ? f.key : 's1'; }
+
+function render() {
+  var d = S.data, t = d.total;
+  $('hName').textContent = d.name; $('hUpd').textContent = '資料時間 ' + d.updated;
+  $('tot').innerHTML =
+    '<div><small>有效訂單</small><b>' + t.count + ' 筆</b></div><div><small>共</small><b>' + t.qty + ' 件</b></div>' +
+    '<div><small>應收合計</small><b>' + money(t.amount) + '</b></div><div class="g"><small>已收款</small><b>' + money(t.paidAmount) + '</b></div>' +
+    '<div class="r"><small>未收款</small><b>' + money(t.unpaidAmount) + '</b></div><div><small>待交貨</small><b>' + t.pendingCount + ' 筆</b></div>';
+  $('tabs').innerHTML = d.stalls.map(function (s, i) {
+    return '<button type="button" role="tab" data-k="' + s.key + '" aria-selected="' + (s.key === S.tab) + '">第' + (i + 1) + '攤<small>' + esc(s.name) + '・' + s.summary.count + ' 筆</small></button>';
+  }).join('');
+  renderStall(); renderLinks();
+}
+
+function renderStall() {
+  var st = S.data.stalls.filter(function (s) { return s.key === S.tab; })[0], sm = st.summary;
+  var f = S.filter;
+  var list = st.orders.filter(function (o) {
+    if (f === 'all') return !o.cancelled;
+    if (f === 'unpaid') return !o.cancelled && !o.paid;
+    if (f === 'pending') return !o.cancelled && !o.delivered;
+    if (f === 'cancel') return o.cancelled;
+    return true;
+  }).slice().reverse();
+  var h = '<h2>' + esc(st.booth + '・' + st.name) + '</h2>';
+  if (st.error) h += '<div class="err">' + esc(st.error) + '</div>';
+  h += '共 <b>' + sm.count + '</b> 筆、<b>' + sm.qty + '</b> 件，應收 <b>' + money(sm.amount) + '</b><br>' +
+    '已收 <b style="color:var(--green)">' + money(sm.paidAmount) + '</b>　未收 <b style="color:var(--red)">' + money(sm.unpaidAmount) + '</b><br>' +
+    '已交出納／收款人 ' + money(sm.handedAmount) + '　已交貨 ' + sm.deliveredCount + ' 筆、待交貨 ' + sm.pendingCount + ' 筆';
+  h += '<div class="chips">' + [['all', '全部'], ['unpaid', '未收款'], ['pending', '待交貨'], ['cancel', '已取消 (' + sm.cancelledCount + ')']].map(function (c) {
+    return '<button type="button" data-f="' + c[0] + '" aria-pressed="' + (f === c[0]) + '">' + c[1] + '</button>'; }).join('') + '</div>';
+  if (!list.length) h += '<p class="hint" style="margin-top:12px">' + (st.orders.length ? '這個分類目前沒有訂單。' : '這一攤目前還沒有人用您的連結下單，把專屬連結轉給親友吧！') + '</p>';
+  list.forEach(function (o) {
+    var hl = o.handedLabel ? o.handedLabel.replace(/^已交/, '') : '出納';
+    h += '<div class="ord' + (o.cancelled ? ' x' : '') + '"><div class="top"><b>' + esc(o.buyer) + '</b><span class="amt">' + money(o.amount) + '</span></div>' +
+      '<div class="meta">' + (o.phone ? '<a class="tel" href="tel:' + esc(o.phone) + '">' + esc(o.phone) + '</a>・' : '') + esc(o.id) + '・' + esc(o.time) + '</div>' +
+      '<div>' + esc(o.content) + '（共 ' + o.qty + ' 件' + (o.fee ? '，含運費 ' + money(o.fee) : '') + '）</div>' +
+      '<div class="meta">' + esc(o.pickup) + (o.address ? '：' + esc(o.address) : '') + (o.note ? '｜備註：' + esc(o.note) : '') + '</div>' +
+      (o.cancelled ? '<span class="tag no">已取消</span>' :
+        '<span class="tag ' + (o.paid ? 'ok">已收款' : 'no">未收款') + '</span>' +
+        (o.handedLabel ? '<span class="tag ' + (o.handed ? 'ok">已交' + esc(hl) : '">未交' + esc(hl)) + '</span>' : '') +
+        '<span class="tag ' + (o.delivered ? 'ok">已交貨' : '">待交貨') + '</span>') + '</div>';
+  });
+  $('stallBox').innerHTML = h;
+}
+
+function myLink(key) { return BASE + STALL_PATH[key] + '?s=' + encodeURIComponent(S.data.slug); }
+function renderLinks() {
+  var h = '<h2>我的專屬預購連結（可直接貼到 FB／LINE）</h2><div class="hint">親友用這些連結下單，訂單會自動記在您名下。</div>';
+  ['s1', 's2', 's3'].forEach(function (k, i) {
+    if (k === 's3' && !S3_READY) return;
+    var u = myLink(k);
+    h += '<h3>第' + (i + 1) + '攤 ' + esc(STALL_TITLE[k]) + '</h3><div class="linkbox">' + esc(u) + '</div>' +
+      '<button type="button" class="btn ghost small" data-copy="' + esc(u) + '">複製連結</button> ' +
+      '<a class="btn ghost small" target="_blank" rel="noopener" href="https://line.me/R/share?text=' + encodeURIComponent('巴拿巴宣教募款｜' + STALL_TITLE[k] + ' 預購\n' + u) + '">用 LINE 分享</a>';
+  });
+  $('links').innerHTML = h;
+}
+
+function copyText(text, btn) {
+  function done() { btn.textContent = '已複製 ✓'; setTimeout(function () { btn.textContent = '複製連結'; }, 2000); }
+  function fallback() {
+    var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { btn.textContent = '請長按上方連結複製'; } document.body.removeChild(ta);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+}
+
+document.addEventListener('click', function (ev) {
+  var t = ev.target.closest('[data-k]'); if (t) { S.tab = t.dataset.k; S.filter = 'all'; render(); return; }
+  var f = ev.target.closest('[data-f]'); if (f) { S.filter = f.dataset.f; renderStall(); return; }
+  var c = ev.target.closest('[data-copy]'); if (c) { copyText(c.dataset.copy, c); }
+});
+$('go').addEventListener('click', function () { login(false); });
+$('code').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(false); });
+$('refresh').addEventListener('click', function () { $('remember').checked = !!load('cd'); login(true); });
+$('logout').addEventListener('click', function () { store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
+$('retry').addEventListener('click', start);
+start();
+</script>
+</body>
+</html>
