@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
-<title>我的預購總覽｜巴拿巴宣教學院募款</title>
+<title>我的入口｜巴拿巴宣教學院募款</title>
 <style>
   :root { --red:#a8321f; --red-d:#7f2416; --cream:#fbf6ec; --ink:#2e2a26; --mute:#7a7168; --line:#e4d8c4; --green:#2f6b4f; --gold:#c8963e; }
   * { box-sizing:border-box; }
@@ -26,6 +26,8 @@
   .btn.small { font-size:16px; padding:9px 12px; margin-top:8px; display:inline-block; width:auto; }
   .row { display:flex; gap:10px; }
   .row > * { flex:1; min-width:0; }
+  .ok { background:#dcefe2; color:#17472f; border-radius:10px; padding:10px 14px; margin-top:12px; font-weight:700; }
+  #acct summary { cursor:pointer; font-weight:700; color:var(--green); padding:6px 0; }
   .err { background:#fdecea; border:2px solid #e2a79e; color:#8a1f10; border-radius:10px; padding:10px 14px; margin-top:12px; font-weight:700; }
   .chk { display:flex; align-items:center; gap:8px; margin-top:12px; font-size:16px; color:var(--mute); }
   .chk input { width:22px; height:22px; accent-color:var(--red); }
@@ -66,7 +68,7 @@
 <body>
 <header>
   <div class="sub">巴拿巴宣教學院・國際志工募款</div>
-  <h1>我的預購總覽</h1>
+  <h1>我的入口</h1>
 </header>
 <div class="wrap">
 
@@ -101,19 +103,33 @@
     <div class="card" id="vendorEntry" hidden>
       <h2>廠商專區</h2>
       <div class="hint">您是廠商負責人，可看跨三攤的出貨單與訂單明細。</div>
-      <a class="btn" href="../vendor/">進入廠商專區</a>
+      <a class="btn" id="vendorGo" href="../vendor/">進入廠商專區</a>
     </div>
 
     <div class="card" id="boothEntry" hidden>
       <h2>各攤管理</h2>
       <div class="hint">您是組長／管理同學，可看本攤銷售、同學排行與利潤。</div>
-      <a class="btn" href="../booth/">進入各攤管理</a>
+      <a class="btn" id="boothGo" href="../booth/">進入各攤管理</a>
     </div>
 
     <div class="tabs" id="tabs" role="tablist"></div>
     <div class="card" id="stallBox"></div>
 
     <div class="card lk" id="links"></div>
+
+    <div class="card" id="acct">
+      <h2>帳號設定</h2>
+      <details id="pwBox"><summary>更改我的通關碼</summary>
+        <label class="f" for="nc1">新通關碼 <small>（6～12 個英文字母或數字）</small></label>
+        <input type="password" id="nc1" autocomplete="new-password" maxlength="12">
+        <label class="f" for="nc2">再輸入一次</label>
+        <input type="password" id="nc2" autocomplete="new-password" maxlength="12">
+        <div class="err" id="pwErr" hidden role="alert"></div>
+        <div class="ok" id="pwOk" hidden>已更改 ✓ 下次請用新的通關碼登入。</div>
+        <button type="button" class="btn" id="pwGo">更改通關碼</button>
+        <p class="hint" style="margin-top:10px">忘記通關碼時，請聯絡統籌溫國政協助重設。</p>
+      </details>
+    </div>
   </section>
 
   <footer>款項請依各攤約定交給負責同學；訂單內容如需更改，請聯絡統籌。</footer>
@@ -134,7 +150,8 @@ function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function
 function money(n) { return '$' + String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 function show(id) { ['vLoading', 'vFail', 'vLogin', 'vMain'].forEach(function (v) { $(v).hidden = v !== id; }); window.scrollTo(0, 0); }
 function store(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
-function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function load(k) { try { return localStorage.getItem(k) || sessionStorage.getItem(k); } catch (e) { return null; } }
+function persisted() { try { return !!localStorage.getItem('cd'); } catch (e) { return false; } }
 
 function api(body) {
   var ctl = window.AbortController ? new AbortController() : null;
@@ -160,7 +177,7 @@ function start() {
     pick = pick || saved || '';
     if (pick) $('who').value = pick;
     var savedCode = load('cd');
-    if (savedCode && saved && (!pick || pick === saved)) { $('code').value = savedCode; $('remember').checked = true; login(true); return; }
+    if (savedCode && saved && (!pick || pick === saved)) { $('code').value = savedCode; $('remember').checked = persisted(); login(true); return; }
     show('vLogin');
   })['catch'](function (e) { if (window.console) console.error(e); show('vFail'); });
 }
@@ -178,7 +195,8 @@ function login(auto) {
       showErr((r && r.error) || '查詢失敗，請再試一次'); show('vLogin'); return;
     }
     if ($('remember').checked) { store('nm', name); store('cd', code); } else { store('nm', null); store('cd', null); }
-    S.data = r; S.tab = firstTab(r); S.filter = 'all'; render(); show('vMain');
+    try { sessionStorage.setItem('nm', name); sessionStorage.setItem('cd', code); } catch (e) {}
+    S.name = name; S.code = code; S.data = r; S.tab = firstTab(r); S.filter = 'all'; render(); show('vMain');
   })['catch'](function (e) {
     S.sending = false; $('go').disabled = false; $('go').textContent = '查看我的訂單';
     if (window.console) console.error(e);
@@ -192,6 +210,7 @@ function render() {
   var d = S.data, t = d.total;
   $('vendorEntry').hidden = !d.isVendor;
   $('boothEntry').hidden = !d.isBooth;
+  $('vendorGo').href = '../vendor/?s=' + encodeURIComponent(d.slug); $('boothGo').href = '../booth/?s=' + encodeURIComponent(d.slug);
   $('hName').textContent = d.name; $('hUpd').textContent = '資料時間 ' + d.updated;
   $('tot').innerHTML =
     '<div><small>有效訂單</small><b>' + t.count + ' 筆</b></div><div><small>共</small><b>' + t.qty + ' 件</b></div>' +
@@ -257,6 +276,23 @@ function copyText(text, btn) {
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
 }
 
+function changeCode() {
+  var a = $('nc1').value.trim(), b = $('nc2').value.trim(), er = $('pwErr');
+  $('pwOk').hidden = true; er.hidden = true;
+  function bad(m) { er.textContent = m; er.hidden = false; }
+  if (!/^[A-Za-z0-9]{6,12}$/.test(a)) return bad('新通關碼請用 6～12 個英文字母或數字');
+  if (a !== b) return bad('兩次輸入不一樣，請再確認');
+  if (a === S.code) return bad('新通關碼不能和舊的一樣');
+  $('pwGo').disabled = true;
+  api({ action: 'changeCode', name: S.name, code: S.code, newCode: a }).then(function (r) {
+    $('pwGo').disabled = false;
+    if (!r || !r.ok) return bad((r && r.error) || '更改失敗，請再試一次');
+    S.code = a; if (load('cd')) store('cd', a);
+    try { sessionStorage.setItem('cd', a); } catch (e) {}
+    $('nc1').value = ''; $('nc2').value = ''; $('pwOk').hidden = false;
+  })['catch'](function () { $('pwGo').disabled = false; bad('網路好像不太穩，請再按一次'); });
+}
+$('pwGo').addEventListener('click', changeCode);
 document.addEventListener('click', function (ev) {
   var t = ev.target.closest('[data-k]'); if (t) { S.tab = t.dataset.k; S.filter = 'all'; render(); return; }
   var f = ev.target.closest('[data-f]'); if (f) { S.filter = f.dataset.f; renderStall(); return; }
@@ -264,8 +300,8 @@ document.addEventListener('click', function (ev) {
 });
 $('go').addEventListener('click', function () { login(false); });
 $('code').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(false); });
-$('refresh').addEventListener('click', function () { $('remember').checked = !!load('cd'); login(true); });
-$('logout').addEventListener('click', function () { store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
+$('refresh').addEventListener('click', function () { $('remember').checked = persisted(); login(true); });
+$('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); } catch (e) {} store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
 $('retry').addEventListener('click', start);
 start();
 </script>
