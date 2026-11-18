@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>管理後台｜巴拿巴宣教學院募款</title>
+<style>
+  :root { --red:#a8321f; --red-d:#7f2416; --cream:#f6f3ee; --ink:#2e2a26; --mute:#7a7168; --line:#ddd2bf; --green:#2f6b4f; --gold:#c8963e; --blue:#2b4a7a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--cream); color:var(--ink); font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif; font-size:16px; line-height:1.55; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 14px 60px; }
+  header { background:var(--blue); color:#fff; padding:16px; text-align:center; border-bottom:5px solid var(--gold); }
+  header h1 { margin:2px 0 0; font-size:22px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px; margin-top:14px; }
+  .card h2 { font-size:17px; margin:0 0 8px; color:var(--blue); }
+  input[type=text], input[type=password], input[type=email], input[type=number], select { width:100%; font:inherit; padding:8px 10px; border:2px solid var(--line); border-radius:8px; background:#fff; color:var(--ink); }
+  input:focus, select:focus, button:focus-visible { outline:3px solid #e9b949; outline-offset:1px; }
+  input.bad { border-color:#d33; background:#fff4f4; }
+  .btn { font:inherit; font-weight:700; padding:9px 16px; border:0; border-radius:10px; background:var(--blue); color:#fff; cursor:pointer; margin:8px 8px 0 0; }
+  .btn.g { background:var(--green); } .btn.r { background:var(--red); } .btn.o { background:#fff; color:var(--blue); border:2px solid var(--blue); }
+  .btn:disabled { opacity:.5; }
+  .tabs { display:flex; gap:6px; margin-top:14px; flex-wrap:wrap; }
+  .tabs button { flex:1; min-width:110px; font:inherit; font-weight:700; padding:9px 6px; border:2px solid var(--line); border-radius:10px; background:#fff; color:var(--mute); cursor:pointer; }
+  .tabs button[aria-selected=true] { border-color:var(--blue); color:var(--blue); background:#eef2fa; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:6px 4px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  th { font-size:13px; color:var(--mute); font-weight:400; }
+  td input[type=checkbox] { width:22px; height:22px; accent-color:var(--blue); }
+  .hint { font-size:13px; color:var(--mute); }
+  .msg { padding:9px 12px; border-radius:8px; margin-top:10px; font-weight:700; }
+  .msg.ok { background:#dcefe2; color:#17472f; } .msg.err { background:#fdecea; color:#8a1f10; } .msg.warn { background:#fff3cd; color:#7a5a00; }
+  tr.unm td { background:#fdecea; }
+  tr.auto td.v select { border-color:var(--gold); }
+  .scroll { overflow-x:auto; }
+  .scroll table { min-width:640px; }
+  .st { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+  .st div { background:#f4f1ea; border-radius:8px; padding:6px 10px; font-size:14px; }
+  .st b { font-size:16px; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<header><div>巴拿巴宣教學院・國際志工募款</div><h1>管理後台（統籌專用）</h1></header>
+<div class="wrap">
+
+  <section id="login" class="card" style="max-width:420px;margin:20px auto">
+    <h2>管理者登入</h2>
+    <label for="code">管理者通關碼</label>
+    <input type="password" id="code" autocomplete="off" maxlength="30">
+    <div class="msg err" id="lerr" hidden></div>
+    <button class="btn" id="go">登入</button>
+    <p class="hint">這組通關碼與同學的個人通關碼不同，只有統籌知道。連續輸錯 5 次會鎖定 10 分鐘。</p>
+  </section>
+
+  <section id="main" hidden>
+    <div id="top" class="card"></div>
+    <div class="tabs" id="tabs" role="tablist"></div>
+    <div id="body"></div>
+    <div class="msg" id="flash" hidden></div>
+  </section>
+</div>
+
+<script>
+var API = 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';
+var $ = function (id) { return document.getElementById(id); };
+var TABS = [['vendors', '廠商'], ['products', '商品對照'], ['members', '同學通知'], ['settings', '通知設定與紀錄']];
+var TYPES = { deadline: '截止提醒', final: '最終出貨單', payment: '收款提醒' };
+var S = { code: '', d: null, tab: 'vendors', busy: false };
+
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function api(body) {
+  body.code = S.code;
+  var ctl = window.AbortController ? new AbortController() : null;
+  var timer = ctl ? setTimeout(function () { ctl.abort(); }, 90000) : 0;
+  return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body), credentials: 'omit', redirect: 'follow', cache: 'no-store', signal: ctl ? ctl.signal : undefined })
+    .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }, function (e) { clearTimeout(timer); throw e; });
+}
+function flash(msg, kind) { var f = $('flash'); f.textContent = msg; f.className = 'msg ' + (kind || 'ok'); f.hidden = !msg; if (msg) f.scrollIntoView({ block: 'nearest' }); }
+function validMail(s) { return !s || /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(s.trim()); }
+
+function login() {
+  var code = $('code').value.trim(); if (!code) return;
+  S.code = code; $('go').disabled = true;
+  api({ action: 'adminGet' }).then(function (r) {
+    $('go').disabled = false;
+    if (!r || !r.ok) { S.code = ''; $('lerr').textContent = (r && r.error) || '登入失敗'; $('lerr').hidden = false; return; }
+    try { sessionStorage.setItem('adm', code); } catch (e) {}
+    S.d = r; $('login').hidden = true; $('main').hidden = false; render();
+  })['catch'](function () { $('go').disabled = false; S.code = ''; $('lerr').textContent = '網路不穩或系統忙碌，請再試一次'; $('lerr').hidden = false; });
+}
+function reload(msg) {
+  return api({ action: 'adminGet' }).then(function (r) { if (r && r.ok) { S.d = r; render(); if (msg) flash(msg, 'ok'); } else flash((r && r.error) || '重新載入失敗', 'err'); })
+    ['catch'](function () { flash('重新載入失敗，請稍後按重新整理', 'err'); });
+}
+
+function ago(iso) { if (!iso) return null; var m = Math.round((Date.now() - new Date(iso).getTime()) / 60000); return m; }
+
+function render() {
+  var d = S.d, st = d.status, m = ago(st.lastScan);
+  var stale = d.settings.on && (m === null || m > 15);
+  $('top').innerHTML = '<h2>目前狀態</h2><div class="st">' +
+    '<div>通知：<b style="color:' + (d.settings.on ? 'var(--green)' : 'var(--red)') + '">' + (d.settings.on ? '已開啟' : '尚未開啟') + '</b></div>' +
+    '<div>上次掃描：<b>' + (m === null ? '尚無' : m + ' 分鐘前') + '</b></div>' +
+    '<div>今日剩餘寄信額度：<b>' + (st.quota < 0 ? '未知' : st.quota) + '</b></div>' +
+    '<div>定時觸發器：<b>' + (st.triggers.scan && st.triggers.daily ? '正常' : '未建立') + '</b></div></div>' +
+    (stale ? '<div class="msg err">⚠ 已超過 15 分鐘沒有掃描，新訂單可能沒有通知，請到「通知設定」按「重建觸發器」。</div>' : '') +
+    (st.lastWarn ? '<div class="msg warn">' + esc(st.lastWarn) + '</div>' : '') +
+    '<button class="btn o" id="reload">重新整理</button>';
+  $('tabs').innerHTML = TABS.map(function (t) { return '<button type="button" data-tab="' + t[0] + '" aria-selected="' + (S.tab === t[0]) + '">' + t[1] + '</button>'; }).join('');
+  ({ vendors: rVendors, products: rProducts, members: rMembers, settings: rSettings })[S.tab]();
+}
+
+function ownerOptions(sel) {
+  return '<option value="">（未指定）</option>' + S.d.members.map(function (m) { return '<option' + (m.name === sel ? ' selected' : '') + '>' + esc(m.name) + '</option>'; }).join('');
+}
+function memberEmailOf(n) { var m = S.d.members.filter(function (x) { return x.name === n; })[0]; return m ? m.email : ''; }
+
+function rVendors() {
+  var h = '<div class="card"><h2>廠商與負責人</h2><div class="hint">Email 留空時，會改用「同學通知」分頁裡該負責同學的 email。同一個人同時是介紹同學又是廠商負責人時，只會收到一封合併通知。</div><div class="scroll"><table><tr><th>廠商</th><th>負責同學</th><th>Email（選填）</th><th>通知</th><th>備註</th><th></th></tr>';
+  S.d.vendors.forEach(function (v, i) {
+    var eff = v.email || memberEmailOf(v.owner);
+    h += '<tr><td><input type="text" data-sec="vendors" data-i="' + i + '" data-k="name" value="' + esc(v.name) + '"></td>' +
+      '<td><select data-sec="vendors" data-i="' + i + '" data-k="owner">' + ownerOptions(v.owner) + '</select></td>' +
+      '<td><input type="email" data-sec="vendors" data-i="' + i + '" data-k="email" value="' + esc(v.email) + '" placeholder="' + esc(memberEmailOf(v.owner) || '尚未設定') + '" class="' + (validMail(v.email) ? '' : 'bad') + '">' +
+      (eff ? '' : '<div class="hint" style="color:#b00">沒有 email，不會收到通知</div>') + '</td>' +
+      '<td><input type="checkbox" data-sec="vendors" data-i="' + i + '" data-k="enabled"' + (v.enabled ? ' checked' : '') + '></td>' +
+      '<td><input type="text" data-sec="vendors" data-i="' + i + '" data-k="note" value="' + esc(v.note) + '"></td>' +
+      '<td><button class="btn r" style="margin:0;padding:6px 10px" data-del="vendors" data-i="' + i + '">刪</button></td></tr>';
+  });
+  h += '</table></div><button class="btn o" data-add="vendors">＋新增廠商</button><button class="btn g" data-save="vendors">儲存廠商</button></div>';
+  $('body').innerHTML = h;
+}
+
+function rProducts() {
+  var vs = S.d.vendors.map(function (v) { return v.name; });
+  var unm = S.d.products.filter(function (p) { return !p.vendor; }).length;
+  var h = '<div class="card"><h2>商品對照廠商</h2><div class="hint">系統自動列出三攤所有上架商品。<b style="color:#b00">紅底</b>＝還沒對照到廠商（該品項不會通知任何廠商）；<b style="color:#8a6a00">金框</b>＝系統依分類預設的建議，按「儲存」後才正式生效。新商品上架後會自動出現在這裡。</div>' +
+    (unm ? '<div class="msg err">有 ' + unm + ' 項商品尚未對照廠商</div>' : '') + '<div class="scroll"><table><tr><th>攤位</th><th>代碼</th><th>品名／規格</th><th>廠商</th></tr>';
+  S.d.products.forEach(function (p, i) {
+    h += '<tr class="' + (p.vendor ? (p.auto ? 'auto' : '') : 'unm') + '"><td>' + esc(p.stallName) + '</td><td>' + esc(p.code) + '</td><td>' + esc(p.name) + (p.spec ? '（' + esc(p.spec) + '）' : '') + '</td>' +
+      '<td class="v"><select data-sec="products" data-i="' + i + '" data-k="vendor"><option value="">（未對照）</option>' + vs.map(function (v) { return '<option' + (v === p.vendor ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('') + '</select></td></tr>';
+  });
+  h += '</table></div><button class="btn g" data-save="products">儲存商品對照</button></div>';
+  $('body').innerHTML = h;
+}
+
+function rMembers() {
+  var h = '<div class="card"><h2>同學通知設定</h2><div class="hint">「即時」＝有人用這位同學的名字下單，立刻寄通知（整張訂單）。「每晚」＝每晚彙整（新訂單、未收款、待交貨）。沒有填 email 的同學不會收到信。</div><div class="scroll"><table><tr><th>姓名</th><th>Email</th><th>即時</th><th>每晚</th></tr>';
+  S.d.members.forEach(function (m, i) {
+    h += '<tr><td>' + esc(m.name) + '<div class="hint">' + esc(m.booth) + '</div></td><td><input type="email" data-sec="members" data-i="' + i + '" data-k="email" value="' + esc(m.email) + '" class="' + (validMail(m.email) ? '' : 'bad') + '"></td>' +
+      '<td><input type="checkbox" data-sec="members" data-i="' + i + '" data-k="instant"' + (m.instant ? ' checked' : '') + '></td>' +
+      '<td><input type="checkbox" data-sec="members" data-i="' + i + '" data-k="digest"' + (m.digest ? ' checked' : '') + '></td></tr>';
+  });
+  h += '</table></div><button class="btn g" data-save="members">儲存同學通知</button></div>';
+  $('body').innerHTML = h;
+}
+
+function rSettings() {
+  var d = S.d, s = d.settings;
+  var h = '<div class="card"><h2>通知開關</h2>' +
+    (s.on ? '<p>通知目前<b style="color:var(--green)">已開啟</b>。</p><button class="btn r" data-act="adminDisable">停止通知</button>'
+          : '<p>通知目前<b style="color:var(--red)">尚未開啟</b>。按下「開始通知」時，系統會先把<b>目前已有的所有訂單</b>記為基準（不會補寄舊訂單），之後只有「新訂單」才會通知。</p><button class="btn g" data-act="adminEnable">開始通知</button>') +
+    '<button class="btn o" data-act="adminTriggers">重建觸發器</button><button class="btn o" data-act="adminScan">立即掃描一次</button></div>';
+  h += '<div class="card"><h2>掃描與彙整</h2><div class="scroll"><table>' +
+    '<tr><td>新單掃描頻率</td><td><select id="s_interval">' + [1, 5, 10, 15, 30].map(function (n) { return '<option value="' + n + '"' + (n === s.interval ? ' selected' : '') + '>每 ' + n + ' 分鐘</option>'; }).join('') + '</select></td></tr>' +
+    '<tr><td>每晚彙整時間</td><td><select id="s_hour">' + Array.apply(null, Array(24)).map(function (_, n) { return '<option value="' + n + '"' + (n === s.hour ? ' selected' : '') + '>' + n + ':00</option>'; }).join('') + '</select></td></tr>' +
+    '<tr><td>統籌 email<div class="hint">每晚總覽、最終出貨單、未對照警示寄到這裡</div></td><td><input type="email" id="s_admin" value="' + esc(s.adminEmail) + '"></td></tr></table></div>' +
+    '<button class="btn g" data-save="settings">儲存設定</button></div>';
+  h += '<div class="card"><h2>提醒日期</h2><div class="hint">日期到了的當天（在每晚彙整時間）寄出。預購截止日 12/13。永生花約需 3 天製作，最終出貨單於截止後寄出。</div><div class="scroll"><table><tr><th>日期</th><th>類型</th><th>說明</th><th>啟用</th><th></th></tr>';
+  d.reminders.forEach(function (r, i) {
+    h += '<tr><td><input type="text" data-sec="reminders" data-i="' + i + '" data-k="date" value="' + esc(r.date) + '" placeholder="2026-12-06"></td>' +
+      '<td><select data-sec="reminders" data-i="' + i + '" data-k="type">' + Object.keys(TYPES).map(function (k) { return '<option value="' + k + '"' + (k === r.type ? ' selected' : '') + '>' + TYPES[k] + '</option>'; }).join('') + '</select></td>' +
+      '<td><input type="text" data-sec="reminders" data-i="' + i + '" data-k="desc" value="' + esc(r.desc) + '"></td>' +
+      '<td><input type="checkbox" data-sec="reminders" data-i="' + i + '" data-k="enabled"' + (r.enabled ? ' checked' : '') + '></td>' +
+      '<td><button class="btn r" style="margin:0;padding:6px 10px" data-del="reminders" data-i="' + i + '">刪</button></td></tr>';
+  });
+  h += '</table></div><button class="btn o" data-add="reminders">＋新增提醒</button><button class="btn g" data-save="reminders">儲存提醒</button></div>';
+  h += '<div class="card"><h2>寄測試信</h2><input type="email" id="t_mail" placeholder="要測試的 email"><button class="btn" data-act="test">寄測試信</button><div class="hint">第一次寄信可能進垃圾信件匣，請請收件人標記「非垃圾郵件」。</div></div>';
+  h += '<div class="card"><h2>更改管理者通關碼</h2><input type="password" id="n_code" placeholder="新通關碼（至少 6 碼）" autocomplete="off"><button class="btn" data-act="newcode">更改</button></div>';
+  h += '<div class="card"><h2>最近 50 筆寄信紀錄</h2><div class="scroll"><table><tr><th>時間</th><th>類型</th><th>訂單</th><th>收件人</th><th>結果</th></tr>' +
+    (d.log.length ? d.log.map(function (l) { return '<tr><td>' + esc(l.time.slice(5, 16)) + '</td><td>' + esc(l.type) + '</td><td>' + esc(l.id) + '</td><td>' + esc(l.name) + '<div class="hint">' + esc(l.email) + '</div></td><td style="color:' + (/失敗/.test(l.result) ? '#b00' : 'inherit') + '">' + esc(l.result) + '</td></tr>'; }).join('') : '<tr><td colspan="5" class="hint">尚無紀錄</td></tr>') +
+    '</table></div></div>';
+  $('body').innerHTML = h;
+}
+
+function collect(sec) {
+  var d = S.d;
+  if (sec === 'vendors') return d.vendors;
+  if (sec === 'members') return d.members;
+  if (sec === 'products') return d.products.map(function (p) { return { stall: p.stall, code: p.code, name: p.name, spec: p.spec, vendor: p.vendor }; });
+  if (sec === 'reminders') return d.reminders;
+  if (sec === 'settings') return [{ interval: $('s_interval').value, hour: $('s_hour').value, adminEmail: $('s_admin').value.trim() }];
+}
+function save(sec) {
+  var rows = collect(sec);
+  var bad = null;
+  if (sec === 'vendors') rows.forEach(function (r) { if (!validMail(r.email)) bad = '廠商「' + r.name + '」的 email 格式不正確'; });
+  if (sec === 'members') rows.forEach(function (r) { if (!validMail(r.email)) bad = r.name + ' 的 email 格式不正確'; });
+  if (sec === 'settings' && !validMail(rows[0].adminEmail)) bad = '統籌 email 格式不正確';
+  if (bad) { flash(bad, 'err'); return; }
+  flash('儲存中…', 'warn');
+  api({ action: 'adminSave', section: sec, rows: rows }).then(function (r) {
+    if (!r || !r.ok) { flash((r && r.error) || '儲存失敗', 'err'); return; }
+    reload('已儲存 ✓');
+  })['catch'](function () { flash('網路不穩，請稍後確認是否已儲存', 'err'); });
+}
+function act(name) {
+  var body = { action: name };
+  if (name === 'test') { body.action = 'adminTest'; body.email = ($('t_mail').value || '').trim(); }
+  if (name === 'newcode') {
+    var nc = $('n_code').value.trim();
+    if (nc.length < 6) { flash('新通關碼至少 6 碼', 'err'); return; }
+    body.action = 'adminCode'; body.newCode = nc;
+  }
+  flash('處理中…', 'warn');
+  api(body).then(function (r) {
+    if (!r || !r.ok) { flash((r && r.error) || '操作失敗', 'err'); return; }
+    if (name === 'newcode') { S.code = body.newCode; try { sessionStorage.setItem('adm', S.code); } catch (e) {} flash('已更改，下次登入請用新通關碼 ✓', 'ok'); return; }
+    var msg = name === 'adminEnable' ? '通知已開啟（已把現有 ' + r.baseline + ' 筆訂單記為基準，不補寄）✓'
+      : name === 'test' ? '測試信已寄出 ✓' : name === 'adminScan' ? '掃描完成 ✓' : '完成 ✓';
+    reload(msg);
+  })['catch'](function () { flash('網路不穩或系統忙碌，請稍後重試', 'err'); });
+}
+
+document.addEventListener('input', function (ev) { var t = ev.target; if (!t.dataset || !t.dataset.sec) return; edit(t); });
+document.addEventListener('change', function (ev) { var t = ev.target; if (!t.dataset || !t.dataset.sec) return; edit(t); if (t.type === 'email') t.className = validMail(t.value) ? '' : 'bad'; });
+function edit(t) {
+  var sec = t.dataset.sec, row = S.d[sec][+t.dataset.i], k = t.dataset.k;
+  row[k] = t.type === 'checkbox' ? t.checked : t.value;
+  if (sec === 'products' && k === 'vendor') { row.auto = false; row.unmapped = !t.value; var tr = t.closest('tr'); tr.className = t.value ? '' : 'unm'; }
+  if (t.type === 'email') t.className = validMail(t.value) ? '' : 'bad';
+}
+document.addEventListener('click', function (ev) {
+  var e = ev.target;
+  var tb = e.closest('[data-tab]'); if (tb) { S.tab = tb.dataset.tab; flash(''); render(); return; }
+  if (e.id === 'reload') { reload(); return; }
+  var sv = e.closest('[data-save]'); if (sv) { save(sv.dataset.save); return; }
+  var ac = e.closest('[data-act]'); if (ac) { act(ac.dataset.act); return; }
+  var ad = e.closest('[data-add]'); if (ad) {
+    if (ad.dataset.add === 'vendors') S.d.vendors.push({ name: '新廠商', owner: '', email: '', enabled: true, note: '' });
+    else S.d.reminders.push({ date: '', type: 'deadline', desc: '', enabled: true });
+    render(); return;
+  }
+  var dl = e.closest('[data-del]'); if (dl) {
+    var sec = dl.dataset.del, row = S.d[sec][+dl.dataset.i];
+    if (sec === 'vendors' && !confirm('確定刪除廠商「' + row.name + '」？（已對照到它的商品會變成未對照）')) return;
+    S.d[sec].splice(+dl.dataset.i, 1); render();
+  }
+});
+$('go').addEventListener('click', login);
+$('code').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(); });
+try { var sv = sessionStorage.getItem('adm'); if (sv) { $('code').value = sv; login(); } } catch (e) {}
+</script>
+</body>
+</html>
