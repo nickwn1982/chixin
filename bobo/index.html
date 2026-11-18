@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>巴拿巴宣教募款｜啵啵 快樂製造所 預購單</title>
+<style>
+  :root { --red:#a8321f; --red-d:#7f2416; --cream:#fbf6ec; --ink:#2e2a26; --mute:#7a7168; --line:#e4d8c4; --green:#2f6b4f; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--cream); color:var(--ink); font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif; font-size:18px; line-height:1.6; }
+  .wrap { max-width:520px; margin:0 auto; padding:0 16px 120px; }
+  header { background:var(--red); color:#fff; padding:22px 16px 18px; text-align:center; }
+  header .sub { font-size:14px; opacity:.9; letter-spacing:.08em; }
+  header h1 { margin:4px 0 6px; font-size:24px; }
+  header .dl { display:inline-block; background:#fff; color:var(--red-d); font-weight:700; font-size:15px; border-radius:99px; padding:2px 14px; }
+  .intro { font-size:15px; color:var(--mute); margin:14px 0 4px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; margin-top:14px; }
+  .card h2 { font-size:17px; margin:0 0 10px; color:var(--red-d); }
+  .sec { font-size:17px; font-weight:700; color:var(--red-d); margin:20px 0 0; }
+  details.booth { background:#fff; border:1px solid var(--line); border-radius:14px; margin-top:10px; overflow:hidden; }
+  details.booth > summary { list-style:none; cursor:pointer; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:8px; font-weight:700; }
+  details.booth > summary::-webkit-details-marker { display:none; }
+  details.booth > summary .nm small { display:block; font-weight:400; font-size:13px; color:var(--mute); letter-spacing:.06em; }
+  details.booth > summary .rt { display:flex; align-items:center; gap:8px; flex:none; font-size:14px; }
+  .badge { background:var(--green); color:#fff; border-radius:99px; padding:1px 10px; font-weight:700; }
+  .chev { color:var(--mute); transition:transform .15s; }
+  details[open] .chev { transform:rotate(180deg); }
+  .body { padding:0 16px 8px; }
+  .grp { border-top:1px solid var(--line); padding:12px 0 4px; }
+  .grp h3 { margin:0; font-size:18px; }
+  .item { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 0; }
+  .item .lb { min-width:0; }
+  .item .pr { color:var(--red-d); font-weight:700; font-variant-numeric:tabular-nums; }
+  .soon { font-size:14px; color:var(--mute); background:#f3ede2; border-radius:99px; padding:2px 12px; flex:none; }
+  label.f { display:block; font-weight:700; margin:12px 0 4px; }
+  label.f:first-of-type { margin-top:0; }
+  input[type=text], input[type=tel], select, textarea { width:100%; font:inherit; padding:12px; border:1.5px solid var(--line); border-radius:10px; background:#fff; color:var(--ink); }
+  input:focus, select:focus, textarea:focus, button:focus-visible, summary:focus-visible { outline:3px solid #e9b949; outline-offset:1px; }
+  textarea { min-height:72px; resize:vertical; }
+  .hint { font-size:14px; color:var(--mute); margin-top:2px; }
+  .step { display:flex; align-items:center; gap:6px; flex:none; }
+  .step button { width:46px; height:46px; border-radius:50%; border:0; background:var(--red); color:#fff; font-size:26px; line-height:1; cursor:pointer; }
+  .step button.minus { background:#fff; color:var(--red); border:2px solid var(--red); }
+  .step input { width:58px; text-align:center; font:inherit; font-size:21px; font-weight:700; padding:7px 2px; border:1.5px solid var(--line); border-radius:10px; }
+  .radio { display:flex; gap:10px; align-items:flex-start; padding:12px; border:1.5px solid var(--line); border-radius:10px; margin-top:8px; cursor:pointer; }
+  .radio input { width:22px; height:22px; margin-top:3px; accent-color:var(--red); flex:none; }
+  .radio.off { opacity:.5; }
+  .locked { background:#f3f8f4; border:1.5px solid #bcd7c6; border-radius:10px; padding:12px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .locked b { color:var(--green); font-size:20px; }
+  .link { background:none; border:0; color:var(--mute); text-decoration:underline; font:inherit; font-size:14px; cursor:pointer; padding:6px; }
+  .bar { position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:1px solid var(--line); padding:10px 16px; box-shadow:0 -4px 14px rgba(0,0,0,.06); }
+  .bar .in { max-width:520px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .bar .sum { font-size:15px; color:var(--mute); }
+  .bar .sum b { display:block; font-size:24px; color:var(--red-d); font-variant-numeric:tabular-nums; }
+  .btn { background:var(--red); color:#fff; border:0; border-radius:12px; font:inherit; font-weight:700; font-size:19px; padding:14px 22px; cursor:pointer; min-width:150px; }
+  .btn:disabled { background:#c9bfb2; cursor:not-allowed; }
+  .btn.ghost { background:#fff; color:var(--red); border:2px solid var(--red); }
+  .err { background:#fdecea; border:1.5px solid #e2a79e; color:#8a1f10; border-radius:10px; padding:12px; margin-top:14px; font-weight:700; }
+  .err ul { margin:4px 0 0; padding-left:20px; font-weight:400; }
+  table.sum { width:100%; border-collapse:collapse; font-size:17px; }
+  table.sum td { padding:7px 0; border-bottom:1px dashed var(--line); vertical-align:top; }
+  table.sum td.k { color:var(--mute); width:5.5em; }
+  table.sum td.n { text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .total { font-size:26px; font-weight:700; color:var(--red-d); }
+  .ok { text-align:center; }
+  .ok .no { font-size:30px; font-weight:700; letter-spacing:.05em; color:var(--green); margin:6px 0; }
+  .row2 { display:flex; gap:10px; margin-top:16px; }
+  .row2 .btn { flex:1; min-width:0; }
+  .bulk { font-size:15px; font-weight:700; color:var(--green); margin-top:4px; }
+  .bulk.on { background:#f3f8f4; border:1.5px solid #bcd7c6; border-radius:10px; padding:6px 10px; }
+  .item .lb { flex:1; }
+  .ban { display:block; width:100%; max-height:240px; object-fit:cover; border-radius:10px; margin:8px 0 4px; cursor:zoom-in; }
+  .th { width:76px; height:76px; object-fit:cover; border-radius:10px; flex:none; cursor:zoom-in; }
+  .zoom { position:fixed; inset:0; z-index:9; background:rgba(0,0,0,.88); display:flex; align-items:center; justify-content:center; padding:12px; cursor:zoom-out; }
+  .zoom img { max-width:100%; max-height:100%; border-radius:8px; }
+  [hidden] { display:none !important; }
+  .msg { text-align:center; padding:40px 16px; color:var(--mute); }
+  footer.ft { text-align:center; font-size:14px; color:var(--mute); margin:28px 0 0; }
+  footer.ft a { color:var(--red-d); }
+</style>
+</head>
+<body>
+<header>
+  <div class="sub">巴拿巴宣教學院・國際志工募款</div>
+  <h1>啵啵 快樂製造所 預購單</h1>
+  <span class="dl">預購到 12/13（日）截止</span>
+</header>
+
+<div class="wrap">
+  <section id="vLoading" class="msg">載入中，請稍候…</section>
+  <section id="vFail" class="card ok" hidden>
+    <h2>頁面暫時打不開</h2>
+    <p>可能是網路不穩，請按下面按鈕重試。</p>
+    <div class="row2"><button type="button" class="btn" id="retry">重新載入</button></div>
+  </section>
+  <section id="vClosed" class="card ok" hidden>
+    <h2>預購已截止</h2>
+    <p>謝謝您的支持！</p>
+  </section>
+
+  <section id="vForm" hidden>
+    <p class="intro">感謝您支持巴拿巴宣教學院 國際志工！義賣所得扣除成本後，全數用於公益公費與物資。</p>
+
+    <div class="sec">① 想訂什麼？</div>
+    <div id="catalog"></div>
+
+    <div class="card">
+      <h2>② 您的聯絡方式</h2>
+      <label class="f" for="name">訂購人姓名</label>
+      <input id="name" type="text" maxlength="20" autocomplete="name">
+      <label class="f" for="phone">手機</label>
+      <input id="phone" type="tel" inputmode="numeric" maxlength="13" placeholder="0912345678" autocomplete="tel">
+      <div class="hint">只用來聯絡付款與取貨。</div>
+    </div>
+
+    <div class="card">
+      <h2>③ 介紹您的同學</h2>
+      <div id="sellerLocked" class="locked" hidden>
+        <b id="sellerName"></b>
+        <button type="button" class="link" id="sellerChange">不是這位？更改</button>
+      </div>
+      <div id="sellerPick" hidden>
+        <select id="seller" aria-label="介紹您的同學"></select>
+      </div>
+      <div class="hint">付款和取貨都由這位同學協助您，款項請交給他／她。</div>
+    </div>
+
+    <div class="card">
+      <h2>④ 取貨方式</h2>
+      <div id="pickups"></div>
+      <div id="addrBox" hidden>
+        <label class="f" for="address">郵寄地址（含郵遞區號）</label>
+        <div class="hint">收件人同訂購人；若不同，請在備註寫收件人姓名與手機。</div>
+        <input id="address" type="text" maxlength="100" autocomplete="street-address">
+      </div>
+      <label class="f" for="note">備註（可不填）</label>
+      <textarea id="note" maxlength="200"></textarea>
+    </div>
+
+    <div class="err" id="err" hidden role="alert"></div>
+  </section>
+
+  <section id="vConfirm" hidden>
+    <div class="card">
+      <h2>請確認訂單內容</h2>
+      <table class="sum" id="sumItems"></table>
+      <table class="sum" id="sumTable" style="margin-top:10px"></table>
+      <div class="err" id="err2" hidden role="alert"></div>
+      <div class="row2">
+        <button type="button" class="btn ghost" id="back">回去修改</button>
+        <button type="button" class="btn" id="send">確認送出</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="vDone" hidden>
+    <div class="card ok">
+      <h2 id="doneTitle">預購成功，謝謝您！</h2>
+      <div>訂單編號</div>
+      <div class="no" id="doneNo"></div>
+      <p id="doneMsg"></p>
+      <p class="hint">建議截圖保存這個畫面。要更改或取消，請直接告訴介紹您的同學並提供訂單編號。</p>
+      <div class="row2"><button type="button" class="btn ghost" id="again">幫另一位親友訂</button></div>
+    </div>
+  </section>
+<footer class="ft">同學專用：<a href="../my/">我的預購總覽（專屬連結、我名下的訂單）</a></footer>
+</div>
+
+<div class="bar" id="bar" hidden>
+  <div class="in">
+    <div class="sum"><span id="barPacks">尚未選購</span><b id="barTotal">$0</b></div>
+    <button type="button" class="btn" id="next">下一步</button>
+  </div>
+</div>
+
+<div class="zoom" id="zoom" hidden><img id="zoomImg" alt="商品大圖（點一下關閉）"></div>
+
+<script>
+var BOOT = null;
+var API = 'https://script.google.com/macros/s/AKfycbytFW6MJ_rOL10k075H36grVXJ9mXF2_oe75Ef_sE1x88pr5A9t5-mqPw9iOw-yTr9j/exec';
+var ALIAS = { guozheng:'溫國政', yuwen:'李玉雯', yifen:'李益芬', yicai:'呂衣綵', huichun:'房惠純', h3k9:'吳雨儂', yunong:'吳雨儂', chuanxia:'王傳霞', wenqi:'楊雯祺',
+  shufen:'周淑芬', yaling:'曾雅玲', liru:'陳麗如', yuhua:'符玉華', feibi:'Feibi 君愛', huimin:'房惠敏', xiaowen:'林筱雯',
+  naiyi:'劉乃一', yuping:'劉玉萍', huiying:'馮惠英', yingxuan:'沈盈暄', lingzhi:'翁玲芝', xiangying:'陳湘盈', naiqing:'李乃青', zhenyi:'江貞儀' };
+function api(body, ms) {
+  var ctl = window.AbortController ? new AbortController() : null;
+  var timer = ctl ? setTimeout(function () { ctl.abort(); }, ms || 30000) : 0;
+  return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body),
+    credentials: 'omit', redirect: 'follow', cache: 'no-store', signal: ctl ? ctl.signal : undefined })
+    .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }, function (e) { clearTimeout(timer); throw e; });
+}
+function bootParams() {
+  var qs = new URLSearchParams(location.search), s = (qs.get('s') || '').trim(), k = s.toLowerCase(), b = (qs.get('b') || '').trim();
+  return { s: ALIAS.hasOwnProperty(k) ? ALIAS[k] : s, b: b };
+}
+var $ = function (id) { return document.getElementById(id); };
+var state = null, OPEN = [];
+
+function qtyOf(el) { var v = el.value.trim(); if (v === '') return 0; return /^\d{1,4}$/.test(v) ? parseInt(v, 10) : NaN; }
+function money(n) { return '$' + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function show(id) { ['vLoading', 'vFail', 'vClosed', 'vForm', 'vConfirm', 'vDone'].forEach(function (v) { $(v).hidden = v !== id; }); $('bar').hidden = id !== 'vForm'; window.scrollTo(0, 0); }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function imgTag(u, alt, cls) { return '<img class="' + cls + '" src="' + esc(u) + '" alt="' + esc(alt) + '" loading="lazy" data-zoom="1" onerror="this.hidden=true">'; }
+function inputs() { return Array.prototype.slice.call(document.querySelectorAll('input[data-code]')); }
+
+/** 目前選購內容：{bad, lines:[{p, qty, sub}], qty, total, over} */
+function cart() {
+  var c = { bad: false, lines: [], qty: 0, total: 0, over: false, byBooth: {} };
+  inputs().forEach(function (el) {
+    var q = qtyOf(el);
+    if (isNaN(q)) { c.bad = true; return; }
+    if (!q) return;
+    var p = OPEN.filter(function (x) { return x.code === el.dataset.code; })[0];
+    if (q > BOOT.max) c.over = true;
+    c.lines.push({ p: p, qty: q, sub: q * p.price }); c.qty += q; c.total += q * p.price;
+    c.byBooth[p.booth] = (c.byBooth[p.booth] || 0) + q;
+  });
+  c.off = 0; c.bulkQty = 0; c.bulkMin = 0; c.save = 0; c.next = null;
+  if (BOOT.bulk && BOOT.bulk.tiers && !c.bad) {
+    c.lines.forEach(function (l) { if (l.p.cat === BOOT.bulk.cat) c.bulkQty += l.qty; });
+    BOOT.bulk.tiers.forEach(function (t) {
+      if (c.bulkQty >= t.min) { if (t.off > c.off) { c.off = t.off; c.bulkMin = t.min; } }
+      else if (!c.next || t.min < c.next.min) c.next = t;
+    });
+    if (c.off) {
+      c.total = 0;
+      c.lines.forEach(function (l) {
+        if (l.p.cat === BOOT.bulk.cat && l.p.price > c.off) l.sub = l.qty * (l.p.price - c.off);
+        c.total += l.sub;
+      });
+      c.save = c.off * c.bulkQty;
+    }
+  }
+  return c;
+}
+
+function refresh() {
+  var c = cart();
+  var tip = $('bulkTip');
+  if (tip) {
+    var u = BOOT.bulk.unit, more = c.next ? '再 ' + (c.next.min - c.bulkQty) + ' ' + u + '，每' + u + '折 $' + c.next.off : '';
+    tip.textContent = c.off ? '已達 ' + c.bulkMin + ' ' + u + '：每' + u + '折 $' + c.off + '，共省 ' + money(c.save) + (more ? '（' + more + '）' : '')
+      : (c.bulkQty ? '目前 ' + c.bulkQty + ' ' + u + '，' + more : '');
+    tip.hidden = !tip.textContent;
+  }
+  $('barPacks').textContent = c.bad ? '數量請填數字' : (c.qty ? '共 ' + c.qty + ' 件' + (feeOf(pickupId()) ? '（含運費）' : '') : '尚未選購');
+  $('barTotal').textContent = money(c.bad ? 0 : c.total + (c.qty ? feeOf(pickupId()) : 0));
+  BOOT.booths.forEach(function (b) {
+    var el = $('bd_' + b.id); if (!el) return;
+    var n = c.byBooth[b.key] || 0; el.textContent = '已選 ' + n + ' 件'; el.hidden = !n;
+  });
+  BOOT.pickups.forEach(function (k) {
+    var el = $('pk_' + k.id), off = !!(k.minAmount && c.total < k.minAmount);
+    el.disabled = off; el.parentNode.classList.toggle('off', off);
+    if (off && el.checked) { el.checked = false; $('pk_' + BOOT.pickups[0].id).checked = true; }
+  });
+  var chosen = pickupId(), need = false;
+  BOOT.pickups.forEach(function (k) { if (k.id === chosen && k.needAddress) need = true; });
+  $('addrBox').hidden = !need;
+}
+function feeOf(id) { var f = 0; BOOT.pickups.forEach(function (k) { if (k.id === id && k.fee) f = k.fee; }); return f; }
+function pickupId() { var r = document.querySelector('input[name=pickup]:checked'); return r ? r.value : ''; }
+function sellerValue() { return state.sellerLocked ? BOOT.lockedSeller : $('seller').value; }
+function payload() {
+  var items = {};
+  inputs().forEach(function (el) { var v = el.value.trim(); if (v !== '' && v !== '0') items[el.dataset.code] = v; });
+  return { name: $('name').value, phone: $('phone').value, seller: sellerValue(), items: items,
+    pickup: pickupId(), address: $('address').value, note: $('note').value, src: BOOT.src };
+}
+function localErrors() {
+  var e = [], c = cart();
+  if (c.bad) e.push('數量請填數字');
+  else { if (c.qty < 1) e.push('請至少選 1 件商品'); if (c.over) e.push('單一品項一次最多 ' + BOOT.max + ' 件，更大量請直接聯絡介紹您的同學'); }
+  if (!$('name').value.trim()) e.push('請填寫訂購人姓名');
+  var ph = $('phone').value.replace(/[\s\-]/g, '');
+  if (!/^(09\d{8}|\+8869\d{8})$/.test(ph)) e.push('手機請填 10 碼，例如 0912345678');
+  if (!sellerValue()) e.push('請選擇介紹您的同學');
+  if (sellerValue() === BOOT.otherSeller && !$('note').value.trim()) e.push('請在備註寫下介紹您的同學名字');
+  if (!pickupId()) e.push('請選擇取貨方式');
+  if (!$('addrBox').hidden && !$('address').value.trim()) e.push('請填寫配送地址');
+  return e;
+}
+function showErr(id, list) {
+  var el = $(id);
+  if (!list.length) { el.hidden = true; return; }
+  el.innerHTML = '還有地方要補一下：<ul>' + list.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>';
+  el.hidden = false; el.scrollIntoView({ block: 'center' });
+}
+
+function renderCatalog() {
+  var shown = BOOT.booths.filter(function (b) { return BOOT.products.some(function (p) { return p.booth === b.key; }); });
+  var focus = BOOT.focus || (shown.length ? shown[0].id : '');
+  shown.sort(function (a, b) { return (b.id === focus) - (a.id === focus); });
+  $('catalog').innerHTML = shown.map(function (b) {
+    var groups = [], idx = {};
+    BOOT.products.forEach(function (p) {
+      if (p.booth !== b.key) return;
+      if (!(p.name in idx)) { idx[p.name] = groups.length; groups.push({ name: p.name, note: p.note, items: [] }); }
+      groups[idx[p.name]].items.push(p);
+    });
+    return '<details class="booth"' + (b.id === focus || shown.length === 1 ? ' open' : '') + '><summary><span class="nm"><small>' + esc(b.small || b.key) +
+      '</small>' + esc(b.big || b.name) + '</span><span class="rt"><span class="badge" id="bd_' + b.id + '" hidden></span><span class="chev">▼</span></span></summary><div class="body">' +
+      groups.map(function (g) {
+        var imgs = [];
+        g.items.forEach(function (p) { if (p.img && imgs.indexOf(p.img) < 0) imgs.push(p.img); });
+        return '<div class="grp"><h3>' + esc(g.name) + '</h3>' + (imgs.length === 1 ? imgTag(imgs[0], g.name, 'ban') : '') + (g.note ? '<div class="hint">' + esc(g.note) + '</div>' : '') +
+          (BOOT.bulk && BOOT.bulk.tiers && BOOT.bulk.tiers.length && g.items[0].cat === BOOT.bulk.cat
+            ? '<div class="bulk">各口味合計：' + BOOT.bulk.tiers.map(function (t) {
+                return '滿 ' + t.min + ' ' + esc(BOOT.bulk.unit) + '每' + esc(BOOT.bulk.unit) + '折 $' + t.off; }).join('、') +
+              '</div><div class="bulk on" id="bulkTip" hidden></div>' : '') +
+          g.items.map(function (p) {
+            var label = p.spec || p.name, full = p.name + (p.spec ? ' ' + p.spec : '');
+            var right = p.open
+              ? '<div class="step"><button type="button" class="minus" data-t="' + esc(p.code) + '" data-d="-1" aria-label="' + esc(full) + ' 減一">−</button>' +
+                '<input id="q_' + esc(p.code) + '" data-code="' + esc(p.code) + '" inputmode="numeric" pattern="[0-9]*" value="0" aria-label="' + esc(full) + ' 數量">' +
+                '<button type="button" data-t="' + esc(p.code) + '" data-d="1" aria-label="' + esc(full) + ' 加一">＋</button></div>'
+              : '<span class="soon">即將開放</span>';
+            return '<div class="item">' + (imgs.length > 1 && p.img ? imgTag(p.img, full, 'th') : '') + '<div class="lb"><div>' + esc(label) + '</div>' +
+              (p.price ? '<div class="pr">' + money(p.price) + '<span class="hint">／' + esc(p.unit) + '</span></div>' : '') + '</div>' + right + '</div>';
+          }).join('') + '</div>';
+      }).join('') + '</div></details>';
+  }).join('');
+}
+
+function init() {
+  state = { sellerLocked: !!BOOT.lockedSeller, sending: false };
+  OPEN = BOOT.products.filter(function (p) { return p.open; });
+  if (BOOT.closed) { show('vClosed'); return; }
+  renderCatalog();
+  var sel = $('seller');
+  sel.innerHTML = '<option value="">請選擇</option>' + BOOT.sellers.concat([BOOT.otherSeller]).map(function (n) {
+    return '<option>' + esc(n) + '</option>'; }).join('');
+  $('sellerLocked').hidden = !state.sellerLocked; $('sellerPick').hidden = state.sellerLocked;
+  $('sellerName').textContent = BOOT.lockedSeller;
+  $('pickups').innerHTML = BOOT.pickups.map(function (k) {
+    return '<label class="radio"><input type="radio" name="pickup" id="pk_' + k.id + '" value="' + k.id + '"><span>' + esc(k.label) + '</span></label>'; }).join('');
+  if (BOOT.pickups.length) $('pk_' + BOOT.pickups[0].id).checked = true;
+  document.addEventListener('click', function (ev) {
+    var z = ev.target.closest('img[data-zoom]');
+    if (z) { $('zoomImg').src = z.src.replace(/sz=w\d+/, 'sz=w1600'); $('zoom').hidden = false; return; }
+    if (ev.target.closest('#zoom')) { $('zoom').hidden = true; return; }
+    var b = ev.target.closest('button[data-t]'); if (!b) return;
+    var inp = $('q_' + b.dataset.t), v = qtyOf(inp); if (isNaN(v)) v = 0;
+    inp.value = Math.max(0, Math.min(BOOT.max, v + parseInt(b.dataset.d, 10))); refresh();
+  });
+  inputs().forEach(function (el) {
+    el.addEventListener('input', refresh);
+    el.addEventListener('focus', function () { if (this.value === '0') this.value = ''; });
+    el.addEventListener('blur', function () { if (this.value.trim() === '') this.value = '0'; refresh(); });
+  });
+  $('pickups').addEventListener('change', refresh);
+  $('sellerChange').addEventListener('click', function () { state.sellerLocked = false; $('sellerLocked').hidden = true; $('sellerPick').hidden = false; $('seller').focus(); });
+  $('next').addEventListener('click', function () {
+    var e = localErrors(); showErr('err', e); if (e.length) return;
+    var p = payload(), c = cart(), pk = '';
+    BOOT.pickups.forEach(function (k) { if (k.id === p.pickup) pk = k.label; });
+    $('sumItems').innerHTML = c.lines.map(function (l) {
+      return '<tr><td>' + esc(l.p.name + (l.p.spec ? '・' + l.p.spec : '')) + '</td><td class="n">× ' + l.qty + '</td><td class="n">' + money(l.sub) + '</td></tr>';
+    }).join('') + (c.save ? '<tr><td colspan="3" style="color:var(--green);font-weight:700">' + esc(BOOT.bulk.cat) + '數量優惠：每' + esc(BOOT.bulk.unit) + '折 $' + c.off + '，已折 ' + money(c.save) + '</td></tr>' : '') + (feeOf(p.pickup) ? '<tr><td>郵寄運費</td><td></td><td class="n">' + money(feeOf(p.pickup)) + '</td></tr>' : '') + '<tr><td>應付金額</td><td></td><td class="n total">' + money(c.total + feeOf(p.pickup)) + '</td></tr>';
+    var rows = [['訂購人', p.name.trim()], ['手機', p.phone.trim()], ['介紹同學', p.seller], ['取貨方式', pk]];
+    if (!$('addrBox').hidden) rows.push(['配送地址', p.address.trim()]);
+    if (p.note.trim()) rows.push(['備註', p.note.trim()]);
+    $('sumTable').innerHTML = rows.map(function (r) { return '<tr><td class="k">' + r[0] + '</td><td>' + esc(r[1]) + '</td></tr>'; }).join('');
+    $('err2').hidden = true; show('vConfirm');
+  });
+  $('back').addEventListener('click', function () { show('vForm'); });
+  $('send').addEventListener('click', send);
+  $('again').addEventListener('click', function () {
+    ['name', 'phone', 'address', 'note'].forEach(function (id) { $(id).value = ''; });
+    inputs().forEach(function (el) { el.value = '0'; }); refresh(); show('vForm');
+  });
+  refresh(); show('vForm');
+}
+
+function send() {
+  if (state.sending) return;
+  state.sending = true; $('send').disabled = true; $('back').disabled = true; $('send').textContent = '送出中…';
+  var done = function () { state.sending = false; $('send').disabled = false; $('back').disabled = false; $('send').textContent = '確認送出'; };
+  api({ action: 'submit', order: payload() }, 60000).then(function (r) {
+    done();
+    if (!r || !r.ok) { if (r && r.closed) { show('vClosed'); return; } showErr('err2', (r && r.errors) || ['送出失敗，請再試一次']); return; }
+    $('doneTitle').textContent = r.duplicate ? '這筆訂單剛剛已經收到囉' : '預購成功，謝謝您！';
+    $('doneNo').textContent = r.orderNo;
+    $('doneMsg').innerHTML = '共 <b>' + r.order.qty + '</b> 件，應付 <b>' + money(r.order.total) + '</b><br>款項請交給 <b>' +
+      esc(r.order.seller === BOOT.otherSeller ? '介紹您的同學' : r.order.seller) + '</b>，他／她會再跟您約付款與取貨。';
+    show('vDone');
+  })['catch'](function () {
+    done(); showErr('err2', ['網路好像不太穩，訂單還沒送出，請再按一次「確認送出」。']);
+  });
+}
+var started = false;
+function loadBoot() {
+  show('vLoading');
+  api({ action: 'boot', params: bootParams() }, 30000).then(function (r) {
+    if (!r || !r.ok || !r.boot) throw new Error('bad boot');
+    BOOT = r.boot; if (BOOT.title) document.title = BOOT.title;
+    if (!started) { started = true; init(); } else { location.reload(); }
+  })['catch'](function (e) { if (window.console) console.error(e); show('vFail'); });
+}
+document.addEventListener('DOMContentLoaded', function () { $('retry').addEventListener('click', loadBoot); loadBoot(); });
+</script>
+</body>
+</html>
