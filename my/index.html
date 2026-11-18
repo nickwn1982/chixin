@@ -104,6 +104,12 @@
       <a class="btn" href="../vendor/">進入廠商專區</a>
     </div>
 
+    <div class="card" id="boothEntry" hidden>
+      <h2>各攤管理</h2>
+      <div class="hint">您是組長／管理同學，可看本攤銷售、同學排行與利潤。</div>
+      <a class="btn" href="../booth/">進入各攤管理</a>
+    </div>
+
     <div class="tabs" id="tabs" role="tablist"></div>
     <div class="card" id="stallBox"></div>
 
@@ -185,6 +191,7 @@ function firstTab(r) { var f = r.stalls.filter(function (s) { return s.summary.c
 function render() {
   var d = S.data, t = d.total;
   $('vendorEntry').hidden = !d.isVendor;
+  $('boothEntry').hidden = !d.isBooth;
   $('hName').textContent = d.name; $('hUpd').textContent = '資料時間 ' + d.updated;
   $('tot').innerHTML =
     '<div><small>有效訂單</small><b>' + t.count + ' 筆</b></div><div><small>共</small><b>' + t.qty + ' 件</b></div>' +
