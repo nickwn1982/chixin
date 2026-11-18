@@ -95,11 +95,16 @@ function start() {
   show('vLoading');
   api({ action: 'names' }).then(function (r) {
     if (!r || !r.ok) throw new Error('names');
-    var saved = load('nm');
-    $('who').innerHTML = '<option value="">請選擇自己的名字</option>' + r.names.map(function (n) { return '<option>' + esc(n.name) + '</option>'; }).join('');
-    if (saved) $('who').value = saved;
+    var qs = new URLSearchParams(location.search), want = (qs.get('s') || '').trim().toLowerCase();
+    var saved = load('nm'), pick = '';
+    $('who').innerHTML = '<option value="">請選擇自己的名字</option>' + r.names.map(function (n) {
+      if (want && n.slug && n.slug.toLowerCase() === want) pick = n.name;
+      return '<option>' + esc(n.name) + '</option>';
+    }).join('');
+    pick = pick || saved || '';
+    if (pick) $('who').value = pick;
     var sc = load('cd');
-    if (sc && saved) { $('code').value = sc; $('remember').checked = true; login(true); return; }
+    if (sc && saved && (!pick || pick === saved)) { $('code').value = sc; $('remember').checked = true; login(true); return; }
     show('vLogin');
   })['catch'](function (e) { if (window.console) console.error(e); show('vFail'); });
 }
