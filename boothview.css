@@ -1,0 +1,22 @@
+.bvtabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.bvtabs button{flex:1;min-width:80px;font:inherit;font-size:15px;font-weight:700;padding:8px 6px;border:2px solid #ddd2bf;border-radius:10px;background:#fff;color:#7a7168;cursor:pointer}
+.bvtabs button[aria-selected=true]{border-color:#2f6b4f;color:#2f6b4f;background:#eef7f1}
+.bvbody .tot{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.bvbody .tot div{background:#faf5ea;border-radius:10px;padding:8px 10px}
+.bvbody .tot small{display:block;color:#7a7168;font-size:13px}
+.bvbody .tot b{font-size:20px;font-variant-numeric:tabular-nums}
+.bvbody .tot .g b{color:#2f6b4f}.bvbody .tot .r b{color:#a8321f}
+.bvbody h3{font-size:16px;margin:14px 0 0;color:#7f2416}
+.bvbody table{width:100%;border-collapse:collapse;font-size:15px}
+.bvbody th,.bvbody td{text-align:left;padding:6px 4px;border-bottom:1px solid #e4d8c4;vertical-align:top}
+.bvbody th{color:#7a7168;font-size:12px;font-weight:400}
+.bvbody .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bvbody .sub{display:block;font-size:12px;color:#7a7168;font-weight:400}
+.bvbody .pos{color:#2f6b4f;font-weight:700}.bvbody .neg{color:#a8321f;font-weight:700}
+.bvbody .scroll{overflow-x:auto}.bvbody .scroll table{min-width:420px}
+.bvbody .vcard{border:1px solid #e4d8c4;border-radius:12px;padding:10px 12px;margin-top:10px}
+.bvbody .vh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.bvbody .it{font-size:15px;padding:3px 0;border-top:1px dashed #e4d8c4}
+.bvbody .hint{font-size:13px;color:#7a7168}
+.bvbody .chk{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:15px;color:#7a7168}
+.bvbody .chk input{width:20px;height:20px}
