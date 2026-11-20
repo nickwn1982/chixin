@@ -64,6 +64,7 @@
   [hidden] { display:none !important; }
   footer { text-align:center; color:var(--mute); font-size:13px; margin-top:22px; }
 </style>
+<link rel="stylesheet" href="../settle.css">
 </head>
 <body>
 <header>
@@ -135,6 +136,7 @@
   <footer>款項請依各攤約定交給負責同學；訂單內容如需更改，請聯絡統籌。</footer>
 </div>
 
+<script src="../settle.js"></script>
 <script>
 // ====== 設定（部署後只需要改這一行：整合查詢 API 的 /exec 網址）======
 var API = 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';
@@ -196,12 +198,37 @@ function login(auto) {
     }
     if ($('remember').checked) { store('nm', name); store('cd', code); } else { store('nm', null); store('cd', null); }
     try { sessionStorage.setItem('nm', name); sessionStorage.setItem('cd', code); } catch (e) {}
-    S.name = name; S.code = code; S.data = r; S.tab = firstTab(r); S.filter = 'all'; render(); show('vMain');
+    S.name = name; S.code = code; S.data = r; S.tab = firstTab(r); S.filter = 'all'; S.led = null; render(); show('vMain'); loadLedger();
   })['catch'](function (e) {
     S.sending = false; $('go').disabled = false; $('go').textContent = '查看我的訂單';
     if (window.console) console.error(e);
     showErr('網路好像不太穩，請再按一次'); show('vLogin');
   });
+}
+
+Settle.init({ api: api, auth: function () { return { name: S.name, code: S.code }; } });
+
+/** 收款狀態與結算（後端尚未更新時會失敗，畫面維持唯讀） */
+function loadLedger() {
+  Settle.call({ action: 'ledgerMine' }).then(function (r) { if (r && r.ok) { S.led = r; renderStall(); } })['catch'](function () {});
+}
+function ledStall(key) { return S.led ? S.led.stalls.filter(function (x) { return x.key === key; })[0] : null; }
+/** 本機改了某筆狀態後，重算畫面上的小計（之後 loadLedger 會再跟伺服器對齊） */
+function recalc() {
+  var keys = ['count', 'qty', 'amount', 'paidAmount', 'unpaidAmount', 'handedAmount', 'deliveredCount', 'pendingCount'], t = {};
+  keys.forEach(function (k) { t[k] = 0; });
+  S.data.stalls.forEach(function (st) {
+    var s = { cancelledCount: 0 }; keys.forEach(function (k) { s[k] = 0; });
+    st.orders.forEach(function (o) {
+      if (o.cancelled) { s.cancelledCount++; return; }
+      s.count++; s.qty += o.qty; s.amount += o.amount;
+      if (o.paid) s.paidAmount += o.amount; else s.unpaidAmount += o.amount;
+      if (o.handed) s.handedAmount += o.amount;
+      if (o.delivered) s.deliveredCount++; else s.pendingCount++;
+    });
+    st.summary = s; keys.forEach(function (k) { t[k] += s[k]; });
+  });
+  S.data.total = t;
 }
 
 function firstTab(r) { var f = r.stalls.filter(function (s) { return s.summary.count > 0; })[0]; return f ? f.key : 's1'; }
@@ -237,6 +264,7 @@ function renderStall() {
   h += '共 <b>' + sm.count + '</b> 筆、<b>' + sm.qty + '</b> 件，應收 <b>' + money(sm.amount) + '</b><br>' +
     '已收 <b style="color:var(--green)">' + money(sm.paidAmount) + '</b>　未收 <b style="color:var(--red)">' + money(sm.unpaidAmount) + '</b><br>' +
     '已交出納／收款人 ' + money(sm.handedAmount) + '　已交貨 ' + sm.deliveredCount + ' 筆、待交貨 ' + sm.pendingCount + ' 筆';
+  if (S.led) h += Settle.mySettleBox(ledStall(st.key)) + '<p class="hint">收到錢、交了貨，請在下面每筆訂單按按鈕更新（會留下異動紀錄）。取消訂單請聯絡負責人。</p>';
   h += '<div class="chips">' + [['all', '全部'], ['unpaid', '未收款'], ['pending', '待交貨'], ['cancel', '已取消 (' + sm.cancelledCount + ')']].map(function (c) {
     return '<button type="button" data-f="' + c[0] + '" aria-pressed="' + (f === c[0]) + '">' + c[1] + '</button>'; }).join('') + '</div>';
   if (!list.length) h += '<p class="hint" style="margin-top:12px">' + (st.orders.length ? '這個分類目前沒有訂單。' : '這一攤目前還沒有人用您的連結下單，把專屬連結轉給親友吧！') + '</p>';
@@ -249,7 +277,7 @@ function renderStall() {
       (o.cancelled ? '<span class="tag no">已取消</span>' :
         '<span class="tag ' + (o.paid ? 'ok">已收款' : 'no">未收款') + '</span>' +
         (o.handedLabel ? '<span class="tag ' + (o.handed ? 'ok">已交' + esc(hl) : '">未交' + esc(hl)) + '</span>' : '') +
-        '<span class="tag ' + (o.delivered ? 'ok">已交貨' : '">待交貨') + '</span>') + '</div>';
+        '<span class="tag ' + (o.delivered ? 'ok">已交貨' : '">待交貨') + '</span>') + (S.led ? Settle.myOrderActions(st.key, o) : '') + '</div>';
   });
   $('stallBox').innerHTML = h;
 }
@@ -294,6 +322,13 @@ function changeCode() {
 }
 $('pwGo').addEventListener('click', changeCode);
 document.addEventListener('click', function (ev) {
+  var sx = ev.target.closest('[data-sx]');
+  if (sx) {
+    var stl = S.data.stalls.filter(function (x) { return x.key === sx.getAttribute('data-st'); })[0];
+    var od = stl && stl.orders.filter(function (x) { return x.id === sx.getAttribute('data-id'); })[0];
+    if (od) Settle.setStatus(stl.key, od, sx.getAttribute('data-sx'), sx, function () { recalc(); render(); loadLedger(); });
+    return;
+  }
   var t = ev.target.closest('[data-k]'); if (t) { S.tab = t.dataset.k; S.filter = 'all'; render(); return; }
   var f = ev.target.closest('[data-f]'); if (f) { S.filter = f.dataset.f; renderStall(); return; }
   var c = ev.target.closest('[data-copy]'); if (c) { copyText(c.dataset.copy, c); }

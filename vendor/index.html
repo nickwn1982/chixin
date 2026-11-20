@@ -59,6 +59,7 @@
   footer { text-align:center; color:var(--mute); font-size:13px; margin-top:22px; }
   @media print { header, .tabs, .chips, .btn, .link, footer, #orders { display:none !important; } }
 </style>
+<link rel="stylesheet" href="../settle.css">
 </head>
 <body>
 <header>
@@ -90,11 +91,13 @@
     <div id="none" class="card" hidden><h2>目前沒有指派廠商</h2><p>您還不是任何廠商的負責人。如需負責廠商，請聯絡統籌溫國政。</p></div>
     <div class="tabs" id="tabs" role="tablist"></div>
     <div class="card" id="ship"></div>
+    <div class="card" id="cost" hidden></div>
     <div class="card" id="orders"></div>
   </section>
   <footer>內含買家個資，請勿外流。出貨單只計算「有效」訂單。</footer>
 </div>
 
+<script src="../settle.js"></script>
 <script>
 var API = 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';
 var $ = function (id) { return document.getElementById(id); };
@@ -141,7 +144,7 @@ function login(auto) {
     S.sending = false; $('go').disabled = false; $('go').textContent = '進入廠商專區';
     if (!r || !r.ok) { if (auto) store('cd', null); showErr((r && r.error) || '查詢失敗，請再試一次'); show('vLogin'); return; }
     if ($('remember').checked) { store('nm', name); store('cd', code); }
-    S.data = r; S.tab = 0; S.filter = 'all'; render(); show('vMain');
+    S.name = name; S.code = code; S.data = r; S.tab = 0; S.filter = 'all'; render(); show('vMain'); loadCost();
   })['catch'](function (e) {
     S.sending = false; $('go').disabled = false; $('go').textContent = '進入廠商專區';
     if (window.console) console.error(e); showErr('網路好像不太穩，請再按一次'); show('vLogin');
@@ -155,7 +158,17 @@ function render() {
   if (none) return;
   if (S.tab >= d.vendors.length) S.tab = 0;
   $('tabs').innerHTML = d.vendors.map(function (v, i) { return '<button type="button" role="tab" data-t="' + i + '" aria-selected="' + (i === S.tab) + '">' + esc(v.name) + '</button>'; }).join('');
-  renderShip(); renderOrders();
+  renderShip(); renderOrders(); renderCost();
+}
+Settle.init({ api: api, auth: function () { return { name: S.name, code: S.code }; } });
+/** 收成本（只有廠商負責人；後端尚未更新時不顯示） */
+function loadCost() {
+  Settle.call({ action: 'vendorCost' }).then(function (r) { if (r && r.ok) { S.cost = r; renderCost(); } })['catch'](function () {});
+}
+function renderCost() {
+  var v = S.data && S.data.vendors[S.tab], c = v && S.cost ? S.cost.vendors.filter(function (x) { return x.name === v.name; })[0] : null;
+  $('cost').hidden = !c;
+  if (c) Settle.vendorCostCard($('cost'), c, loadCost);
 }
 function renderShip() {
   var v = S.data.vendors[S.tab], t = v.totals;

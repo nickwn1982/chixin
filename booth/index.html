@@ -47,6 +47,7 @@
   [hidden] { display:none !important; }
   footer { text-align:center; color:var(--mute); font-size:13px; margin-top:22px; }
 </style>
+<link rel="stylesheet" href="../settle.css">
 </head>
 <body>
 <header><div class="sub">巴拿巴宣教學院・國際志工募款</div><h1>各攤管理（組長專用）</h1></header>
@@ -75,6 +76,7 @@
   <footer>含成本與利潤資料，僅供組長查看，請勿外流。</footer>
 </div>
 <script src="../boothview.js"></script>
+<script src="../settle.js"></script>
 <script>
 var API = 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';
 var $ = function (id) { return document.getElementById(id); };
@@ -119,7 +121,7 @@ function login(auto) {
     S.sending = false; $('go').disabled = false; $('go').textContent = '進入各攤管理';
     if (!r || !r.ok) { if (auto) store('cd', null); showErr((r && r.error) || '查詢失敗，請再試一次'); show('vLogin'); return; }
     if ($('remember').checked) { store('nm', name); store('cd', code); }
-    S.name = name; S.code = code; S.data = r; if (S.i >= r.booths.length) S.i = 0; render(); show('vMain');
+    S.name = name; S.code = code; S.data = r; if (S.i >= r.booths.length) S.i = 0; render(); show('vMain'); loadRoles();
   })['catch'](function (e) {
     S.sending = false; $('go').disabled = false; $('go').textContent = '進入各攤管理';
     if (window.console) console.error(e); showErr('網路好像不太穩，請再按一次'); show('vLogin');
@@ -135,9 +137,18 @@ function render() {
   var P = d.booths[S.i];
   var opts = {};
   if (P.role === 'edit') opts.extraTabs = [{ key: 'ed', label: '編輯', render: function (el) { renderEdit(P, el); } }];
+  var R = S.roles;
+  if (R && (R.financeOf.indexOf(P.booth) >= 0 || R.editorOf.indexOf(P.booth) >= 0))
+    (opts.extraTabs = opts.extraTabs || []).unshift({ key: 'fin', label: '收款對帳', render: function (el) { Settle.financePanel(el, P.booth); } });
   var h = '<h2>' + esc(P.label) + '<span class="hint">　' + (P.role === 'edit' ? '（可編輯）' : '（僅檢視）') + '</span></h2><div id="bvroot"></div>';
   $('view').innerHTML = h;
   BoothView.render(P, $('bvroot'), opts);
+}
+
+Settle.init({ api: api, auth: function () { return { name: S.name, code: S.code }; } });
+/** 我是哪幾攤的財務／統籌（後端尚未更新時失敗，就不顯示「收款對帳」） */
+function loadRoles() {
+  Settle.call({ action: 'myRoles' }).then(function (r) { if (r && r.ok && (r.financeOf.length || r.editorOf.length)) { S.roles = r; render(); } })['catch'](function () {});
 }
 
 function sel(opts, cur, attrs) {

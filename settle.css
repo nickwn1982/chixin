@@ -1,0 +1,51 @@
+/* 收款狀態與結算（settle.js）共用樣式 */
+.sacts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.sbtn{font:inherit;font-size:15px;font-weight:700;padding:7px 12px;border:2px solid #2f6b4f;border-radius:10px;background:#fff;color:#2f6b4f;cursor:pointer;line-height:1.3}
+.sbtn.on{border-color:#c9bba3;color:#7a7168;font-weight:400}
+.sbtn.armed{background:#a8321f;border-color:#a8321f;color:#fff;font-weight:700}
+.sbtn.sm{font-size:14px;padding:4px 10px}
+.sbtn:disabled{opacity:.55}
+.sbox{background:#faf5ea;border-radius:12px;padding:10px 12px;margin:10px 0 4px}
+.sbox h3{margin:0;font-size:17px;color:#7f2416}
+.sbox h4{margin:10px 0 0;font-size:15px;color:#7f2416}
+table.st{width:100%;border-collapse:collapse;font-size:15px;margin-top:6px}
+table.st td{padding:4px 2px;border-bottom:1px dashed #e4d8c4;vertical-align:top}
+table.st tr.hl td{font-weight:700;color:#7f2416}
+.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sub{display:block;font-size:12px;color:#7a7168;font-weight:400}
+.warn{color:#8a5a00;font-size:14px}
+.neg{color:#a8321f;font-weight:700}.pos{color:#2f6b4f;font-weight:700}
+.sled .lr{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;border-bottom:1px solid #e4d8c4;padding:6px 0;font-size:15px}
+.sled .lr.vd{opacity:.5;text-decoration:line-through}
+.sled .lr.vo{color:#8a1c1c}
+.vform{display:flex;gap:6px;width:100%}
+.vform input{flex:1;font:inherit;font-size:15px;padding:6px 8px;border:2px solid #e4d8c4;border-radius:8px}
+.sform{border:2px solid #2f6b4f;border-radius:12px;padding:10px 12px;margin:10px 0;background:#f4faf6}
+.sform .ftitle{font-weight:700;color:#2f6b4f}
+.sform label{display:block;font-size:14px;color:#7a7168;margin-top:6px}
+.sform select,.sform input{display:block;width:100%;font:inherit;font-size:16px;padding:8px;border:2px solid #e4d8c4;border-radius:8px;background:#fff;color:#2e2a26;margin-top:2px}
+.sfin .chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
+.sfin .chips button{font:inherit;font-size:14px;padding:4px 12px;border:1.5px solid #e4d8c4;border-radius:99px;background:#fff;color:#7a7168;cursor:pointer}
+.sfin .chips button[aria-pressed=true]{background:#2f6b4f;border-color:#2f6b4f;color:#fff}
+.sfin .ord,.ct{font-size:15px}
+.sfin .ord{border:1px solid #e4d8c4;border-radius:12px;padding:8px 10px;margin-top:8px}
+.sfin .ord .top{display:flex;justify-content:space-between;gap:8px}
+.sfin .ord .amt{font-weight:700;color:#7f2416;white-space:nowrap}
+.sfin .ord .meta{color:#7a7168;font-size:13px}
+.sfin .tag{display:inline-block;font-size:12px;border-radius:99px;padding:1px 9px;margin:4px 4px 0 0;background:#eee;color:#555}
+.sfin .tag.ok{background:#dcefe2;color:#17472f}.sfin .tag.no{background:#fde3e3;color:#8a1c1c}
+.sfin .tot{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.sfin .tot div{background:#faf5ea;border-radius:10px;padding:8px 10px}
+.sfin .tot small{display:block;color:#7a7168;font-size:13px}
+.sfin .tot b{font-size:19px;font-variant-numeric:tabular-nums}
+.sfin .tot .g b{color:#2f6b4f}.sfin .tot .r b{color:#a8321f}
+.sfin h3,#cost h3{font-size:16px;margin:14px 0 4px;color:#7f2416}
+.sfin table,table.ct{width:100%;border-collapse:collapse;font-size:15px}
+.sfin th,.sfin td,table.ct th,table.ct td{text-align:left;padding:6px 4px;border-bottom:1px solid #e4d8c4;vertical-align:top}
+.sfin th,table.ct th{color:#7a7168;font-size:12px;font-weight:400}
+.sfin th.n,.sfin td.n,table.ct .n{text-align:right}
+table.ct tr.sum td{font-weight:700}
+.scroll{overflow-x:auto}
+#stoast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(120px);max-width:92vw;background:#2f6b4f;color:#fff;font-weight:700;padding:10px 16px;border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,.2);transition:transform .25s;z-index:99;font-size:16px}
+#stoast.show{transform:translateX(-50%) translateY(0)}
+#stoast.bad{background:#a8321f}
