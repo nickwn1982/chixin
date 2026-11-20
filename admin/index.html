@@ -204,6 +204,12 @@ function rBoards() {
     var P = S.bsel === 'total' ? B.total : B.booths.filter(function (b) { return b.booth === S.bsel; })[0];
     $('bview').innerHTML = '<h3 style="margin:10px 0 0">' + esc(P.label) + '</h3><div id="bvroot"></div>';
     BoothView.render(P, $('bvroot'));
+      if (window.ReconcileUI && !document.getElementById('admin-p2-wrap')) {
+        var w = document.createElement('div'); w.id = 'admin-p2-wrap'; w.style.marginTop = '16px';
+        $('bvroot').parentNode.insertBefore(w, $('bvroot').nextSibling);
+        var call = function(q){ return fetch(API, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(Object.assign({ name: P.name || '溫國政', code: P.code || '' }, q)) }).then(function(r){ return r.json(); }); };
+        ReconcileUI.renderLineReminderPanel(w, { stall: P.booth || 's1', apiCall: call });
+      }
   }
   if (S.boards) { draw(); return; }
   api({ action: 'adminBoards' }).then(function (r) {

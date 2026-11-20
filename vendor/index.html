@@ -160,6 +160,11 @@ function render() {
   if (S.tab >= d.vendors.length) S.tab = 0;
   $('tabs').innerHTML = d.vendors.map(function (v, i) { return '<button type="button" role="tab" data-t="' + i + '" aria-selected="' + (i === S.tab) + '">' + esc(v.name) + '</button>'; }).join('');
   renderShip(); renderOrders(); renderCost();
+    if (window.FulfillmentUI && !document.getElementById('p1-batch-panel')) {
+      var bp = document.createElement('div'); bp.id = 'p1-batch-panel'; bp.style.marginTop = '14px';
+      var shipEl = document.getElementById('ship'); if (shipEl && shipEl.parentNode) shipEl.parentNode.insertBefore(bp, shipEl.nextSibling);
+      FulfillmentUI.renderBatchSummaryPanel(bp, { stall: (window.S && (S.stall || S.booth)) || 's1', apiCall: Settle.call });
+    }
 }
 Settle.init({ api: api, auth: function () { return { name: S.name, code: S.code }; } });
 /** 收成本（只有廠商負責人；後端尚未更新時不顯示） */

@@ -279,7 +279,7 @@ function renderStall() {
       (o.cancelled ? '<span class="tag no">已取消</span>' :
         '<span class="tag ' + (o.paid ? 'ok">已收款' : 'no">未收款') + '</span>' +
         (o.handedLabel ? '<span class="tag ' + (o.handed ? 'ok">已交' + esc(hl) : '">未交' + esc(hl)) + '</span>' : '') +
-        '<span class="tag ' + (o.delivered ? 'ok">已交貨' : '">待交貨') + '</span>') + (S.led ? Settle.myOrderActions(st.key, o) : '') + '</div>';
+        '<span class="tag ' + (o.delivered ? 'ok">已交貨' : '">待交貨') + '</span>') + (S.led ? Settle.myOrderActions(st.key, o) : '') + '<div class="p12-order-slot" data-stall="' + st.key + '" data-oid="' + (o.id || o.orderId || '') + '" data-cancelled="' + (o.cancelled ? '1' : '0') + '" data-delivered="' + (o.delivered ? '1' : '0') + '"></div></div>';
   });
   $('stallBox').innerHTML = h;
 }
@@ -341,6 +341,30 @@ $('refresh').addEventListener('click', function () { $('remember').checked = per
 $('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); } catch (e) {} store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
 $('retry').addEventListener('click', start);
 start();
+</script>
+
+<script>
+(function(){
+  var _origDone = false;
+  function hydrateSlots(){
+    if (!window.FulfillmentUI || !window.ReconcileUI || !window.Settle) return;
+    var slots = document.querySelectorAll('.p12-order-slot:not([data-init])');
+    if (!slots.length) return;
+    var stall = slots[0].getAttribute('data-stall') || 's1';
+    Settle.call({ action: 'fulfillmentMeta', stall: stall }).then(function(meta){
+      var batches = (meta && meta.batches) || [];
+      slots.forEach(function(el){
+        el.setAttribute('data-init', '1');
+        if (el.getAttribute('data-cancelled') === '1') return;
+        var ord = { id: el.getAttribute('data-oid'), delivered: el.getAttribute('data-delivered') === '1' };
+        var st = el.getAttribute('data-stall') || 's1';
+        FulfillmentUI.renderOrderControls(el, { stall: st, order: ord, batches: batches, apiCall: Settle.call, onUpdated: function(){ location.reload(); } });
+        ReconcileUI.renderOrderSplitAndFlag(el, { stall: st, order: ord, apiCall: Settle.call, onUpdated: function(){ location.reload(); } });
+      });
+    }).catch(function(){});
+  }
+  new MutationObserver(hydrateSlots).observe(document.body, { childList: true, subtree: true });
+})();
 </script>
 </body>
 </html>

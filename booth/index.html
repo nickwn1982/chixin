@@ -141,7 +141,10 @@ function render() {
   if (P.role === 'edit') opts.extraTabs = [{ key: 'ed', label: '編輯', render: function (el) { renderEdit(P, el); } }];
   var R = S.roles;
   if (R && (R.financeOf.indexOf(P.booth) >= 0 || R.editorOf.indexOf(P.booth) >= 0))
-    (opts.extraTabs = opts.extraTabs || []).unshift({ key: 'fin', label: '收款對帳', render: function (el) { Settle.financePanel(el, P.booth); } });
+    (opts.extraTabs = opts.extraTabs || []).unshift({ key: 'fin', label: '收款對帳', render: function (el) { Settle.financePanel(el, P.booth); } },
+      { key: 'batch', label: '梯次叫貨', render: function (el) { if (window.FulfillmentUI) FulfillmentUI.renderBatchSummaryPanel(el, { stall: P.booth, apiCall: Settle.call }); } },
+      { key: 'reconcile', label: '精簡對帳', render: function (el) { if (window.ReconcileUI) ReconcileUI.renderFinanceView(el, { stall: P.booth, apiCall: Settle.call }); } },
+      { key: 'remind', label: 'LINE催單', render: function (el) { if (window.ReconcileUI) ReconcileUI.renderLineReminderPanel(el, { stall: P.booth, apiCall: Settle.call }); } });
   var h = '<h2>' + esc(P.label) + '<span class="hint">　' + (P.role === 'edit' ? '（可編輯）' : '（僅檢視）') + '</span></h2><div id="bvroot"></div>';
   $('view').innerHTML = h;
   BoothView.render(P, $('bvroot'), opts);
