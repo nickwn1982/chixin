@@ -176,6 +176,13 @@
 
 <script>
 var BOOT = null;
+// 每包重量標註（依商品名稱關鍵字）
+function weightOf(p) {
+  var n = p.name || '';
+  if (n.indexOf('蛋捲') >= 0) return '（300g）';
+  if (n.indexOf('海苔') >= 0) return '（30g）';
+  return '';
+}
 var API = 'https://script.google.com/macros/s/AKfycbytFW6MJ_rOL10k075H36grVXJ9mXF2_oe75Ef_sE1x88pr5A9t5-mqPw9iOw-yTr9j/exec';
 var ALIAS = { guozheng:'溫國政', yuwen:'李玉雯', yifen:'李益芬', yicai:'呂衣綵', huichun:'房惠純', h3k9:'吳雨儂', yunong:'吳雨儂', chuanxia:'王傳霞', wenqi:'楊雯祺',
   shufen:'周淑芬', yaling:'曾雅玲', liru:'陳麗如', yuhua:'符玉華', feibi:'Feibi 君愛', huimin:'房惠敏', xiaowen:'林筱雯',
@@ -314,7 +321,7 @@ function renderCatalog() {
                 '<button type="button" data-t="' + esc(p.code) + '" data-d="1" aria-label="' + esc(full) + ' 加一">＋</button></div>'
               : '<span class="soon">即將開放</span>';
             return '<div class="item">' + (imgs.length > 1 && p.img ? imgTag(p.img, full, 'th') : '') + '<div class="lb"><div>' + esc(label) + '</div>' +
-              (p.price ? '<div class="pr">' + money(p.price) + '<span class="hint">／' + esc(p.unit) + '</span></div>' : '') + '</div>' + right + '</div>';
+              (p.price ? '<div class="pr">' + money(p.price) + '<span class="hint">／' + esc(p.unit) + weightOf(p) + '</span></div>' : '') + '</div>' + right + '</div>';
           }).join('') + '</div>';
       }).join('') + '</div></details>';
   }).join('');
