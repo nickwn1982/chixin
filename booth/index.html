@@ -99,37 +99,73 @@ function api(body) {
 }
 function showErr(m) { var el = $('err'); el.textContent = m || ''; el.hidden = !m; }
 
+function fillNames(list, want, saved) {
+  var pick = '';
+  $('who').innerHTML = '<option value="">請選擇自己的名字</option>' + list.map(function (n) {
+    if (want && n.slug && n.slug.toLowerCase() === want) pick = n.name;
+    return '<option>' + esc(n.name) + '</option>';
+  }).join('');
+  pick = pick || saved || '';
+  if (pick) $('who').value = pick;
+  return pick;
+}
+function getCachedNames() {
+  try { var x = JSON.parse(localStorage.getItem('chixin_names_v1') || 'null'); return Array.isArray(x) && x.length ? x : null; } catch (e) { return null; }
+}
+function swrKey(n) { return 'swr_booth_' + n; }
 function start() {
+  var qs = new URLSearchParams(location.search), want = (qs.get('s') || '').trim().toLowerCase();
+  var saved = load('nm'), sc = load('cd'), cached = getCachedNames();
+  if (cached) {
+    var pick = fillNames(cached, want, saved);
+    if (sc && saved && (!pick || pick === saved)) { $('code').value = sc; $('remember').checked = persisted(); login(true, false); return; }
+    show('vLogin');
+    api({ action: 'names' }).then(function (r) { if (r && r.ok) { try { localStorage.setItem('chixin_names_v1', JSON.stringify(r.names)); } catch (e) {} fillNames(r.names, want, $('who').value || saved); } })['catch'](function () {});
+    return;
+  }
+  if (saved && sc && !want) {
+    $('who').innerHTML = '<option>' + esc(saved) + '</option>'; $('who').value = saved;
+    $('code').value = sc; $('remember').checked = persisted(); login(true, false);
+    api({ action: 'names' }).then(function (r) { if (r && r.ok) { try { localStorage.setItem('chixin_names_v1', JSON.stringify(r.names)); } catch (e) {} fillNames(r.names, want, saved); } })['catch'](function () {});
+    return;
+  }
   show('vLoading');
   api({ action: 'names' }).then(function (r) {
     if (!r || !r.ok) throw new Error('names');
-    var qs = new URLSearchParams(location.search), want = (qs.get('s') || '').trim().toLowerCase();
-    var saved = load('nm'), pick = '';
-    $('who').innerHTML = '<option value="">請選擇自己的名字</option>' + r.names.map(function (n) {
-      if (want && n.slug && n.slug.toLowerCase() === want) pick = n.name;
-      return '<option>' + esc(n.name) + '</option>';
-    }).join('');
-    pick = pick || saved || '';
-    if (pick) $('who').value = pick;
-    var sc = load('cd');
-    if (sc && saved && (!pick || pick === saved)) { $('code').value = sc; $('remember').checked = persisted(); login(true); return; }
+    try { localStorage.setItem('chixin_names_v1', JSON.stringify(r.names)); } catch (e) {}
+    var pick = fillNames(r.names, want, saved);
+    if (sc && saved && (!pick || pick === saved)) { $('code').value = sc; $('remember').checked = persisted(); login(true, false); return; }
     show('vLogin');
   })['catch'](function (e) { if (window.console) console.error(e); show('vFail'); });
 }
-function login(auto) {
+function login(auto, fresh) {
   var name = $('who').value, code = $('code').value.trim();
   if (!name || !code) { showErr('請選擇名字並輸入通關碼'); show('vLogin'); return; }
   if (S.sending) return; S.sending = true; showErr('');
   $('go').disabled = true; $('go').textContent = '載入中…';
-  if (auto) show('vLoading');
-  api({ action: 'booth', name: name, code: code }).then(function (r) {
+  var showedSwr = false;
+  if (!fresh) {
+    try {
+      var c = JSON.parse(sessionStorage.getItem(swrKey(name)) || 'null');
+      if (c && c.ok && c.name === name) {
+        S.name = name; S.code = code; S.data = c; if (c.roles) S.roles = c.roles; if (S.i >= c.booths.length) S.i = 0;
+        render(); $('hUpd').textContent = '資料時間 ' + c.updated + '（背景更新中…）'; show('vMain'); showedSwr = true;
+      }
+    } catch (e) {}
+  }
+  if (auto && !showedSwr) show('vLoading');
+  api({ action: 'booth', name: name, code: code, fresh: !!fresh }).then(function (r) {
     S.sending = false; $('go').disabled = false; $('go').textContent = '進入各攤管理';
-    if (!r || !r.ok) { if (auto) store('cd', null); showErr((r && r.error) || '查詢失敗，請再試一次'); show('vLogin'); return; }
+    if (!r || !r.ok) { if (auto) { store('cd', null); try { sessionStorage.removeItem(swrKey(name)); } catch (e) {} } showErr((r && r.error) || '查詢失敗，請再試一次'); show('vLogin'); return; }
     if ($('remember').checked) { store('nm', name); store('cd', code); }
-    S.name = name; S.code = code; S.data = r; if (S.i >= r.booths.length) S.i = 0; render(); show('vMain'); loadRoles();
+    try { sessionStorage.setItem(swrKey(name), JSON.stringify(r)); } catch (e) {}
+    S.name = name; S.code = code; S.data = r; if (r.roles) S.roles = r.roles; if (S.i >= r.booths.length) S.i = 0;
+    render(); show('vMain'); if (!r.roles) loadRoles();
   })['catch'](function (e) {
     S.sending = false; $('go').disabled = false; $('go').textContent = '進入各攤管理';
-    if (window.console) console.error(e); showErr('網路好像不太穩，請再按一次'); show('vLogin');
+    if (window.console) console.error(e);
+    if (showedSwr) { $('hUpd').textContent = '資料時間 ' + S.data.updated + '（更新失敗，顯示快取）'; return; }
+    showErr('網路好像不太穩，請再按一次'); show('vLogin');
   });
 }
 function render() {
@@ -211,8 +247,8 @@ $('openGuide').addEventListener('click', function () {
   var activeTab = actBtn ? actBtn.getAttribute('data-bv-tab') : (visibleTabs[0] || 'ov');
   GuideUI.open({ area: 'booth', stall: P.booth, userName: S.data.name, guideVars: S.data.guideVars, visibleTabs: visibleTabs, activeTab: activeTab });
 });
-$('refresh').addEventListener('click', function () { $('remember').checked = persisted(); login(true); });
-$('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); } catch (e) {} store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
+$('refresh').addEventListener('click', function () { $('remember').checked = persisted(); login(true, true); });
+$('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); if (S.name) sessionStorage.removeItem(swrKey(S.name)); } catch (e) {} store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
 $('retry').addEventListener('click', start);
 start();
 </script>

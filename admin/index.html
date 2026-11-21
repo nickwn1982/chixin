@@ -83,18 +83,41 @@ function api(body) {
 function flash(msg, kind) { var f = $('flash'); f.textContent = msg; f.className = 'msg ' + (kind || 'ok'); f.hidden = !msg; if (msg) f.scrollIntoView({ block: 'nearest' }); }
 function validMail(s) { return !s || /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(s.trim()); }
 
+function fetchBoards(fresh) {
+  if (S._boardsBusy) return;
+  S._boardsBusy = true;
+  api({ action: 'adminBoards', fresh: !!fresh }).then(function (r) {
+    S._boardsBusy = false;
+    if (!r || !r.ok) { if (S.tab === 'boards' && !S.boards && $('bview')) $('bview').innerHTML = '<div class="msg err">' + esc((r && r.error) || '載入失敗') + '</div>'; return; }
+    S.boards = r;
+    try { sessionStorage.setItem('swr_admin_b', JSON.stringify(r)); } catch (e) {}
+    if (S.tab === 'boards') rBoards();
+  })['catch'](function () {
+    S._boardsBusy = false;
+    if (S.tab === 'boards' && !S.boards && $('bview')) $('bview').innerHTML = '<div class="msg err">網路不穩，請按上方「重新整理」再試</div>';
+  });
+}
 function login() {
   var code = $('code').value.trim(); if (!code) return;
   S.code = code; $('go').disabled = true;
+  var showedSwr = false;
+  try {
+    var cd = JSON.parse(sessionStorage.getItem('swr_admin_d') || 'null');
+    var cb = JSON.parse(sessionStorage.getItem('swr_admin_b') || 'null');
+    if (cd && cd.ok) { S.d = cd; if (cb && cb.ok) S.boards = cb; $('login').hidden = true; $('main').hidden = false; render(); showedSwr = true; }
+  } catch (e) {}
+  // 並行載入 adminGet 與 adminBoards，省下原本串列等待的 3～4 秒
+  fetchBoards(false);
   api({ action: 'adminGet' }).then(function (r) {
     $('go').disabled = false;
-    if (!r || !r.ok) { S.code = ''; $('lerr').textContent = (r && r.error) || '登入失敗'; $('lerr').hidden = false; return; }
-    try { sessionStorage.setItem('adm', code); } catch (e) {}
+    if (!r || !r.ok) { S.code = ''; try { sessionStorage.removeItem('swr_admin_d'); sessionStorage.removeItem('swr_admin_b'); } catch (e) {} $('login').hidden = false; $('main').hidden = true; $('lerr').textContent = (r && r.error) || '登入失敗'; $('lerr').hidden = false; return; }
+    try { sessionStorage.setItem('adm', code); sessionStorage.setItem('swr_admin_d', JSON.stringify(r)); } catch (e) {}
     S.d = r; $('login').hidden = true; $('main').hidden = false; render();
-  })['catch'](function () { $('go').disabled = false; S.code = ''; $('lerr').textContent = '網路不穩或系統忙碌，請再試一次'; $('lerr').hidden = false; });
+  })['catch'](function () { $('go').disabled = false; if (!showedSwr) { S.code = ''; $('lerr').textContent = '網路不穩或系統忙碌，請再試一次'; $('lerr').hidden = false; } });
 }
-function reload(msg) {
-  return api({ action: 'adminGet' }).then(function (r) { if (r && r.ok) { S.d = r; render(); if (msg) flash(msg, 'ok'); } else flash((r && r.error) || '重新載入失敗', 'err'); })
+function reload(msg, fresh) {
+  if (fresh) { S.boards = null; fetchBoards(true); }
+  return api({ action: 'adminGet', fresh: !!fresh }).then(function (r) { if (r && r.ok) { S.d = r; try { sessionStorage.setItem('swr_admin_d', JSON.stringify(r)); } catch (e) {} render(); if (msg) flash(msg, 'ok'); } else flash((r && r.error) || '重新載入失敗', 'err'); })
     ['catch'](function () { flash('重新載入失敗，請稍後按重新整理', 'err'); });
 }
 
@@ -214,10 +237,7 @@ function rBoards() {
       }
   }
   if (S.boards) { draw(); return; }
-  api({ action: 'adminBoards' }).then(function (r) {
-    if (!r || !r.ok) { $('bview').innerHTML = '<div class="msg err">' + esc((r && r.error) || '載入失敗') + '</div>'; return; }
-    S.boards = r; if (S.tab === 'boards') draw();
-  })['catch'](function () { $('bview').innerHTML = '<div class="msg err">網路不穩，請按上方「重新整理」再試</div>'; });
+  fetchBoards(false);
 }
 
 function rMembers() {
@@ -311,7 +331,7 @@ document.addEventListener('click', function (ev) {
   var e = ev.target;
   var tb = e.closest('[data-tab]'); if (tb) { S.tab = tb.dataset.tab; flash(''); render(); return; }
   var bs = e.closest('[data-bsel]'); if (bs) { S.bsel = bs.dataset.bsel; rBoards(); return; }
-  if (e.id === 'reload') { S.boards = null; reload(); return; }
+  if (e.id === 'reload') { reload('', true); return; }
   if (e.id === 'openGuide') { if (window.GuideUI && S.d) GuideUI.open({ area: 'admin', activeTab: S.tab, guideVars: S.d.guideVars }); return; }
   var rs = e.closest('[data-reset]'); if (rs) { resetCode(+rs.dataset.reset); return; }
   var ul = e.closest('[data-unlock]'); if (ul) { unlockCode(+ul.dataset.unlock); return; }

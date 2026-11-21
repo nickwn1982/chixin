@@ -170,42 +170,80 @@ function api(body) {
 
 function showErr(msg) { var el = $('err'); el.textContent = msg || ''; el.hidden = !msg; }
 
+function fillNames(list, want, saved) {
+  var pick = '';
+  $('who').innerHTML = '<option value="">請選擇自己的名字</option>' + list.map(function (n) {
+    if (want && n.slug && n.slug.toLowerCase() === want) pick = n.name;
+    return '<option>' + esc(n.name) + '</option>';
+  }).join('');
+  pick = pick || saved || '';
+  if (pick) $('who').value = pick;
+  return pick;
+}
+function getCachedNames() {
+  try { var x = JSON.parse(localStorage.getItem('chixin_names_v1') || 'null'); return Array.isArray(x) && x.length ? x : null; } catch (e) { return null; }
+}
+function swrKey(n) { return 'swr_my_' + n; }
 function start() {
+  var qs = new URLSearchParams(location.search), want = (qs.get('s') || '').trim().toLowerCase();
+  var saved = load('nm'), savedCode = load('cd'), cached = getCachedNames();
+  if (cached) {
+    var pick = fillNames(cached, want, saved);
+    if (savedCode && saved && (!pick || pick === saved)) {
+      $('code').value = savedCode; $('remember').checked = persisted(); login(true, false); return;
+    }
+    show('vLogin');
+    api({ action: 'names' }).then(function (r) { if (r && r.ok) { try { localStorage.setItem('chixin_names_v1', JSON.stringify(r.names)); } catch (e) {} fillNames(r.names, want, $('who').value || saved); } })['catch'](function () {});
+    return;
+  }
+  if (saved && savedCode && !want) {
+    $('who').innerHTML = '<option>' + esc(saved) + '</option>'; $('who').value = saved;
+    $('code').value = savedCode; $('remember').checked = persisted(); login(true, false);
+    api({ action: 'names' }).then(function (r) { if (r && r.ok) { try { localStorage.setItem('chixin_names_v1', JSON.stringify(r.names)); } catch (e) {} fillNames(r.names, want, saved); } })['catch'](function () {});
+    return;
+  }
   show('vLoading');
   api({ action: 'names' }).then(function (r) {
     if (!r || !r.ok) throw new Error('names');
-    var qs = new URLSearchParams(location.search), want = (qs.get('s') || '').trim().toLowerCase();
-    var saved = load('nm'), pick = '';
-    $('who').innerHTML = '<option value="">請選擇自己的名字</option>' + r.names.map(function (n) {
-      if (want && n.slug.toLowerCase() === want) pick = n.name;
-      return '<option>' + esc(n.name) + '</option>';
-    }).join('');
-    pick = pick || saved || '';
-    if (pick) $('who').value = pick;
-    var savedCode = load('cd');
-    if (savedCode && saved && (!pick || pick === saved)) { $('code').value = savedCode; $('remember').checked = persisted(); login(true); return; }
+    try { localStorage.setItem('chixin_names_v1', JSON.stringify(r.names)); } catch (e) {}
+    var pick = fillNames(r.names, want, saved);
+    if (savedCode && saved && (!pick || pick === saved)) { $('code').value = savedCode; $('remember').checked = persisted(); login(true, false); return; }
     show('vLogin');
   })['catch'](function (e) { if (window.console) console.error(e); show('vFail'); });
 }
 
-function login(auto) {
+function login(auto, fresh) {
   var name = $('who').value, code = $('code').value.trim();
   if (!name || !code) { showErr('請選擇名字並輸入通關碼'); show('vLogin'); return; }
   if (S.sending) return; S.sending = true; showErr('');
   $('go').disabled = true; $('go').textContent = '查詢中…';
-  if (auto) show('vLoading');
-  api({ action: 'login', name: name, code: code }).then(function (r) {
+  var showedSwr = false;
+  if (!fresh) {
+    try {
+      var c = JSON.parse(sessionStorage.getItem(swrKey(name)) || 'null');
+      if (c && c.ok && c.name === name) {
+        S.name = name; S.code = code; S.data = c; S.tab = S.tab || firstTab(c); S.led = c.led || null;
+        render(); $('hUpd').textContent = '資料時間 ' + c.updated + '（背景更新中…）'; show('vMain'); showedSwr = true;
+      }
+    } catch (e) {}
+  }
+  if (auto && !showedSwr) show('vLoading');
+  api({ action: 'login', name: name, code: code, fresh: !!fresh }).then(function (r) {
     S.sending = false; $('go').disabled = false; $('go').textContent = '查看我的訂單';
     if (!r || !r.ok) {
-      if (auto) { store('cd', null); }
+      if (auto) { store('cd', null); try { sessionStorage.removeItem(swrKey(name)); } catch (e) {} }
       showErr((r && r.error) || '查詢失敗，請再試一次'); show('vLogin'); return;
     }
     if ($('remember').checked) { store('nm', name); store('cd', code); } else { store('nm', null); store('cd', null); }
-    try { sessionStorage.setItem('nm', name); sessionStorage.setItem('cd', code); } catch (e) {}
-    S.name = name; S.code = code; S.data = r; S.tab = firstTab(r); S.filter = 'all'; S.led = null; render(); show('vMain'); if (window.GuideUI) GuideUI.renderFirstTimeTip($('vMain').firstElementChild, openMyGuide); loadLedger();
+    try { sessionStorage.setItem('nm', name); sessionStorage.setItem('cd', code); sessionStorage.setItem(swrKey(name), JSON.stringify(r)); } catch (e) {}
+    S.name = name; S.code = code; S.data = r; if (!showedSwr || !S.tab) S.tab = firstTab(r); S.filter = S.filter || 'all'; S.led = r.led || null;
+    render(); show('vMain');
+    if (window.GuideUI) GuideUI.renderFirstTimeTip($('vMain').firstElementChild, openMyGuide);
+    if (!S.led) loadLedger();
   })['catch'](function (e) {
     S.sending = false; $('go').disabled = false; $('go').textContent = '查看我的訂單';
     if (window.console) console.error(e);
+    if (showedSwr) { $('hUpd').textContent = '資料時間 ' + S.data.updated + '（更新失敗，顯示快取）'; return; }
     showErr('網路好像不太穩，請再按一次'); show('vLogin');
   });
 }
@@ -344,31 +382,39 @@ function openMyGuide() {
   GuideUI.open({ area: 'my', stall: S.tab || 's1', userName: S.data.name, guideVars: S.data.guideVars, ledStall: ledStall(S.tab || 's1'), tutorialUrl: './tutorial.html' });
 }
 $('openGuide').addEventListener('click', openMyGuide);
-$('refresh').addEventListener('click', function () { $('remember').checked = persisted(); login(true); });
-$('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); } catch (e) {} store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
+$('refresh').addEventListener('click', function () { $('remember').checked = persisted(); login(true, true); });
+$('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); if (S.name) sessionStorage.removeItem(swrKey(S.name)); } catch (e) {} store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
 $('retry').addEventListener('click', start);
 start();
 </script>
 
 <script>
 (function(){
-  var _origDone = false;
+  var _metaCache = {};
+  function mountSlots(slots, batches){
+    slots.forEach(function(el){
+      if (el.getAttribute('data-init') === '1') return;
+      el.setAttribute('data-init', '1');
+      if (el.getAttribute('data-cancelled') === '1') return;
+      var ord = { id: el.getAttribute('data-oid'), delivered: el.getAttribute('data-delivered') === '1' };
+      var st = el.getAttribute('data-stall') || 's1';
+      FulfillmentUI.renderOrderControls(el, { stall: st, order: ord, batches: batches, apiCall: Settle.call, onUpdated: function(){ location.reload(); } });
+      ReconcileUI.renderOrderSplitAndFlag(el, { stall: st, order: ord, apiCall: Settle.call, onUpdated: function(){ location.reload(); } });
+    });
+  }
   function hydrateSlots(){
     if (!window.FulfillmentUI || !window.ReconcileUI || !window.Settle) return;
     var slots = document.querySelectorAll('.p12-order-slot:not([data-init])');
     if (!slots.length) return;
     var stall = slots[0].getAttribute('data-stall') || 's1';
+    if (_metaCache[stall]) { mountSlots(slots, _metaCache[stall]); return; }
+    if (_metaCache[stall] === false) return;
+    _metaCache[stall] = false;
     Settle.call({ action: 'fulfillmentMeta', stall: stall }).then(function(meta){
       var batches = (meta && meta.batches) || [];
-      slots.forEach(function(el){
-        el.setAttribute('data-init', '1');
-        if (el.getAttribute('data-cancelled') === '1') return;
-        var ord = { id: el.getAttribute('data-oid'), delivered: el.getAttribute('data-delivered') === '1' };
-        var st = el.getAttribute('data-stall') || 's1';
-        FulfillmentUI.renderOrderControls(el, { stall: st, order: ord, batches: batches, apiCall: Settle.call, onUpdated: function(){ location.reload(); } });
-        ReconcileUI.renderOrderSplitAndFlag(el, { stall: st, order: ord, apiCall: Settle.call, onUpdated: function(){ location.reload(); } });
-      });
-    }).catch(function(){});
+      _metaCache[stall] = batches;
+      mountSlots(document.querySelectorAll('.p12-order-slot:not([data-init])'), batches);
+    }).catch(function(){ delete _metaCache[stall]; });
   }
   new MutationObserver(hydrateSlots).observe(document.body, { childList: true, subtree: true });
 })();
