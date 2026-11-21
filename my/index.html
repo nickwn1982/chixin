@@ -65,6 +65,7 @@
   footer { text-align:center; color:var(--mute); font-size:13px; margin-top:22px; }
 </style>
 <link rel="stylesheet" href="../settle.css">
+<link rel="stylesheet" href="../guide.css">
 </head>
 <body>
 <header>
@@ -98,7 +99,7 @@
       <div class="hello"><div><b id="hName"></b> 的預購總覽<div class="hint" id="hUpd"></div></div>
         <button type="button" class="link" id="logout">登出</button></div>
       <div class="tot" id="tot"></div>
-      <div class="row"><button type="button" class="btn ghost small" id="refresh">重新整理</button></div>
+      <div class="row"><button type="button" class="btn ghost small" id="refresh">重新整理</button><button type="button" class="g-btn" id="openGuide" style="justify-content:center">📖 操作說明</button></div>
     </div>
 
     <div class="card" id="vendorEntry" hidden>
@@ -137,6 +138,7 @@
 </div>
 
 <script src="../settle.js"></script>
+<script src="../guide_ui.js"></script>
   <script src="../phase1_fulfillment_ui.js"></script>
   <script src="../phase2_reconcile_ui.js"></script>
 <script>
@@ -200,7 +202,7 @@ function login(auto) {
     }
     if ($('remember').checked) { store('nm', name); store('cd', code); } else { store('nm', null); store('cd', null); }
     try { sessionStorage.setItem('nm', name); sessionStorage.setItem('cd', code); } catch (e) {}
-    S.name = name; S.code = code; S.data = r; S.tab = firstTab(r); S.filter = 'all'; S.led = null; render(); show('vMain'); loadLedger();
+    S.name = name; S.code = code; S.data = r; S.tab = firstTab(r); S.filter = 'all'; S.led = null; render(); show('vMain'); if (window.GuideUI) GuideUI.renderFirstTimeTip($('vMain').firstElementChild, openMyGuide); loadLedger();
   })['catch'](function (e) {
     S.sending = false; $('go').disabled = false; $('go').textContent = '查看我的訂單';
     if (window.console) console.error(e);
@@ -337,6 +339,11 @@ document.addEventListener('click', function (ev) {
 });
 $('go').addEventListener('click', function () { login(false); });
 $('code').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(false); });
+function openMyGuide() {
+  if (!window.GuideUI || !S.data) return;
+  GuideUI.open({ area: 'my', stall: S.tab || 's1', userName: S.data.name, guideVars: S.data.guideVars, ledStall: ledStall(S.tab || 's1'), tutorialUrl: './tutorial.html' });
+}
+$('openGuide').addEventListener('click', openMyGuide);
 $('refresh').addEventListener('click', function () { $('remember').checked = persisted(); login(true); });
 $('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); } catch (e) {} store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
 $('retry').addEventListener('click', start);

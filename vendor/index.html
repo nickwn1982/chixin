@@ -60,6 +60,7 @@
   @media print { header, .tabs, .chips, .btn, .link, footer, #orders { display:none !important; } }
 </style>
 <link rel="stylesheet" href="../settle.css">
+<link rel="stylesheet" href="../guide.css">
 </head>
 <body>
 <header>
@@ -87,6 +88,7 @@
         <button type="button" class="link" id="logout">登出</button></div>
       <button type="button" class="btn ghost small" id="refresh">重新整理</button>
       <a class="btn ghost small" href="../my/">回我的入口</a>
+      <button type="button" class="g-btn" id="openGuide">📖 操作說明</button>
     </div>
     <div id="none" class="card" hidden><h2>目前沒有指派廠商</h2><p>您還不是任何廠商的負責人。如需負責廠商，請聯絡統籌溫國政。</p></div>
     <div class="tabs" id="tabs" role="tablist"></div>
@@ -98,6 +100,7 @@
 </div>
 
 <script src="../settle.js"></script>
+<script src="../guide_ui.js"></script>
   <script src="../phase1_fulfillment_ui.js"></script>
 <script>
 var API = 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';
@@ -155,7 +158,7 @@ function render() {
   var d = S.data;
   $('hName').textContent = d.name + '（廠商負責人）'; $('hUpd').textContent = '資料時間 ' + d.updated;
   var none = !d.vendors.length;
-  $('none').hidden = !none; $('ship').hidden = none; $('orders').hidden = none; $('tabs').hidden = none || d.vendors.length < 2;
+  $('none').hidden = !none; $('ship').hidden = none; $('orders').hidden = none; $('tabs').hidden = none || d.vendors.length < 2; $('openGuide').hidden = none;
   if (none) return;
   if (S.tab >= d.vendors.length) S.tab = 0;
   $('tabs').innerHTML = d.vendors.map(function (v, i) { return '<button type="button" role="tab" data-t="' + i + '" aria-selected="' + (i === S.tab) + '">' + esc(v.name) + '</button>'; }).join('');
@@ -216,6 +219,7 @@ document.addEventListener('click', function (ev) {
 });
 $('go').addEventListener('click', function () { login(false); });
 $('code').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(false); });
+$('openGuide').addEventListener('click', function () { if (window.GuideUI && S.data) GuideUI.open({ area: 'vendor', userName: S.data.name, guideVars: S.data.guideVars }); });
 $('refresh').addEventListener('click', function () { $('remember').checked = persisted(); login(true); });
 $('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); } catch (e) {} store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
 $('retry').addEventListener('click', start);

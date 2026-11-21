@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>管理後台｜巴拿巴宣教學院募款</title>
 <link rel="stylesheet" href="../boothview.css">
+<link rel="stylesheet" href="../guide.css">
 <style>
   :root { --red:#a8321f; --red-d:#7f2416; --cream:#f6f3ee; --ink:#2e2a26; --mute:#7a7168; --line:#ddd2bf; --green:#2f6b4f; --gold:#c8963e; --blue:#2b4a7a; }
   * { box-sizing:border-box; }
@@ -63,6 +64,7 @@
 </div>
 
 <script src="../boothview.js"></script>
+<script src="../guide_ui.js"></script>
 <script>
 var API = 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';
 var $ = function (id) { return document.getElementById(id); };
@@ -108,7 +110,7 @@ function render() {
     '<div>定時觸發器：<b>' + (st.triggers.scan && st.triggers.daily ? '正常' : '未建立') + '</b></div></div>' +
     (stale ? '<div class="msg err">⚠ 已超過 15 分鐘沒有掃描，新訂單可能沒有通知，請到「通知設定」按「重建觸發器」。</div>' : '') +
     (st.lastWarn ? '<div class="msg warn">' + esc(st.lastWarn) + '</div>' : '') +
-    '<button class="btn o" id="reload">重新整理</button>';
+    '<button class="btn o" id="reload">重新整理</button><button type="button" class="g-btn admin-theme" id="openGuide">📖 操作說明</button>';
   $('tabs').innerHTML = TABS.map(function (t) { return '<button type="button" data-tab="' + t[0] + '" aria-selected="' + (S.tab === t[0]) + '">' + t[1] + '</button>'; }).join('');
   ({ boards: rBoards, vendors: rVendors, products: rProducts, members: rMembers, booths: rBooths, codes: rCodes, settings: rSettings })[S.tab]();
 }
@@ -310,6 +312,7 @@ document.addEventListener('click', function (ev) {
   var tb = e.closest('[data-tab]'); if (tb) { S.tab = tb.dataset.tab; flash(''); render(); return; }
   var bs = e.closest('[data-bsel]'); if (bs) { S.bsel = bs.dataset.bsel; rBoards(); return; }
   if (e.id === 'reload') { S.boards = null; reload(); return; }
+  if (e.id === 'openGuide') { if (window.GuideUI && S.d) GuideUI.open({ area: 'admin', activeTab: S.tab, guideVars: S.d.guideVars }); return; }
   var rs = e.closest('[data-reset]'); if (rs) { resetCode(+rs.dataset.reset); return; }
   var ul = e.closest('[data-unlock]'); if (ul) { unlockCode(+ul.dataset.unlock); return; }
   var sv = e.closest('[data-save]'); if (sv) { save(sv.dataset.save); return; }

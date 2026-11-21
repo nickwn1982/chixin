@@ -48,6 +48,7 @@
   footer { text-align:center; color:var(--mute); font-size:13px; margin-top:22px; }
 </style>
 <link rel="stylesheet" href="../settle.css">
+<link rel="stylesheet" href="../guide.css">
 </head>
 <body>
 <header><div class="sub">巴拿巴宣教學院・國際志工募款</div><h1>各攤管理（組長專用）</h1></header>
@@ -68,6 +69,7 @@
       <div class="hello"><div><b id="hName"></b><div class="hint" id="hUpd"></div></div><button type="button" class="link" id="logout">登出</button></div>
       <button type="button" class="btn ghost small" id="refresh">重新整理</button>
       <a class="btn ghost small" href="../my/">回我的入口</a>
+      <button type="button" class="g-btn" id="openGuide">📖 操作說明</button>
     </div>
     <div id="none" class="card" hidden><h2>您目前沒有各攤管理權限</h2><p>如需權限，請聯絡統籌溫國政。</p></div>
     <div class="btabs" id="btabs"></div>
@@ -77,6 +79,7 @@
 </div>
 <script src="../boothview.js"></script>
 <script src="../settle.js"></script>
+<script src="../guide_ui.js"></script>
   <script src="../phase1_fulfillment_ui.js"></script>
   <script src="../phase2_reconcile_ui.js"></script>
 <script>
@@ -133,7 +136,7 @@ function render() {
   var d = S.data;
   $('hName').textContent = d.name; $('hUpd').textContent = '資料時間 ' + d.updated;
   var none = !d.booths.length;
-  $('none').hidden = !none; $('view').hidden = none; $('btabs').hidden = d.booths.length < 2;
+  $('none').hidden = !none; $('view').hidden = none; $('btabs').hidden = d.booths.length < 2; $('openGuide').hidden = none;
   if (none) return;
   $('btabs').innerHTML = d.booths.map(function (b, i) { return '<button type="button" data-b="' + i + '" aria-selected="' + (i === S.i) + '">' + esc(b.label) + '</button>'; }).join('');
   var P = d.booths[S.i];
@@ -199,6 +202,15 @@ document.addEventListener('click', function (ev) {
 });
 $('go').addEventListener('click', function () { login(false); });
 $('code').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(false); });
+$('openGuide').addEventListener('click', function () {
+  if (!window.GuideUI || !S.data || !S.data.booths.length) return;
+  var P = S.data.booths[S.i] || S.data.booths[0];
+  var tabBtns = document.querySelectorAll('#bvroot .bvtabs button[data-bv-tab]');
+  var visibleTabs = Array.prototype.map.call(tabBtns, function (b) { return b.getAttribute('data-bv-tab'); });
+  var actBtn = document.querySelector('#bvroot .bvtabs button[data-bv-tab][aria-selected="true"]');
+  var activeTab = actBtn ? actBtn.getAttribute('data-bv-tab') : (visibleTabs[0] || 'ov');
+  GuideUI.open({ area: 'booth', stall: P.booth, userName: S.data.name, guideVars: S.data.guideVars, visibleTabs: visibleTabs, activeTab: activeTab });
+});
 $('refresh').addEventListener('click', function () { $('remember').checked = persisted(); login(true); });
 $('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); } catch (e) {} store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
 $('retry').addEventListener('click', start);

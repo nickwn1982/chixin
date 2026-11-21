@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>同學處理訂單操作教學（美食攤團購）</title>
+<style>
+  :root {
+    --bg: #f6efe4;
+    --cream: #fbf6ec;
+    --dark: #341812;
+    --red: #a8321f;
+    --red-d: #7f2416;
+    --crimson: #9b2b1a;
+    --green: #2f6b4f;
+    --gold: #c8963e;
+    --ink: #2e241f;
+    --mute: #7a7168;
+    --line: #dfd2be;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #e9dfd0;
+    color: var(--ink);
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* 頂部操作列（列印／轉 PDF 時自動隱藏） */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #2e1712;
+    color: #fff;
+    padding: 10px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 3px solid var(--gold);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .2);
+  }
+  .topbar-title { font-weight: 700; font-size: 16px; }
+  .topbar-title small { font-weight: 400; opacity: .8; margin-left: 8px; font-size: 13px; }
+  .topbar-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tbtn {
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 7px 13px;
+    border-radius: 8px;
+    border: 0;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .tbtn.pri { background: var(--gold); color: #2e1712; }
+  .tbtn.pri:hover { background: #d9a74f; }
+  .tbtn.sec { background: rgba(255, 255, 255, .16); color: #fff; }
+  .tbtn.sec:hover { background: rgba(255, 255, 255, .28); }
+
+  /* 簡報容器 */
+  .deck {
+    max-width: 1120px;
+    margin: 20px auto 48px;
+    padding: 0 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  /* 單頁投影片（桌機維持 16:9 簡報感，手機自動延展好讀） */
+  .slide {
+    background: var(--cream);
+    border-radius: 14px;
+    box-shadow: 0 6px 24px rgba(46, 36, 31, .12);
+    padding: 44px 56px;
+    min-height: 580px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .slide.dark {
+    background: var(--dark);
+    color: #fff;
+  }
+  .slide.crimson {
+    background: var(--crimson);
+    color: #fff;
+  }
+  .pnum {
+    position: absolute;
+    right: 22px;
+    bottom: 14px;
+    font-size: 13px;
+    color: var(--mute);
+    opacity: .75;
+  }
+  .slide.dark .pnum, .slide.crimson .pnum { color: rgba(255, 255, 255, .55); }
+
+  /* 標題與文字 */
+  .eyebrow {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--red);
+    margin-bottom: 8px;
+    letter-spacing: .04em;
+  }
+  .slide.dark .eyebrow { color: #e2b46d; }
+  .slide.crimson .eyebrow { color: #ffd9a0; }
+
+  h1.cover-title {
+    font-size: 56px;
+    line-height: 1.18;
+    margin: 6px 0 20px;
+    font-weight: 800;
+    letter-spacing: .02em;
+  }
+  .cover-sub { font-size: 24px; opacity: .94; margin: 0 0 28px; }
+  .cover-note { font-size: 15px; opacity: .68; margin: 0; }
+
+  h2.stitle {
+    font-size: 36px;
+    line-height: 1.25;
+    margin: 0 0 26px;
+    color: var(--dark);
+    font-weight: 800;
+  }
+  .slide.dark h2.stitle, .slide.crimson h2.stitle { color: #fff; }
+
+  /* 兩欄排版 */
+  .grid2 {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 36px;
+    align-items: center;
+  }
+  .grid2.flip { grid-template-columns: 1fr 1fr; }
+
+  /* 步驟編號 */
+  .steps { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 18px; }
+  .steps li { display: flex; align-items: flex-start; gap: 14px; font-size: 22px; line-height: 1.45; }
+  .num {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--red);
+    color: #fff;
+    font-weight: 800;
+    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+  }
+  .steps small { display: block; font-size: 17px; color: var(--mute); margin-top: 3px; }
+
+  .bullets { margin: 0; padding-left: 24px; display: flex; flex-direction: column; gap: 14px; font-size: 21px; line-height: 1.5; }
+  .bullets b { color: var(--dark); }
+  .slide.crimson .bullets b { color: #fff; }
+  .slide.crimson .bullets { font-size: 22px; }
+
+  .sub-h { font-size: 21px; font-weight: 800; color: var(--green); margin: 0 0 10px; }
+  .sub-h + .sub-h, .mt20 { margin-top: 22px; }
+  .foot-note { margin-top: 24px; font-size: 17px; color: var(--mute); }
+
+  /* 三步驟橫排卡片（情境 1） */
+  .cols3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: start; }
+  .cols2-arrow { display: grid; grid-template-columns: 1fr 48px 1fr; gap: 14px; align-items: center; }
+  .arrow { text-align: center; font-size: 36px; font-weight: 800; color: var(--red); }
+  .cap { display: flex; align-items: flex-start; gap: 10px; margin-top: 14px; font-size: 18px; line-height: 1.4; }
+  .cap .num { width: 28px; height: 28px; font-size: 15px; }
+
+  /* 模擬手機與系統卡片 UI（純 CSS，放大不失真、方便日後維護） */
+  .phone {
+    background: var(--cream);
+    border: 2px solid #d8c8b0;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(46, 36, 31, .14);
+    max-width: 340px;
+    width: 100%;
+    margin: 0 auto;
+    color: var(--ink);
+    font-size: 14px;
+  }
+  .ph-head {
+    background: var(--red);
+    color: #fff;
+    text-align: center;
+    padding: 12px 10px 10px;
+    border-bottom: 4px solid var(--gold);
+  }
+  .ph-head.booth { background: var(--red-d); }
+  .ph-head small { display: block; font-size: 11px; opacity: .9; }
+  .ph-head b { font-size: 17px; }
+  .ph-body { padding: 12px; }
+  .ph-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .ph-card:last-child { margin-bottom: 0; }
+  .ph-input {
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    padding: 7px 10px;
+    background: #fff;
+    margin: 4px 0 10px;
+    font-size: 14px;
+  }
+  .ph-input.focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(200, 150, 62, .25); }
+  .ph-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: var(--red);
+    color: #fff;
+    font-weight: 700;
+    padding: 9px;
+    border-radius: 9px;
+    margin-top: 8px;
+  }
+  .ph-btn.ghost {
+    background: #fff;
+    color: var(--green);
+    border: 1.5px solid var(--green);
+    padding: 6px;
+    font-size: 13px;
+  }
+  .ph-tot { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+  .ph-tot div { background: #faf5ea; border-radius: 8px; padding: 6px 8px; }
+  .ph-tot small { display: block; font-size: 11px; color: var(--mute); }
+  .ph-tot b { font-size: 15px; }
+  .ph-tot .g b { color: var(--green); }
+  .ph-tot .r b { color: var(--red); }
+  .ph-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 8px; text-align: center; font-size: 11px; }
+  .ph-tabs span { border: 1.5px solid var(--line); border-radius: 8px; padding: 5px 2px; background: #fff; color: var(--mute); }
+  .ph-tabs span.on { border-color: var(--red); color: var(--red-d); background: #fff4f0; font-weight: 700; }
+  .ph-toast {
+    background: var(--green);
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    text-align: center;
+    margin-top: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
+  }
+  .ph-chips { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+  .ph-chips span { font-size: 11px; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--line); color: var(--mute); background: #fff; }
+  .ph-chips span.on { background: var(--green); border-color: var(--green); color: #fff; font-weight: 700; }
+
+  /* 示範訂單卡片 */
+  .ocard {
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 18px;
+    color: var(--ink);
+  }
+  .ocard.sm { padding: 12px 14px; font-size: 14px; }
+  .ocard.cancelled { opacity: .62; background: #f5f1ea; }
+  .ocard .otop { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+  .ocard .oname { font-size: 22px; font-weight: 800; }
+  .ocard.sm .oname { font-size: 18px; }
+  .ocard .oamt { font-size: 22px; font-weight: 800; color: var(--red-d); }
+  .ocard.sm .oamt { font-size: 18px; }
+  .ocard .ometa { font-size: 14px; color: var(--mute); margin-bottom: 4px; }
+  .ocard .otel { color: var(--green); font-weight: 700; text-decoration: underline; }
+  .ocard .oitem { font-size: 17px; margin: 4px 0; }
+  .ocard.sm .oitem { font-size: 14px; }
+  .otags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 12px; }
+  .otag { font-size: 13px; padding: 2px 10px; border-radius: 99px; background: #ececec; color: #555; font-weight: 600; }
+  .otag.no { background: #fde3e3; color: #8a1c1c; }
+  .otag.ok { background: #dcefe2; color: #17472f; }
+  .obtns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .obtn {
+    font-size: 15px;
+    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: 10px;
+    border: 2px solid var(--green);
+    background: #fff;
+    color: var(--green);
+  }
+  .ocard.sm .obtn { font-size: 13px; padding: 5px 10px; }
+  .obtn.armed { background: var(--red); border-color: var(--red); color: #fff; }
+  .obtn.done { border-color: #c9bba3; color: var(--mute); font-weight: 500; }
+
+  /* 結算卡片 */
+  .settle-card {
+    background: #faf5ea;
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 18px;
+    font-size: 15px;
+  }
+  .settle-card h3 { margin: 0 0 4px; font-size: 18px; color: var(--red-d); }
+  .settle-card .srow { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+  .settle-card .srow.hl { font-weight: 800; color: var(--red-d); }
+  .settle-card .ssub { font-size: 12px; color: var(--mute); }
+
+  /* 表格（第 13、15 頁） */
+  table.stbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 20px;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1.5px solid var(--line);
+  }
+  table.stbl th {
+    background: var(--dark);
+    color: #fff;
+    text-align: left;
+    padding: 14px 18px;
+    font-weight: 700;
+  }
+  table.stbl td {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  table.stbl tr:last-child td { border-bottom: 0; }
+  table.stbl tr:nth-child(even) td { background: #fbf8f2; }
+
+  .big-lines { font-size: 40px; line-height: 1.45; font-weight: 800; margin: 12px 0 28px; }
+
+  /* 手機螢幕響應式 */
+  @media (max-width: 760px) {
+    .slide { padding: 28px 20px 38px; min-height: auto; }
+    h1.cover-title { font-size: 36px; }
+    .cover-sub { font-size: 18px; }
+    h2.stitle { font-size: 26px; margin-bottom: 18px; }
+    .grid2, .grid2.flip, .cols3, .cols2-arrow { grid-template-columns: 1fr; gap: 18px; }
+    .arrow { transform: rotate(90deg); font-size: 28px; }
+    .steps li, .bullets { font-size: 17px; }
+    table.stbl { font-size: 15px; }
+    table.stbl th, table.stbl td { padding: 10px 10px; }
+    .big-lines { font-size: 26px; }
+  }
+
+  /* 列印／轉存 PDF 專用：嚴格 16:9 一頁一張投影片 */
+  @page {
+    size: 1280px 720px;
+    margin: 0;
+  }
+  @media print {
+    html, body { background: #fff; }
+    .topbar { display: none !important; }
+    .deck {
+      max-width: none;
+      margin: 0;
+      padding: 0;
+      gap: 0;
+    }
+    .slide {
+      width: 1280px;
+      height: 720px;
+      min-height: 720px;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 52px 72px;
+      break-after: page;
+      page-break-after: always;
+    }
+    .slide:last-child {
+      break-after: auto;
+      page-break-after: auto;
+    }
+    .grid2 { grid-template-columns: 1.15fr 0.85fr; }
+    .grid2.flip { grid-template-columns: 1fr 1fr; }
+    .cols3 { grid-template-columns: repeat(3, 1fr); }
+    .cols2-arrow { grid-template-columns: 1fr 48px 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">📖 同學處理訂單操作教學<small>共 16 頁・單一 HTML 維護版</small></div>
+  <div class="topbar-acts">
+    <button type="button" class="tbtn pri" onclick="window.print()">🖨️ 存成 PDF / 列印</button>
+    <a class="tbtn sec" href="./">← 回我的入口</a>
+  </div>
+</div>
+
+<main class="deck">
+
+  <!-- 第 1 頁：封面 -->
+  <section class="slide dark">
+    <div class="eyebrow">巴拿巴宣教學院・國際志工募款｜美食攤團購</div>
+    <h1 class="cover-title">同學處理訂單<br>操作教學</h1>
+    <p class="cover-sub">收到錢、交了貨，在手機上按一按就能更新</p>
+    <p class="cover-note">本簡報畫面為示範資料，人名與訂單皆為虛構</p>
+    <span class="pnum">1 / 16</span>
+  </section>
+
+  <!-- 第 2 頁：第一步 -->
+  <section class="slide">
+    <div class="grid2">
+      <div>
+        <div class="eyebrow">第一步</div>
+        <h2 class="stitle">先登入「我的入口」</h2>
+        <ol class="steps">
+          <li><span class="num">1</span><div>選擇「我的名字」</div></li>
+          <li><span class="num">2</span><div>輸入你的「通關碼」<small>每人一組，看 LINE 記事本</small></div></li>
+          <li><span class="num">3</span><div>按「查看我的訂單」</div></li>
+        </ol>
+        <p class="foot-note">忘記通關碼，請聯絡統籌溫國政。通關碼只有自己的，請不要轉給別人。</p>
+      </div>
+      <div>
+        <div class="phone">
+          <div class="ph-head"><small>巴拿巴宣教學院・國際志工募款</small><b>我的入口</b></div>
+          <div class="ph-body">
+            <div class="ph-card">
+              <div style="color:var(--red-d);font-weight:700;margin-bottom:8px;">同學專用｜登入</div>
+              <div style="font-weight:700;font-size:13px;">我的名字</div>
+              <div class="ph-input">小美</div>
+              <div style="font-weight:700;font-size:13px;">我的通關碼 <span style="font-weight:400;color:var(--mute);font-size:12px;">（每人一組，看 LINE 記事本）</span></div>
+              <div class="ph-input focus">••••••</div>
+              <div style="font-size:12px;color:var(--mute);">☐ 記住這支手機（下次免輸入）</div>
+              <div class="ph-btn">查看我的訂單</div>
+              <div style="font-size:11px;color:var(--mute);margin-top:8px;">通關碼只有您自己的，請不要轉給別人。忘記請聯絡統籌溫國政。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="pnum">2 / 16</span>
+  </section>
+
+  <!-- 第 3 頁：第二步 -->
+  <section class="slide">
+    <div class="grid2">
+      <div>
+        <div class="eyebrow">第二步</div>
+        <h2 class="stitle">登入後，先看這張總覽</h2>
+        <ul class="bullets">
+          <li><b>有效訂單</b>：登記在你名下、沒被取消的訂單與件數</li>
+          <li><b>應收合計</b>：這些訂單的總金額</li>
+          <li><b>已收款</b>：你已按過「已收款」的金額</li>
+          <li><b>未收款</b>：還沒收到的錢，要提醒親友</li>
+          <li><b>待交貨</b>：還沒把東西交出去的筆數</li>
+        </ul>
+      </div>
+      <div>
+        <div class="phone">
+          <div class="ph-head"><small>巴拿巴宣教學院・國際志工募款</small><b>我的入口</b></div>
+          <div class="ph-body">
+            <div class="ph-card">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                <div><b>小美</b> 的預購總覽<div style="font-size:11px;color:var(--mute);">資料時間 11/20 20:19</div></div>
+                <span style="font-size:12px;color:var(--mute);text-decoration:underline;">登出</span>
+              </div>
+              <div class="ph-tot">
+                <div><small>有效訂單</small><b>5 筆</b></div>
+                <div><small>共</small><b>10 件</b></div>
+                <div><small>應收合計</small><b>$1,929</b></div>
+                <div class="g"><small>已收款</small><b>$200</b></div>
+                <div class="r"><small>未收款</small><b>$1,729</b></div>
+                <div><small>待交貨</small><b>5 筆</b></div>
+              </div>
+              <div class="ph-btn ghost">重新整理</div>
+            </div>
+            <div class="ph-tabs">
+              <span class="on">第1攤<br>吃心絕對・4 筆</span>
+              <span>第2攤<br>天父的暖暖包・1 筆</span>
+              <span>第3攤<br>啵啵快樂製造所・0 筆</span>
+            </div>
+            <div class="ph-card" style="font-size:12px;">
+              <b style="color:var(--red-d);font-size:14px;">第一攤・吃心絕對</b>
+              <div style="margin-top:4px;">共 <b>4</b> 筆、<b>9</b> 件，應收 <b>$1,430</b></div>
+              <div>已收 <b style="color:var(--green);">$200</b>　未收 <b style="color:var(--red);">$1,230</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="pnum">3 / 16</span>
+  </section>
+
+  <!-- 第 4 頁：第三步 -->
+  <section class="slide">
+    <div class="eyebrow">第三步</div>
+    <h2 class="stitle">每張訂單卡片長這樣</h2>
+    <div class="grid2 flip">
+      <div class="ocard">
+        <div class="otop"><span class="oname">張美玲</span><span class="oamt">$200</span></div>
+        <div class="ometa"><span class="otel">0966-666-777</span>・P4・2026/11/19</div>
+        <div class="oitem">豆乾×2（共 2 件）</div>
+        <div class="ometa">面交</div>
+        <div class="otags">
+          <span class="otag no">未收款</span>
+          <span class="otag">未交出納</span>
+          <span class="otag">待交貨</span>
+        </div>
+        <div class="obtns">
+          <span class="obtn">標記已收款</span>
+          <span class="obtn">標記已交貨</span>
+        </div>
+      </div>
+      <div>
+        <div class="sub-h">三個標籤，看目前狀態</div>
+        <ul class="bullets" style="font-size:19px;">
+          <li><b>收款</b>：紅色＝未收款，綠色＝已收款</li>
+          <li><b>出納</b>：交給財務後，由財務勾選</li>
+          <li><b>交貨</b>：灰色＝待交貨，綠色＝已交貨</li>
+        </ul>
+        <div class="sub-h mt20">下方按鈕，是你能做的事</div>
+        <p style="font-size:19px;margin:0;line-height:1.6;">「標記已收款」「標記已交貨」，按下去就會更新。</p>
+      </div>
+    </div>
+    <span class="pnum">4 / 16</span>
+  </section>
+
+  <!-- 第 5 頁：情境 1 -->
+  <section class="slide">
+    <div class="eyebrow">情境 1｜買家當面付現金</div>
+    <h2 class="stitle">親友張美玲來取貨，當面給你 $200</h2>
+    <div class="cols3">
+      <div>
+        <div class="ocard sm">
+          <div class="otop"><span class="oname">張美玲</span><span class="oamt">$200</span></div>
+          <div class="ometa"><span class="otel">0966-666-777</span>・P4・2026/11/19</div>
+          <div class="oitem">豆乾×2（共 2 件）</div>
+          <div class="ometa">面交</div>
+          <div class="otags"><span class="otag no">未收款</span><span class="otag">未交出納</span><span class="otag">待交貨</span></div>
+          <div class="obtns"><span class="obtn">標記已收款</span><span class="obtn">標記已交貨</span></div>
+        </div>
+        <div class="cap"><span class="num">1</span><div>找到她的訂單，按「標記已收款」</div></div>
+      </div>
+      <div>
+        <div class="ocard sm">
+          <div class="otop"><span class="oname">張美玲</span><span class="oamt">$200</span></div>
+          <div class="ometa"><span class="otel">0966-666-777</span>・P4・2026/11/19</div>
+          <div class="oitem">豆乾×2（共 2 件）</div>
+          <div class="ometa">面交</div>
+          <div class="otags"><span class="otag no">未收款</span><span class="otag">未交出納</span><span class="otag">待交貨</span></div>
+          <div class="obtns"><span class="obtn armed">再按一次確認</span><span class="obtn">標記已交貨</span></div>
+        </div>
+        <div class="cap"><span class="num">2</span><div>按鈕變紅，再按一次確認</div></div>
+      </div>
+      <div>
+        <div class="ocard sm">
+          <div class="otop"><span class="oname">張美玲</span><span class="oamt">$200</span></div>
+          <div class="ometa"><span class="otel">0966-666-777</span>・P4・2026/11/19</div>
+          <div class="oitem">豆乾×2（共 2 件）</div>
+          <div class="ometa">面交</div>
+          <div class="otags"><span class="otag ok">已收款</span><span class="otag">未交出納</span><span class="otag">待交貨</span></div>
+          <div class="obtns"><span class="obtn done">改回未收</span><span class="obtn">標記已交貨</span></div>
+        </div>
+        <div class="cap"><span class="num">3</span><div>標籤變綠「已收款」，完成</div></div>
+      </div>
+    </div>
+    <span class="pnum">5 / 16</span>
+  </section>
+
+  <!-- 第 6 頁：綠色提示 -->
+  <section class="slide crimson">
+    <div class="grid2">
+      <div>
+        <div class="eyebrow">怎麼知道成功了？</div>
+        <h2 class="stitle">看到綠色提示才算成功<br>「已更新 ✓（已留下異動紀錄）」</h2>
+        <ul class="bullets">
+          <li>按兩次是為了避免手滑誤按</li>
+          <li>4 秒內沒按第二次，會自動取消</li>
+          <li>網路不穩時會提示「請再按一次」</li>
+        </ul>
+      </div>
+      <div>
+        <div class="phone">
+          <div class="ph-body">
+            <div class="ph-chips"><span class="on">全部</span><span>未收款</span><span>待交貨</span><span>已取消 (1)</span></div>
+            <div class="ocard sm" style="margin-bottom:8px;">
+              <div class="otop"><span class="oname">黃志明</span><span class="oamt">$265</span></div>
+              <div class="ometa">肉桂捲×1（含運費 $65）</div>
+              <div class="otags" style="margin:6px 0;"><span class="otag no">未收款</span><span class="otag">待交貨</span></div>
+            </div>
+            <div class="ocard sm">
+              <div class="otop"><span class="oname">張美玲</span><span class="oamt">$200</span></div>
+              <div class="ometa">豆乾×2（共 2 件）・面交</div>
+              <div class="otags" style="margin:6px 0;"><span class="otag ok">已收款</span><span class="otag">未交出納</span><span class="otag">待交貨</span></div>
+            </div>
+            <div class="ph-toast">P4：已更新 ✓（已留下異動紀錄）</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="pnum">6 / 16</span>
+  </section>
+
+  <!-- 第 7 頁：情境 2 -->
+  <section class="slide">
+    <div class="eyebrow">情境 2｜東西交給買家了</div>
+    <h2 class="stitle">收款和交貨，各按各的</h2>
+    <div class="cols2-arrow">
+      <div>
+        <div class="ocard">
+          <div class="otop"><span class="oname">張美玲</span><span class="oamt">$200</span></div>
+          <div class="ometa"><span class="otel">0966-666-777</span>・P4・2026/11/19</div>
+          <div class="oitem">豆乾×2（共 2 件）</div>
+          <div class="ometa">面交</div>
+          <div class="otags"><span class="otag ok">已收款</span><span class="otag">未交出納</span><span class="otag">待交貨</span></div>
+          <div class="obtns"><span class="obtn done">改回未收</span><span class="obtn">標記已交貨</span></div>
+        </div>
+        <div class="cap"><span class="num">1</span><div>已收款，但東西還沒交</div></div>
+      </div>
+      <div class="arrow">→</div>
+      <div>
+        <div class="ocard">
+          <div class="otop"><span class="oname">張美玲</span><span class="oamt">$200</span></div>
+          <div class="ometa"><span class="otel">0966-666-777</span>・P4・2026/11/19</div>
+          <div class="oitem">豆乾×2（共 2 件）</div>
+          <div class="ometa">面交</div>
+          <div class="otags"><span class="otag ok">已收款</span><span class="otag">未交出納</span><span class="otag ok">已交貨</span></div>
+          <div class="obtns"><span class="obtn done">改回未收</span><span class="obtn done">改回待交貨</span></div>
+        </div>
+        <div class="cap"><span class="num">2</span><div>交貨後按「標記已交貨」</div></div>
+      </div>
+    </div>
+    <p class="foot-note">先交貨、後收款也可以，順序不限。</p>
+    <span class="pnum">7 / 16</span>
+  </section>
+
+  <!-- 第 8 頁：情境 3 -->
+  <section class="slide">
+    <div class="eyebrow">情境 3｜郵寄訂單</div>
+    <h2 class="stitle">黃志明要寄到 7-11，金額 $265</h2>
+    <div class="grid2 flip">
+      <div>
+        <ol class="steps">
+          <li><span class="num">1</span><div>向買家一次收齊「金額＋運費」<small>$265 已含運費 $65</small></div></li>
+          <li><span class="num">2</span><div>收到後按「標記已收款」</div></li>
+          <li><span class="num">3</span><div>到超商寄出後，按「標記已交貨」</div></li>
+        </ol>
+        <p class="foot-note">運費由你向買家收、寄件時自己付，不用交給財務。</p>
+      </div>
+      <div class="ocard">
+        <div class="otop"><span class="oname">黃志明</span><span class="oamt">$265</span></div>
+        <div class="ometa"><span class="otel">0977-888-999</span>・P5・2026/11/20</div>
+        <div class="oitem">肉桂捲×1（共 1 件，含運費 $65）</div>
+        <div class="ometa">郵寄：7-11 示範門市</div>
+        <div class="otags"><span class="otag no">未收款</span><span class="otag">未交出納</span><span class="otag">待交貨</span></div>
+        <div class="obtns"><span class="obtn">標記已收款</span><span class="obtn">標記已交貨</span></div>
+      </div>
+    </div>
+    <span class="pnum">8 / 16</span>
+  </section>
+
+  <!-- 第 9 頁：情境 4 -->
+  <section class="slide">
+    <div class="eyebrow">情境 4｜按錯了</div>
+    <h2 class="stitle">改回來就好</h2>
+    <div class="cols2-arrow">
+      <div>
+        <div class="ocard">
+          <div class="otop"><span class="oname">張美玲</span><span class="oamt">$200</span></div>
+          <div class="ometa"><span class="otel">0966-666-777</span>・P4・2026/11/19</div>
+          <div class="oitem">豆乾×2（共 2 件）</div>
+          <div class="ometa">面交</div>
+          <div class="otags"><span class="otag ok">已收款</span><span class="otag">未交出納</span><span class="otag ok">已交貨</span></div>
+          <div class="obtns"><span class="obtn done">改回未收</span><span class="obtn done">改回待交貨</span></div>
+        </div>
+        <div class="cap"><span class="num">1</span><div>按「改回未收」，再按一次確認</div></div>
+      </div>
+      <div class="arrow">→</div>
+      <div>
+        <div class="ocard">
+          <div class="otop"><span class="oname">張美玲</span><span class="oamt">$200</span></div>
+          <div class="ometa"><span class="otel">0966-666-777</span>・P4・2026/11/19</div>
+          <div class="oitem">豆乾×2（共 2 件）</div>
+          <div class="ometa">面交</div>
+          <div class="otags"><span class="otag no">未收款</span><span class="otag">未交出納</span><span class="otag ok">已交貨</span></div>
+          <div class="obtns"><span class="obtn">標記已收款</span><span class="obtn done">改回待交貨</span></div>
+        </div>
+        <div class="cap"><span class="num">2</span><div>標籤回到紅色「未收款」</div></div>
+      </div>
+    </div>
+    <p class="foot-note">財務已登記「已交出納」後，就不能自己改回，請聯絡財務處理。</p>
+    <span class="pnum">9 / 16</span>
+  </section>
+
+  <!-- 第 10 頁：情境 5 -->
+  <section class="slide">
+    <div class="eyebrow">情境 5｜買家要取消訂單</div>
+    <h2 class="stitle">網頁上不能取消，請聯絡統籌</h2>
+    <div class="grid2 flip">
+      <div class="ocard cancelled">
+        <div class="otop"><span class="oname">陳大文</span><span class="oamt">$100</span></div>
+        <div class="ometa"><span class="otel">0955-444-555</span>・P3・2026/11/19</div>
+        <div class="oitem">豆乾×1（共 1 件）</div>
+        <div class="ometa">面交</div>
+        <div class="otags" style="margin-bottom:0;"><span class="otag no">已取消</span></div>
+      </div>
+      <div>
+        <div class="sub-h">怎麼做</div>
+        <p style="font-size:20px;margin:0 0 22px;line-height:1.6;">用 LINE 告訴統籌溫國政，由他在後台處理（也可在訂單卡點「申請取消／異常標記」留下紀錄）。</p>
+        <div class="sub-h">取消之後</div>
+        <ul class="bullets" style="font-size:20px;">
+          <li>卡片變灰，按鈕消失</li>
+          <li>不計入應收與結算</li>
+        </ul>
+      </div>
+    </div>
+    <span class="pnum">10 / 16</span>
+  </section>
+
+  <!-- 第 11 頁：每天檢查一下 -->
+  <section class="slide">
+    <div class="grid2">
+      <div>
+        <div class="eyebrow">每天檢查一下</div>
+        <h2 class="stitle">追蹤誰還沒付錢</h2>
+        <ul class="bullets">
+          <li>點<b>「未收款」</b>，只看還沒收到錢的訂單</li>
+          <li>點<b>「待交貨」</b>，只看還沒交出去的訂單</li>
+          <li>點<b>「已取消」</b>，看被取消的訂單</li>
+          <li>點<b>電話號碼</b>，可直接撥給買家</li>
+        </ul>
+      </div>
+      <div>
+        <div class="phone">
+          <div class="ph-body">
+            <div class="ph-chips"><span>全部</span><span class="on">未收款</span><span>待交貨</span><span>已取消 (1)</span></div>
+            <div class="ocard sm" style="margin-bottom:8px;">
+              <div class="otop"><span class="oname">黃志明</span><span class="oamt">$265</span></div>
+              <div class="ometa"><span class="otel">0977-888-999</span>・P5・2026/11/20</div>
+              <div class="oitem">肉桂捲×1（含運費 $65）</div>
+              <div class="otags" style="margin:6px 0;"><span class="otag no">未收款</span><span class="otag">待交貨</span></div>
+            </div>
+            <div class="ocard sm" style="margin-bottom:8px;">
+              <div class="otop"><span class="oname">張美玲</span><span class="oamt">$200</span></div>
+              <div class="ometa"><span class="otel">0966-666-777</span>・P4・2026/11/19</div>
+              <div class="oitem">豆乾×2（共 2 件）・面交</div>
+              <div class="otags" style="margin:6px 0;"><span class="otag no">未收款</span><span class="otag ok">已交貨</span></div>
+            </div>
+            <div class="ocard sm">
+              <div class="otop"><span class="oname">王小明</span><span class="oamt">$765</span></div>
+              <div class="ometa"><span class="otel">0912-000-111</span>・P1・2026/11/19</div>
+              <div class="oitem">豆乾×3、肉桂捲×2（共 5 件）</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="pnum">11 / 16</span>
+  </section>
+
+  <!-- 第 12 頁：第一攤收款 -->
+  <section class="slide">
+    <div class="eyebrow">收到的錢怎麼交？</div>
+    <h2 class="stitle">第一攤：成本、利潤、運費分開處理</h2>
+    <div class="grid2">
+      <ul class="bullets">
+        <li><b>成本</b>：取貨時付給廠商窗口<br>豆乾、肉桂捲 → 傳霞姐<br>永生花、苔球 → 淑芬班長</li>
+        <li><b>利潤</b>：交給第一攤財務吳雨儂</li>
+        <li><b>運費</b>：自己收、自己付，不用交</li>
+      </ul>
+      <div class="settle-card">
+        <h3>💰 結算｜交給 吳雨儂</h3>
+        <div class="ssub" style="margin-bottom:8px;">收款方式：利潤（成本於取貨時交廠商窗口，利潤交財務）</div>
+        <div class="srow"><span>營收（不含運費）</span><span>$1,300</span></div>
+        <div class="srow"><span>運費（自己收、自己付）</span><span>$130</span></div>
+        <div class="srow"><span>成本</span><span>$600</span></div>
+        <div class="srow"><span>利潤</span><span>$700</span></div>
+        <div class="srow"><span>已收款／未收款</span><span>$200／$1,230</span></div>
+        <div class="srow hl"><span>應交利潤</span><span>$700</span></div>
+        <div class="srow"><span>財務已登記收到</span><span>$0</span></div>
+        <div class="srow hl"><span>還要交</span><span>$700</span></div>
+        <div style="font-weight:700;color:var(--red-d);margin:10px 0 4px;">取貨時要繳的成本</div>
+        <div class="srow"><div>十二籃<div class="ssub">交給 王傳霞</div></div><div style="text-align:right;">$500<div class="ssub">已繳 $0・未繳 $500</div></div></div>
+        <div class="srow" style="border-bottom:0;"><div>永生花＋苔球<div class="ssub">交給 周淑芬</div></div><div style="text-align:right;">$100<div class="ssub">已繳 $0・未繳 $100</div></div></div>
+      </div>
+    </div>
+    <span class="pnum">12 / 16</span>
+  </section>
+
+  <!-- 第 13 頁：三攤各自收款 -->
+  <section class="slide">
+    <div class="eyebrow">三攤各自收款</div>
+    <h2 class="stitle">先確認你是哪一攤</h2>
+    <table class="stbl">
+      <thead>
+        <tr><th>攤位</th><th>收款人</th><th>交什麼</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>第一攤 吃心絕對</b></td><td>吳雨儂</td><td>利潤（成本於取貨時交廠商窗口）</td></tr>
+        <tr><td><b>第二攤 天父的暖暖包</b></td><td>陳麗如</td><td>全額（訂單金額）</td></tr>
+        <tr><td><b>第三攤 啵啵 快樂製造所</b></td><td>翁玲芝</td><td>收款方式確認後另行公告</td></tr>
+      </tbody>
+    </table>
+    <p class="foot-note">實際以財務公告為準。</p>
+    <span class="pnum">13 / 16</span>
+  </section>
+
+  <!-- 第 14 頁：財務專用 -->
+  <section class="slide">
+    <div class="grid2">
+      <div>
+        <div class="eyebrow">財務專用</div>
+        <h2 class="stitle">財務逐筆勾「已交出納」</h2>
+        <ul class="bullets">
+          <li>同學把錢交給財務</li>
+          <li>財務在「各攤管理 → 收款對帳」核對金額</li>
+          <li>收到後逐筆按「標記已交出納」</li>
+          <li>登記錯誤可「撤銷」，原紀錄會保留</li>
+        </ul>
+      </div>
+      <div>
+        <div class="phone">
+          <div class="ph-head booth"><small>巴拿巴宣教學院・國際志工募款</small><b>各攤管理（組長專用）</b></div>
+          <div class="ph-body">
+            <div class="ph-card">
+              <div style="display:flex;justify-content:space-between;"><b>吳雨儂</b><span style="font-size:12px;color:var(--mute);text-decoration:underline;">登出</span></div>
+              <div style="font-size:11px;color:var(--mute);">資料時間 11/20 20:19</div>
+            </div>
+            <div class="ph-card">
+              <div style="font-weight:700;color:var(--red-d);margin-bottom:6px;">第一攤 吃心絕對 <span style="font-weight:400;color:var(--mute);font-size:12px;">（僅檢視）</span></div>
+              <div class="ph-chips"><span>總覽</span><span>商品</span><span>同學銷售</span><span>接洽廠商</span><span class="on">收款對帳</span></div>
+              <div class="ph-tot">
+                <div><small>營收（不含運費）</small><b>$1,300</b></div>
+                <div><small>利潤</small><b>$700</b></div>
+                <div class="g"><small>同學已收款</small><b>$200</b></div>
+                <div class="r"><small>同學未收款</small><b>$1,230</b></div>
+                <div><small>已交出納（按筆勾）</small><b>$0</b></div>
+                <div><small>已登記收到（按人）</small><b>$0</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="pnum">14 / 16</span>
+  </section>
+
+  <!-- 第 15 頁：一頁速查 -->
+  <section class="slide">
+    <div class="eyebrow">一頁速查</div>
+    <h2 class="stitle">情境對照表</h2>
+    <table class="stbl">
+      <thead>
+        <tr><th style="width:42%;">情境</th><th>要做的事</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>收到錢</b></td><td>標記已收款</td></tr>
+        <tr><td><b>東西交給買家</b></td><td>標記已交貨</td></tr>
+        <tr><td><b>按錯了</b></td><td>改回未收／改回待交貨</td></tr>
+        <tr><td><b>買家要取消</b></td><td>聯絡統籌溫國政</td></tr>
+        <tr><td><b>已交財務後要修改</b></td><td>聯絡財務</td></tr>
+      </tbody>
+    </table>
+    <span class="pnum">15 / 16</span>
+  </section>
+
+  <!-- 第 16 頁：結尾 -->
+  <section class="slide dark">
+    <div class="eyebrow">記住這三件事</div>
+    <div class="big-lines">
+      收到錢按「已收款」<br>
+      交了貨按「已交貨」<br>
+      每個動作按兩次，看到綠色提示
+    </div>
+    <p class="cover-sub" style="opacity:.82;margin:0;">有問題，LINE 找統籌溫國政</p>
+    <span class="pnum">16 / 16</span>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  var qs = new URLSearchParams(location.search);
+  if (qs.get('print') === '1') {
+    window.addEventListener('load', function () { setTimeout(function () { window.print(); }, 250); });
+  }
+})();
+</script>
+</body>
+</html>
