@@ -10,21 +10,22 @@
   var DEFAULT_VARS = {
     coordinator: '溫國政',
     deadline: '2026-12-13',
+    settleDeadline: '待公告',
     stalls: {
       s1: {
         key: 's1', booth: '第一攤', name: '吃心絕對', title: '第一攤 吃心絕對',
         finance: '吳雨儂', finMode: '利潤', finNote: '成本於取貨時交廠商窗口，利潤交財務',
-        leads: '溫國政、李玉雯', vendors: '十二籃（王傳霞）'
+        leads: '溫國政、李玉雯', vendors: '十二籃（王傳霞）', cutoffDate: '2026-12-13'
       },
       s2: {
         key: 's2', booth: '第二攤', name: '天父的暖暖包', title: '第二攤 天父的暖暖包',
         finance: '陳麗如', finMode: '全額', finNote: '款項全額交麗如',
-        leads: '周淑芬、陳麗如', vendors: '永生花＋苔球（周淑芬）、希望種子咖啡（周淑芬）、法鉑（周淑芬）'
+        leads: '周淑芬、陳麗如', vendors: '永生花＋苔球（周淑芬）、希望種子咖啡（周淑芬）、法鉑（周淑芬）', cutoffDate: '2026-12-13'
       },
       s3: {
         key: 's3', booth: '第三攤', name: '啵啵 快樂製造所', title: '第三攤 啵啵 快樂製造所',
         finance: '翁玲芝', finMode: '待定', finNote: '交全額或交利潤待確認',
-        leads: '江貞儀、陳湘盈', vendors: '蛋捲（馮惠英）、海苔（江貞儀）'
+        leads: '江貞儀、陳湘盈', vendors: '蛋捲（馮惠英）、海苔（江貞儀）', cutoffDate: '2026-12-13'
       }
     }
   };
@@ -56,6 +57,8 @@
       vendors: (sv.vendors || fb.vendors || '本組廠商窗口'),
       coordinator: (gv.coordinator || DEFAULT_VARS.coordinator),
       deadline: (gv.deadline || DEFAULT_VARS.deadline),
+      cutoff_date: (sv.cutoffDate || gv.deadline || fb.cutoffDate || DEFAULT_VARS.deadline),
+      settle_deadline: (gv.settleDeadline || DEFAULT_VARS.settleDeadline),
       user_name: (opts.userName || '同學')
     };
   }
@@ -378,6 +381,9 @@
 
   function open(opts) {
     opts = opts || {};
+    if (opts.guideVars) {
+      try { localStorage.setItem('chixin_guide_vars_v2', JSON.stringify(opts.guideVars)); } catch (e) {}
+    }
     var area = opts.area || 'my';
     var vars = resolveVars(opts);
     var el = ensureModal();
@@ -404,6 +410,7 @@
           '<div class="g-ctx-grid">' +
             '<div>・本組財務：<span class="g-var">' + esc(vars.finance) + '</span>（收款方式：<b>' + esc(vars.fin_mode) + '</b>）</div>' +
             '<div>・本組組長：<span class="g-var">' + esc(vars.leads) + '</span></div>' +
+            '<div>・本攤截單日：<b>' + esc(vars.cutoff_date) + '</b>　｜　利潤繳交期限：<b>' + esc(vars.settle_deadline) + '</b></div>' +
             '<div>・系統統籌：<span class="g-var">' + esc(vars.coordinator) + '</span>（忘記通關碼／異常處理）</div>' +
           '</div>' +
         '</div>';
@@ -435,12 +442,13 @@
     // 「我的入口」底部附上《同學處理訂單操作教學》單一 HTML 簡報（支援線上瀏覽＋瀏覽器原生轉存 PDF）
     if (area === 'my') {
       var slideUrl = opts.tutorialUrl || './tutorial.html';
+      var stParam = encodeURIComponent(opts.stall || 's1');
       html +=
         '<div class="g-slide-box">' +
           '<p>想看完整 16 頁圖解操作教學？（單一 HTML 維護，可直接存成 PDF）</p>' +
           '<div class="g-slide-actions">' +
-            '<a class="g-slide-link" href="' + esc(slideUrl) + '" target="_blank" rel="noopener">🖼️ 線上查看圖解簡報</a>' +
-            '<a class="g-slide-link dl" href="' + esc(slideUrl) + '?print=1" target="_blank" rel="noopener">🖨️ 另存 PDF 版本</a>' +
+            '<a class="g-slide-link" href="' + esc(slideUrl) + '?stall=' + stParam + '" target="_blank" rel="noopener">🖼️ 線上查看圖解簡報</a>' +
+            '<a class="g-slide-link dl" href="' + esc(slideUrl) + '?stall=' + stParam + '&print=1" target="_blank" rel="noopener">🖨️ 另存 PDF 版本</a>' +
           '</div>' +
         '</div>';
     }

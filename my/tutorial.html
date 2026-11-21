@@ -422,7 +422,7 @@
           <li><span class="num">2</span><div>輸入你的「通關碼」<small>每人一組，看 LINE 記事本</small></div></li>
           <li><span class="num">3</span><div>按「查看我的訂單」</div></li>
         </ol>
-        <p class="foot-note">忘記通關碼，請聯絡統籌溫國政。通關碼只有自己的，請不要轉給別人。</p>
+        <p class="foot-note">忘記通關碼，請聯絡統籌<span data-gvar="coordinator">溫國政</span>。通關碼只有自己的，請不要轉給別人。</p>
       </div>
       <div>
         <div class="phone">
@@ -436,7 +436,7 @@
               <div class="ph-input focus">••••••</div>
               <div style="font-size:12px;color:var(--mute);">☐ 記住這支手機（下次免輸入）</div>
               <div class="ph-btn">查看我的訂單</div>
-              <div style="font-size:11px;color:var(--mute);margin-top:8px;">通關碼只有您自己的，請不要轉給別人。忘記請聯絡統籌溫國政。</div>
+              <div style="font-size:11px;color:var(--mute);margin-top:8px;">通關碼只有您自己的，請不要轉給別人。忘記請聯絡統籌<span data-gvar="coordinator">溫國政</span>。</div>
             </div>
           </div>
         </div>
@@ -710,7 +710,7 @@
       </div>
       <div>
         <div class="sub-h">怎麼做</div>
-        <p style="font-size:20px;margin:0 0 22px;line-height:1.6;">用 LINE 告訴統籌溫國政，由他在後台處理（也可在訂單卡點「申請取消／異常標記」留下紀錄）。</p>
+        <p style="font-size:20px;margin:0 0 22px;line-height:1.6;">用 LINE 告訴統籌<span data-gvar="coordinator">溫國政</span>，由他在後台處理（也可在訂單卡點「申請取消／異常標記」留下紀錄）。</p>
         <div class="sub-h">取消之後</div>
         <ul class="bullets" style="font-size:20px;">
           <li>卡片變灰，按鈕消失</li>
@@ -769,12 +769,12 @@
     <div class="grid2">
       <ul class="bullets">
         <li><b>成本</b>：取貨時付給廠商窗口<br>豆乾、肉桂捲 → 傳霞姐<br>永生花、苔球 → 淑芬班長</li>
-        <li><b>利潤</b>：交給第一攤財務吳雨儂</li>
+        <li><b>利潤</b>：交給第一攤財務<span data-gvar="s1.finance">吳雨儂</span></li>
         <li><b>運費</b>：自己收、自己付，不用交</li>
       </ul>
       <div class="settle-card">
-        <h3>💰 結算｜交給 吳雨儂</h3>
-        <div class="ssub" style="margin-bottom:8px;">收款方式：利潤（成本於取貨時交廠商窗口，利潤交財務）</div>
+        <h3>💰 結算｜交給 <span data-gvar="s1.finance">吳雨儂</span></h3>
+        <div class="ssub" style="margin-bottom:8px;">收款方式：<span data-gvar="s1.finMode">利潤</span>（<span data-gvar="s1.finNote">成本於取貨時交廠商窗口，利潤交財務</span>）</div>
         <div class="srow"><span>營收（不含運費）</span><span>$1,300</span></div>
         <div class="srow"><span>運費（自己收、自己付）</span><span>$130</span></div>
         <div class="srow"><span>成本</span><span>$600</span></div>
@@ -800,12 +800,12 @@
         <tr><th>攤位</th><th>收款人</th><th>交什麼</th></tr>
       </thead>
       <tbody>
-        <tr><td><b>第一攤 吃心絕對</b></td><td>吳雨儂</td><td>利潤（成本於取貨時交廠商窗口）</td></tr>
-        <tr><td><b>第二攤 天父的暖暖包</b></td><td>陳麗如</td><td>全額（訂單金額）</td></tr>
-        <tr><td><b>第三攤 啵啵 快樂製造所</b></td><td>翁玲芝</td><td>收款方式確認後另行公告</td></tr>
+        <tr data-stall-row="s1"><td><b data-gvar="s1.title">第一攤 吃心絕對</b></td><td data-gvar="s1.finance">吳雨儂</td><td data-gvar="s1.finDesc">利潤（成本於取貨時交廠商窗口）</td></tr>
+        <tr data-stall-row="s2"><td><b data-gvar="s2.title">第二攤 天父的暖暖包</b></td><td data-gvar="s2.finance">陳麗如</td><td data-gvar="s2.finDesc">全額（訂單金額）</td></tr>
+        <tr data-stall-row="s3"><td><b data-gvar="s3.title">第三攤 啵啵 快樂製造所</b></td><td data-gvar="s3.finance">翁玲芝</td><td data-gvar="s3.finDesc">收款方式確認後另行公告</td></tr>
       </tbody>
     </table>
-    <p class="foot-note">實際以財務公告為準。</p>
+    <p class="foot-note">預購截止日：<b data-gvar="deadline">2026-12-13</b>　｜　利潤繳交期限：<b data-gvar="settleDeadline">待公告</b>（實際以財務公告為準）。</p>
     <span class="pnum">13 / 16</span>
   </section>
 
@@ -827,11 +827,11 @@
           <div class="ph-head booth"><small>巴拿巴宣教學院・國際志工募款</small><b>各攤管理（組長專用）</b></div>
           <div class="ph-body">
             <div class="ph-card">
-              <div style="display:flex;justify-content:space-between;"><b>吳雨儂</b><span style="font-size:12px;color:var(--mute);text-decoration:underline;">登出</span></div>
+              <div style="display:flex;justify-content:space-between;"><b data-gvar="s1.finance">吳雨儂</b><span style="font-size:12px;color:var(--mute);text-decoration:underline;">登出</span></div>
               <div style="font-size:11px;color:var(--mute);">資料時間 11/20 20:19</div>
             </div>
             <div class="ph-card">
-              <div style="font-weight:700;color:var(--red-d);margin-bottom:6px;">第一攤 吃心絕對 <span style="font-weight:400;color:var(--mute);font-size:12px;">（僅檢視）</span></div>
+              <div style="font-weight:700;color:var(--red-d);margin-bottom:6px;"><span data-gvar="s1.title">第一攤 吃心絕對</span> <span style="font-weight:400;color:var(--mute);font-size:12px;">（僅檢視）</span></div>
               <div class="ph-chips"><span>總覽</span><span>商品</span><span>同學銷售</span><span>接洽廠商</span><span class="on">收款對帳</span></div>
               <div class="ph-tot">
                 <div><small>營收（不含運費）</small><b>$1,300</b></div>
@@ -861,7 +861,7 @@
         <tr><td><b>收到錢</b></td><td>標記已收款</td></tr>
         <tr><td><b>東西交給買家</b></td><td>標記已交貨</td></tr>
         <tr><td><b>按錯了</b></td><td>改回未收／改回待交貨</td></tr>
-        <tr><td><b>買家要取消</b></td><td>聯絡統籌溫國政</td></tr>
+        <tr><td><b>買家要取消</b></td><td>聯絡統籌<span data-gvar="coordinator">溫國政</span></td></tr>
         <tr><td><b>已交財務後要修改</b></td><td>聯絡財務</td></tr>
       </tbody>
     </table>
@@ -876,7 +876,7 @@
       交了貨按「已交貨」<br>
       每個動作按兩次，看到綠色提示
     </div>
-    <p class="cover-sub" style="opacity:.82;margin:0;">有問題，LINE 找統籌溫國政</p>
+    <p class="cover-sub" style="opacity:.82;margin:0;">有問題，LINE 找統籌<span data-gvar="coordinator">溫國政</span></p>
     <span class="pnum">16 / 16</span>
   </section>
 
@@ -885,6 +885,31 @@
 <script>
 (function () {
   var qs = new URLSearchParams(location.search);
+  var focusStall = qs.get('stall');
+  if (focusStall && /^s[123]$/.test(focusStall)) {
+    var row = document.querySelector('tr[data-stall-row="' + focusStall + '"]');
+    if (row) row.style.background = '#fff2d6';
+  }
+  try {
+    var raw = localStorage.getItem('chixin_guide_vars_v2');
+    if (raw) {
+      var gv = JSON.parse(raw);
+      var map = { coordinator: gv.coordinator, deadline: gv.deadline, settleDeadline: gv.settleDeadline };
+      ['s1', 's2', 's3'].forEach(function (k) {
+        var s = gv.stalls && gv.stalls[k];
+        if (!s) return;
+        map[k + '.title'] = s.title;
+        map[k + '.finance'] = s.finance;
+        map[k + '.finMode'] = s.finMode;
+        map[k + '.finNote'] = s.finNote;
+        map[k + '.finDesc'] = s.finMode + (s.finNote ? '（' + s.finNote + '）' : '');
+      });
+      document.querySelectorAll('[data-gvar]').forEach(function (el) {
+        var v = map[el.getAttribute('data-gvar')];
+        if (v) el.textContent = v;
+      });
+    }
+  } catch (e) {}
   if (qs.get('print') === '1') {
     window.addEventListener('load', function () { setTimeout(function () { window.print(); }, 250); });
   }
