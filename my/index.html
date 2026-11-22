@@ -114,6 +114,12 @@
       <a class="btn" id="boothGo" href="../booth/">進入各攤管理</a>
     </div>
 
+    <div class="card" id="sheetEntry" hidden>
+      <h2>📊 該組訂單試算表</h2>
+      <div class="hint" id="sheetHint">您是本攤財務／統籌，可直接開啟試算表核對與編輯。</div>
+      <div id="sheetLinks"></div>
+    </div>
+
     <div class="tabs" id="tabs" role="tablist"></div>
     <div class="card" id="stallBox"></div>
 
@@ -252,7 +258,7 @@ Settle.init({ api: api, auth: function () { return { name: S.name, code: S.code 
 
 /** 收款狀態與結算（後端尚未更新時會失敗，畫面維持唯讀） */
 function loadLedger() {
-  Settle.call({ action: 'ledgerMine' }).then(function (r) { if (r && r.ok) { S.led = r; renderStall(); } })['catch'](function () {});
+  Settle.call({ action: 'ledgerMine' }).then(function (r) { if (r && r.ok) { S.led = r; renderSheetEntry(); renderStall(); } })['catch'](function () {});
 }
 function ledStall(key) { return S.led ? S.led.stalls.filter(function (x) { return x.key === key; })[0] : null; }
 /** 本機改了某筆狀態後，重算畫面上的小計（之後 loadLedger 會再跟伺服器對齊） */
@@ -275,11 +281,41 @@ function recalc() {
 
 function firstTab(r) { var f = r.stalls.filter(function (s) { return s.summary.count > 0; })[0]; return f ? f.key : 's1'; }
 
+var STALL_SHEET_ID = {
+  s1: '1Wg4fqZCf7qoMWno9rBU8CTLtOyXzbdCVq6nyO18NYF0',
+  s2: '1rWiP9HcPxKnH6bdJaNXg4wXcanoB-Ndq7dXIdJ8wtko',
+  s3: '1H7hoko3RH1Gr8vqL79uagLSa-tOw4OzHeFa5GCUZ9Xo'
+};
+var STALL_FULL_LABEL = { s1: '第一攤 吃心絕對', s2: '第二攤 天父的暖暖包', s3: '第三攤 啵啵 快樂製造所' };
+var FINANCE_FALLBACK = { '吳雨儂': ['s1'], '陳麗如': ['s2'], '翁玲芝': ['s3'] };
+
+function renderSheetEntry() {
+  var box = $('sheetEntry'), linksEl = $('sheetLinks');
+  if (!box || !linksEl || !S.data) return;
+  var name = String(S.data.name || '').trim();
+  var isCoord = (name === '溫國政' || name === '温國政');
+  var keys = [];
+  if (isCoord) {
+    keys = ['s1', 's2', 's3'];
+  } else {
+    var finKeys = (S.led && Array.isArray(S.led.financeOf) && S.led.financeOf.length) ? S.led.financeOf : (FINANCE_FALLBACK[name] || []);
+    finKeys.forEach(function (k) { if (STALL_SHEET_ID[k] && keys.indexOf(k) < 0) keys.push(k); });
+  }
+  if (!keys.length) { box.hidden = true; linksEl.innerHTML = ''; return; }
+  $('sheetHint').textContent = isCoord ? '您是統籌，可直接開啟三攤訂單試算表核對與編輯。' : '您是本攤財務，可直接開啟該組訂單試算表核對與編輯。';
+  linksEl.innerHTML = keys.map(function (k) {
+    var url = 'https://docs.google.com/spreadsheets/d/' + STALL_SHEET_ID[k] + '/edit';
+    return '<a class="btn ghost" style="margin-top:10px" target="_blank" rel="noopener" href="' + url + '">開啟 ' + esc(STALL_FULL_LABEL[k]) + ' 試算表 ↗</a>';
+  }).join('');
+  box.hidden = false;
+}
+
 function render() {
   var d = S.data, t = d.total;
   $('vendorEntry').hidden = !d.isVendor;
   $('boothEntry').hidden = !d.isBooth;
   $('vendorGo').href = '../vendor/?s=' + encodeURIComponent(d.slug); $('boothGo').href = '../booth/?s=' + encodeURIComponent(d.slug);
+  renderSheetEntry();
   $('hName').textContent = d.name; $('hUpd').textContent = '資料時間 ' + d.updated;
   $('tot').innerHTML =
     '<div><small>有效訂單</small><b>' + t.count + ' 筆</b></div><div><small>共</small><b>' + t.qty + ' 件</b></div>' +
