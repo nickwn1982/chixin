@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var API_URL = 'https://script.google.com/macros/s/AKfycbxLvSKM1Ftjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';
+  var API_URL = 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';
   var MEMBERS = [
     {n:'溫國政',r:'統籌'},{n:'李玉雯'},{n:'李益芬'},{n:'呂衣綵'},{n:'房惠純'},
     {n:'吳雨儂',f:true,r:'一攤財務'},{n:'王傳霞',v:true,r:'豆乾/肉桂捲'},{n:'楊雯祺'},
