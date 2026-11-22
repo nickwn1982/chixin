@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>碰面速辦｜三攤團購快速收錢・交貨</title>
+  <style>
+    :root { --bg:#0f172a; --card:#1e293b; --line:#334155; --txt:#f8fafc; --muted:#94a3b8; --pri:#38bdf8; --ok:#22c55e; --warn:#f59e0b; --err:#ef4444; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif; background:var(--bg); color:var(--txt); padding:14px; max-width:520px; margin:0 auto; }
+    h1 { font-size:20px; margin:0 0 10px; display:flex; justify-content:space-between; align-items:center; }
+    .badge { font-size:12px; padding:3px 8px; border-radius:999px; background:#334155; color:var(--pri); }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px; }
+    .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    input, select, button { font-size:16px; border-radius:10px; border:1px solid var(--line); padding:10px 12px; background:#0f172a; color:var(--txt); }
+    button { cursor:pointer; font-weight:600; }
+    .btn-pri { background:var(--pri); color:#0f172a; border:none; }
+    .btn-ok { background:var(--ok); color:#052e16; border:none; }
+    .btn-warn { background:var(--warn); color:#451a03; border:none; }
+    .btn-big { flex:1; padding:18px 12px; font-size:18px; }
+    .grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:10px; }
+    .person-btn { padding:12px 6px; text-align:center; background:#0f172a; border:1px solid var(--line); border-radius:12px; }
+    .person-btn small { display:block; font-size:11px; color:var(--warn); margin-top:3px; }
+    .tab-btn { flex:1; padding:8px; font-size:14px; }
+    .tab-btn.active { background:var(--pri); color:#0f172a; border-color:var(--pri); }
+    .section-title { font-size:14px; color:var(--pri); font-weight:700; margin:10px 0 6px; border-left:3px solid var(--pri); padding-left:8px; }
+    .muted { color:var(--muted); font-size:13px; }
+    .hidden { display:none; }
+    .armed { background:var(--err) !important; color:#fff !important; }
+  </style>
+</head>
+<body>
+  <h1>
+    <span>🤝 碰面速辦</span>
+    <span id="pendingBadge" class="badge hidden" style="background:var(--warn);color:#000;cursor:pointer;">🔔 待核准 0</span>
+  </h1>
+
+  <!-- 登入區 -->
+  <div id="loginCard" class="card">
+    <div class="muted" style="margin-bottom:8px;">請先輸入你的姓名與 6 碼通關碼（與「我的入口」相同）</div>
+    <div class="row">
+      <input id="myName" placeholder="姓名（如：溫國政）" style="flex:1;" />
+      <input id="myCode" type="password" placeholder="6 碼通關碼" style="width:130px;" />
+      <button id="loginBtn" class="btn-pri" style="width:100%;">登入碰面速辦</button>
+    </div>
+  </div>
+
+  <!-- Step 1: 選人 -->
+  <div id="step1" class="hidden">
+    <div class="card">
+      <div class="row" style="margin-bottom:8px;">
+        <button class="tab-btn active" data-filter="all">全部 (23)</button>
+        <button class="tab-btn" data-filter="vendor">廠商窗口</button>
+        <button class="tab-btn" data-filter="finance">各攤財務</button>
+      </div>
+      <input id="searchInput" placeholder="🔍 輸入姓名快速篩選..." style="width:100%;" />
+      <div id="peopleGrid" class="grid"></div>
+    </div>
+  </div>
+
+  <!-- Step 2: 選動作 -->
+  <div id="step2" class="hidden">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px;">
+        <strong id="selectedPersonTitle" style="font-size:18px;"></strong>
+        <button id="backToStep1" style="padding:6px 10px;font-size:13px;">← 重選人名</button>
+      </div>
+      <div class="row">
+        <button id="chooseMoney" class="btn-pri btn-big">💰 收錢／交錢</button>
+        <button id="chooseDeliver" class="btn-ok btn-big">📦 交貨／取貨</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: 精簡卡片 -->
+  <div id="step3" class="hidden">
+    <div class="row" style="justify-content:space-between;margin-bottom:8px;">
+      <strong id="step3Title"></strong>
+      <button id="backToStep2" style="padding:6px 10px;font-size:13px;">← 返回</button>
+    </div>
+    <div id="step3Body"></div>
+  </div>
+
+  <!-- 待核准列表 -->
+  <div id="pendingModal" class="card hidden">
+    <div class="row" style="justify-content:space-between;margin-bottom:8px;">
+      <strong>🔔 待核准的同學回報</strong>
+      <button id="closePending" style="padding:4px 8px;font-size:13px;">關閉</button>
+    </div>
+    <div id="pendingList"></div>
+  </div>
+
+<script>
+(function(){
+  const API_URL = 'https://script.google.com/macros/s/AKfycbynCbGcHSBtHLNn897vHd6y_x1Tj9jP7w9CW0kTJ5F8PleA6eBeTIZNyOw0-K9X_dRwSw/exec';
+  const MEMBERS = [
+    {n:'溫國政',r:'統籌'},{n:'李玉雯'},{n:'李益芬'},{n:'呂衣綵'},{n:'房惠純'},
+    {n:'吳雨儂',f:true,r:'一攤財務'},{n:'王傳霞',v:true,r:'豆乾/肉桂捲'},{n:'楊雯祺'},
+    {n:'周淑芬',v:true,r:'一三攤永生花'},{n:'曾雅玲'},{n:'陳麗如',f:true,r:'二攤財務'},
+    {n:'符玉華'},{n:'Feibi 君愛'},{n:'房惠敏'},{n:'林筱雯'},
+    {n:'劉乃一'},{n:'劉玉萍'},{n:'馮惠英',v:true,r:'蛋捲'},{n:'沈盈暄'},
+    {n:'翁玲芝',f:true,r:'三攤財務'},{n:'陳湘盈'},{n:'李乃青'},{n:'江貞儀',v:true,r:'海苔'}
+  ];
+
+  let auth = { name: localStorage.getItem('chixin_name') || '', code: localStorage.getItem('chixin_code') || '' };
+  let me = null, curTarget = '', curData = null, filterMode = 'all';
+
+  // 自動嘗試從現有 config.js 讀取統一 API 網址（若有）
+  let resolvedApiUrl = window.CHIXIN_API_URL || localStorage.getItem('chixin_api_url') || API_URL;
+
+  async function apiCall(payload) {
+    const res = await fetch(resolvedApiUrl, {
+      method: 'POST',
+      body: JSON.stringify(Object.assign({ name: auth.name, code: auth.code }, payload))
+    });
+    return await res.json();
+  }
+
+  function arm(btn, orig, fn) {
+    if (btn.dataset.armed === '1') {
+      btn.dataset.armed = ''; btn.classList.remove('armed'); btn.textContent = '處理中...'; btn.disabled = true;
+      fn().finally(() => { btn.disabled = false; btn.textContent = orig; });
+      return;
+    }
+    btn.dataset.armed = '1'; btn.classList.add('armed'); btn.textContent = '再按一次確認';
+    setTimeout(() => { if (btn.dataset.armed === '1') { btn.dataset.armed = ''; btn.classList.remove('armed'); btn.textContent = orig; } }, 4000);
+  }
+
+  function copyLine(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      const old = btn.textContent; btn.textContent = '已複製 ✓';
+      setTimeout(() => btn.textContent = old, 2000);
+    });
+  }
+
+  function renderPeople() {
+    const q = document.getElementById('searchInput').value.trim();
+    const grid = document.getElementById('peopleGrid');
+    grid.innerHTML = '';
+    MEMBERS.filter(m => {
+      if (filterMode === 'vendor' && !m.v) return false;
+      if (filterMode === 'finance' && !m.f) return false;
+      if (q && !m.n.includes(q)) return false;
+      return true;
+    }).forEach(m => {
+      const b = document.createElement('button');
+      b.className = 'person-btn';
+      b.innerHTML = '<div>' + m.n + '</div>' + (m.r ? '<small>' + m.r + '</small>' : '');
+      b.onclick = () => selectPerson(m.n);
+      grid.appendChild(b);
+    });
+  }
+
+  async function selectPerson(name) {
+    curTarget = name;
+    document.getElementById('selectedPersonTitle').textContent = '對象：' + name;
+    document.getElementById('step1').classList.add('hidden');
+    document.getElementById('step2').classList.remove('hidden');
+    curData = await apiCall({ action: 'meetupSummary', targetName: name });
+  }
+
+  function renderMoneyView() {
+    const body = document.getElementById('step3Body');
+    body.innerHTML = '';
+    if (!curData || !curData.ok) { body.textContent = (curData && curData.error) || '讀取失敗'; return; }
+    const canCollect = me.isEditor || me.isFinance;
+
+    const head = document.createElement('div');
+    head.className = 'section-title';
+    head.textContent = '一、個人三攤應交帳務（三攤分卡全列）';
+    body.appendChild(head);
+
+    curData.stalls.forEach(s => {
+      const c = document.createElement('div');
+      c.className = 'card';
+      c.innerHTML =
+        '<div class="row" style="justify-content:space-between;"><strong>' + s.label + '</strong><span class="badge">' + s.rule + '</span></div>' +
+        '<div class="muted" style="margin:6px 0;">應交：<strong>$' + s.due + '</strong>｜已確認：$' + s.confirmed + '｜尚欠：<strong style="color:var(--warn);">$' + s.remain + '</strong></div>' +
+        '<div class="row" style="margin-top:8px;">' +
+          '<input type="number" class="amt-inp" value="' + s.remain + '" style="width:120px;" />' +
+          '<input type="text" class="note-inp" placeholder="備註（溢繳必填）" style="flex:1;" />' +
+        '</div>' +
+        '<div class="row" style="margin-top:8px;">' +
+          (canCollect ? '<button class="btn-pri act-collect" style="flex:1;">確認收款入帳</button>' : '<button class="btn-warn act-claim" style="flex:1;">📝 我已交錢（送出待確認）</button>') +
+          '<button class="act-copy" style="padding:10px;">📋 LINE留底</button>' +
+        '</div>';
+
+      const amtEl = c.querySelector('.amt-inp'), noteEl = c.querySelector('.note-inp');
+      c.querySelector('.act-copy').onclick = function(){
+        const msg = '【碰面速辦留底】' + new Date().toLocaleString('zh-TW') + '\n' + curTarget + '｜' + s.label + ' 金額 $' + amtEl.value + (noteEl.value ? '（' + noteEl.value + '）' : '');
+        copyLine(msg, this);
+      };
+
+      if (canCollect) {
+        const btn = c.querySelector('.act-collect');
+        btn.onclick = () => arm(btn, '確認收款入帳', async () => {
+          let res = await apiCall({ action: 'meetupCollectMoney', stall: s.stall, targetName: curTarget, amount: Number(amtEl.value), note: noteEl.value });
+          if (res.overpay && confirm(res.error + '\n確定要以溢繳入帳嗎？')) {
+            res = await apiCall({ action: 'meetupCollectMoney', stall: s.stall, targetName: curTarget, amount: Number(amtEl.value), note: noteEl.value || '溢繳預收', allowOverpay: true });
+          }
+          alert(res.ok ? '✅ 已入帳 $' + res.amount + '（尚欠 $' + res.remain + '）' : '❌ ' + res.error);
+          if (res.ok) { curData = await apiCall({ action: 'meetupSummary', targetName: curTarget }); renderMoneyView(); }
+        });
+      } else {
+        const btn = c.querySelector('.act-claim');
+        btn.onclick = () => arm(btn, '📝 我已交錢（送出待確認）', async () => {
+          const res = await apiCall({ action: 'meetupSubmitClaim', stall: s.stall, claimType: '收款', amount: Number(amtEl.value), note: noteEl.value });
+          alert(res.ok ? '✅ 已送出待確認，請收款方有空核准' : '❌ ' + res.error);
+        });
+      }
+      body.appendChild(c);
+    });
+
+    if (curData.target.vendorRoles && curData.target.vendorRoles.length) {
+      const vh = document.createElement('div');
+      vh.className = 'section-title';
+      vh.textContent = '二、廠商窗口專區（' + curTarget + ' 負責品項）';
+      body.appendChild(vh);
+      curData.target.vendorRoles.forEach(vr => {
+        const vc = document.createElement('div');
+        vc.className = 'card';
+        vc.innerHTML = '<strong>' + vr.label + '（' + vr.stall.toUpperCase() + '）</strong><div class="muted" style="margin-top:4px;">請切至「📦 交貨／取貨」進行點交並同步登記已繳成本。</div>';
+        body.appendChild(vc);
+      });
+    }
+  }
+
+  function renderDeliverView() {
+    const body = document.getElementById('step3Body');
+    body.innerHTML = '';
+    if (!curData || !curData.ok) { body.textContent = (curData && curData.error) || '讀取失敗'; return; }
+
+    curData.stalls.forEach(s => {
+      if (!s.pendingDelivery.length && s.cost <= 0) return;
+      const c = document.createElement('div');
+      c.className = 'card';
+      const listHtml = s.pendingDelivery.map(o =>
+        '<label style="display:block;margin:4px 0;"><input type="checkbox" class="ord-chk" value="' + o.orderId + '" checked /> ' + o.orderId + ' ' + o.buyer + '（$' + o.amount + '）</label>'
+      ).join('') || '<div class="muted">無待交貨訂單</div>';
+
+      c.innerHTML =
+        '<strong>' + s.label + '</strong>' +
+        '<div style="margin:8px 0;">' + listHtml + '</div>' +
+        '<label style="display:block;margin:8px 0;color:var(--warn);"><input type="checkbox" class="sync-cost" checked /> 同步登記已繳成本（預設勾選，先拿貨後給錢請取消）</label>' +
+        '<div class="row"><input type="number" class="cost-amt" value="' + s.cost + '" style="width:120px;" /><button class="btn-ok act-deliv" style="flex:1;">確認交貨</button></div>';
+
+      const btn = c.querySelector('.act-deliv');
+      btn.onclick = () => arm(btn, '確認交貨', async () => {
+        const oids = Array.from(c.querySelectorAll('.ord-chk:checked')).map(x => x.value);
+        const syncCost = c.querySelector('.sync-cost').checked;
+        const costAmt = Number(c.querySelector('.cost-amt').value || 0);
+        const res = await apiCall({ action: 'meetupDeliver', stall: s.stall, targetName: curTarget, orderIds: oids, syncCost: syncCost, costAmount: costAmt });
+        alert(res.ok ? '✅ 已完成交貨（' + res.updatedOrders.length + ' 筆）' + (res.costAmount ? '，同步登記成本 $' + res.costAmount : '') : '❌ ' + res.error);
+        if (res.ok) { curData = await apiCall({ action: 'meetupSummary', targetName: curTarget }); renderDeliverView(); }
+      });
+      body.appendChild(c);
+    });
+  }
+
+  document.getElementById('loginBtn').onclick = async () => {
+    auth.name = document.getElementById('myName').value.trim();
+    auth.code = document.getElementById('myCode').value.trim();
+    const res = await apiCall({ action: 'meetupSummary' });
+    if (!res || !res.ok) { alert((res && res.error) || '登入失敗'); return; }
+    localStorage.setItem('chixin_name', auth.name);
+    localStorage.setItem('chixin_code', auth.code);
+    me = res.me;
+    document.getElementById('loginCard').classList.add('hidden');
+    document.getElementById('step1').classList.remove('hidden');
+    if (res.pendingToApprove && res.pendingToApprove.length) {
+      const b = document.getElementById('pendingBadge');
+      b.textContent = '🔔 待核准 ' + res.pendingToApprove.length;
+      b.classList.remove('hidden');
+      b.onclick = () => {
+        const m = document.getElementById('pendingModal');
+        const l = document.getElementById('pendingList');
+        l.innerHTML = res.pendingToApprove.map(p =>
+          '<div class="card"><div><strong>' + p.target + '</strong>｜' + p.stall.toUpperCase() + ' ' + p.type + ' $' + p.amount + '</div><div class="muted">' + (p.note || '') + '</div>' +
+          '<div class="row" style="margin-top:6px;"><button class="btn-ok" onclick="window._resolveClaim(\'' + p.id + '\',\'approve\')">核准入帳</button><button onclick="window._resolveClaim(\'' + p.id + '\',\'reject\')">退回</button></div></div>'
+        ).join('');
+        m.classList.remove('hidden');
+      };
+    }
+    renderPeople();
+  };
+
+  window._resolveClaim = async (id, dec) => {
+    const res = await apiCall({ action: 'meetupResolveClaim', recordId: id, decision: dec });
+    alert(res.ok ? '✅ 已處理：' + res.status : '❌ ' + res.error);
+    if (res.ok) location.reload();
+  };
+
+  document.querySelectorAll('.tab-btn').forEach(b => b.onclick = () => {
+    document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active'); filterMode = b.dataset.filter; renderPeople();
+  });
+  document.getElementById('searchInput').oninput = renderPeople;
+  document.getElementById('backToStep1').onclick = () => { document.getElementById('step2').classList.add('hidden'); document.getElementById('step1').classList.remove('hidden'); };
+  document.getElementById('backToStep2').onclick = () => { document.getElementById('step3').classList.add('hidden'); document.getElementById('step2').classList.remove('hidden'); };
+  document.getElementById('closePending').onclick = () => document.getElementById('pendingModal').classList.add('hidden');
+  document.getElementById('chooseMoney').onclick = () => { document.getElementById('step2').classList.add('hidden'); document.getElementById('step3').classList.remove('hidden'); document.getElementById('step3Title').textContent = curTarget + '｜💰 收錢／交錢'; renderMoneyView(); };
+  document.getElementById('chooseDeliver').onclick = () => { document.getElementById('step2').classList.add('hidden'); document.getElementById('step3').classList.remove('hidden'); document.getElementById('step3Title').textContent = curTarget + '｜📦 交貨／取貨'; renderDeliverView(); };
+
+  if (auth.name) document.getElementById('myName').value = auth.name;
+  if (auth.code) document.getElementById('myCode').value = auth.code;
+})();
+</script>
+</body>
+</html>
