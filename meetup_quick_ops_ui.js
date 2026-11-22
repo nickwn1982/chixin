@@ -33,17 +33,17 @@
   document.head.appendChild(style);
 
   function getAuth() {
-    var nameEl = document.querySelector('#name, #myName, select[name="name"], select');
+    var nameEl = document.querySelector('#who, #name, #myName, select[name="name"], select');
     var codeEl = document.querySelector('#code, #myCode, input[type="password"]');
-    var n = (nameEl && nameEl.value ? nameEl.value.trim() : '') || localStorage.getItem('chixin_name') || localStorage.getItem('myName') || '';
-    var c = (codeEl && codeEl.value ? codeEl.value.trim() : '') || localStorage.getItem('chixin_code') || localStorage.getItem('myCode') || '';
+    var n = (nameEl && nameEl.value ? nameEl.value.trim() : '') || sessionStorage.getItem('nm') || localStorage.getItem('nm') || localStorage.getItem('chixin_name') || localStorage.getItem('myName') || '';
+    var c = (codeEl && codeEl.value ? codeEl.value.trim() : '') || sessionStorage.getItem('cd') || localStorage.getItem('cd') || localStorage.getItem('chixin_code') || localStorage.getItem('myCode') || '';
     return { name: n, code: c };
   }
 
   async function apiCall(payload) {
     var a = getAuth();
     var ctrl = new AbortController();
-    var timer = setTimeout(function () { ctrl.abort(); }, 15000);
+    var timer = setTimeout(function () { ctrl.abort(); }, 25000);
     try {
       var res = await fetch(API_URL, {
         method: 'POST',
@@ -58,7 +58,7 @@
         return { ok: false, error: '後端回應格式異常：' + txt.slice(0, 120) };
       }
     } catch (err) {
-      return { ok: false, error: err && err.name === 'AbortError' ? '連線逾時（15秒），請重試' : ('連線失敗：' + (err && err.message ? err.message : err)) };
+      return { ok: false, error: err && err.name === 'AbortError' ? '連線逾時（25秒），請重試' : ('連線失敗：' + (err && err.message ? err.message : err)) };
     } finally {
       clearTimeout(timer);
     }
