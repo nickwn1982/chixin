@@ -42,12 +42,26 @@
 
   async function apiCall(payload) {
     var a = getAuth();
-    var res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(Object.assign({ name: a.name, code: a.code }, payload))
-    });
-    return await res.json();
+    var ctrl = new AbortController();
+    var timer = setTimeout(function () { ctrl.abort(); }, 15000);
+    try {
+      var res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(Object.assign({ name: a.name, code: a.code }, payload)),
+        signal: ctrl.signal
+      });
+      var txt = await res.text();
+      try {
+        return JSON.parse(txt);
+      } catch (e) {
+        return { ok: false, error: '後端回應格式異常：' + txt.slice(0, 120) };
+      }
+    } catch (err) {
+      return { ok: false, error: err && err.name === 'AbortError' ? '連線逾時（15秒），請重試' : ('連線失敗：' + (err && err.message ? err.message : err)) };
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
   function arm(btn, orig, fn) {
