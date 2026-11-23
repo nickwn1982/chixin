@@ -378,7 +378,7 @@ function renderStall() {
       (o.cancelled ? '<span class="tag no">已取消</span>' :
         '<span class="tag ' + (o.paid ? 'ok">已收款' : 'no">未收款') + '</span>' +
         (o.handedLabel ? '<span class="tag ' + (o.handed ? 'ok">已交' + esc(hl) : '">未交' + esc(hl)) + '</span>' : '') +
-        '<span class="tag ' + (o.delivered ? 'ok">已交貨' : '">待交貨') + '</span>') + (S.led ? Settle.myOrderActions(st.key, o) : '') + '<div class="p12-order-slot" data-stall="' + st.key + '" data-oid="' + (o.id || o.orderId || '') + '" data-cancelled="' + (o.cancelled ? '1' : '0') + '" data-delivered="' + (o.delivered ? '1' : '0') + '"></div></div>';
+        '<span class="tag ' + (o.delivered ? 'ok">已交貨' : '">待交貨') + '</span>') + (S.led ? Settle.myOrderActions(st.key, o) : '') + '<div class="p12-order-slot" data-stall="' + st.key + '" data-oid="' + (o.id || o.orderId || '') + '" data-cancelled="' + (o.cancelled ? '1' : '0') + '" data-delivered="' + (o.delivered ? '1' : '0') + '" data-batch="' + esc(o.batch || '') + '" data-logi="' + esc(o.logistics || '') + '"></div></div>';
   });
   $('stallBox').innerHTML = h;
 }
@@ -455,7 +455,7 @@ start();
       if (el.getAttribute('data-init') === '1') return;
       el.setAttribute('data-init', '1');
       if (el.getAttribute('data-cancelled') === '1') return;
-      var ord = { id: el.getAttribute('data-oid'), delivered: el.getAttribute('data-delivered') === '1' };
+      var ord = { id: el.getAttribute('data-oid'), delivered: el.getAttribute('data-delivered') === '1', batchCode: el.getAttribute('data-batch') || '', logisticsState: el.getAttribute('data-logi') || '' };   // 2026/11/23：帶入目前梯次／物流，修正選完又跳回預設
       var st = el.getAttribute('data-stall') || 's1';
       FulfillmentUI.renderOrderControls(el, { stall: st, order: ord, batches: batches, apiCall: Settle.call, onUpdated: function(){ if (window.softRefresh) softRefresh(); else location.reload(); } });
       ReconcileUI.renderOrderSplitAndFlag(el, { stall: st, order: ord, apiCall: Settle.call, onUpdated: function(){ if (window.softRefresh) softRefresh(); else location.reload(); } });
