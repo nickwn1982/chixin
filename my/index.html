@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://script.google.com" crossorigin>
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <meta name="robots" content="noindex,nofollow">
 <title>我的入口｜巴拿巴宣教學院募款</title>
 <style>
@@ -226,9 +228,9 @@ function login(auto, fresh) {
   var showedSwr = false;
   if (!fresh) {
     try {
-      var c = JSON.parse(sessionStorage.getItem(swrKey(name)) || 'null');
+      var c = JSON.parse(sessionStorage.getItem(swrKey(name)) || (persisted() ? localStorage.getItem(swrKey(name)) : null) || 'null');
       if (c && c.ok && c.name === name) {
-        S.name = name; S.code = code; S.data = c; S.tab = S.tab || firstTab(c); S.led = c.led || null;
+        S.name = name; S.code = code; S.data = c; S.tab = S.tab || firstTab(c); S.led = c.led || null; if (c.batches) window.__p12MetaPrefill = c.batches;
         render(); $('hUpd').textContent = '資料時間 ' + c.updated + '（背景更新中…）'; show('vMain'); showedSwr = true;
       }
     } catch (e) {}
@@ -237,11 +239,13 @@ function login(auto, fresh) {
   api({ action: 'login', name: name, code: code, fresh: !!fresh }).then(function (r) {
     S.sending = false; $('go').disabled = false; $('go').textContent = '查看我的訂單';
     if (!r || !r.ok) {
-      if (auto) { store('cd', null); try { sessionStorage.removeItem(swrKey(name)); } catch (e) {} }
+      if (auto) { store('cd', null); try { sessionStorage.removeItem(swrKey(name)); localStorage.removeItem(swrKey(name)); } catch (e) {} }
       showErr((r && r.error) || '查詢失敗，請再試一次'); show('vLogin'); return;
     }
     if ($('remember').checked) { store('nm', name); store('cd', code); } else { store('nm', null); store('cd', null); }
     try { sessionStorage.setItem('nm', name); sessionStorage.setItem('cd', code); sessionStorage.setItem(swrKey(name), JSON.stringify(r)); } catch (e) {}
+    try { if ($('remember').checked) localStorage.setItem(swrKey(name), JSON.stringify(r)); else localStorage.removeItem(swrKey(name)); } catch (e) {}
+    if (r.batches) window.__p12MetaPrefill = r.batches;
     S.name = name; S.code = code; S.data = r; if (!showedSwr || !S.tab) S.tab = firstTab(r); S.filter = S.filter || 'all'; S.led = r.led || null;
     render(); show('vMain');
     if (window.GuideUI) GuideUI.renderFirstTimeTip($('vMain').firstElementChild, openMyGuide);
@@ -259,6 +263,17 @@ Settle.init({ api: api, auth: function () { return { name: S.name, code: S.code 
 /** 收款狀態與結算（後端尚未更新時會失敗，畫面維持唯讀） */
 function loadLedger() {
   Settle.call({ action: 'ledgerMine' }).then(function (r) { if (r && r.ok) { S.led = r; renderSheetEntry(); renderStall(); } })['catch'](function () {});
+}
+/** 更新物流／異常後就地重抓資料（不整頁重新載入；畫面、頁籤與捲動位置保留） */
+function softRefresh() {
+  if (!S.name || !S.code) { location.reload(); return; }
+  api({ action: 'login', name: S.name, code: S.code }).then(function (r) {
+    if (!r || !r.ok) { location.reload(); return; }
+    if (r.batches) window.__p12MetaPrefill = r.batches;
+    S.data = r; S.led = r.led || null;
+    try { sessionStorage.setItem(swrKey(S.name), JSON.stringify(r)); if (persisted()) localStorage.setItem(swrKey(S.name), JSON.stringify(r)); } catch (e) {}
+    render();
+  })['catch'](function () { location.reload(); });
 }
 function ledStall(key) { return S.led ? S.led.stalls.filter(function (x) { return x.key === key; })[0] : null; }
 /** 本機改了某筆狀態後，重算畫面上的小計（之後 loadLedger 會再跟伺服器對齊） */
@@ -419,7 +434,7 @@ function openMyGuide() {
 }
 $('openGuide').addEventListener('click', openMyGuide);
 $('refresh').addEventListener('click', function () { $('remember').checked = persisted(); login(true, true); });
-$('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); if (S.name) sessionStorage.removeItem(swrKey(S.name)); } catch (e) {} store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
+$('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); if (S.name) { sessionStorage.removeItem(swrKey(S.name)); localStorage.removeItem(swrKey(S.name)); } } catch (e) {} store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
 $('retry').addEventListener('click', start);
 start();
 </script>
@@ -434,8 +449,8 @@ start();
       if (el.getAttribute('data-cancelled') === '1') return;
       var ord = { id: el.getAttribute('data-oid'), delivered: el.getAttribute('data-delivered') === '1' };
       var st = el.getAttribute('data-stall') || 's1';
-      FulfillmentUI.renderOrderControls(el, { stall: st, order: ord, batches: batches, apiCall: Settle.call, onUpdated: function(){ location.reload(); } });
-      ReconcileUI.renderOrderSplitAndFlag(el, { stall: st, order: ord, apiCall: Settle.call, onUpdated: function(){ location.reload(); } });
+      FulfillmentUI.renderOrderControls(el, { stall: st, order: ord, batches: batches, apiCall: Settle.call, onUpdated: function(){ if (window.softRefresh) softRefresh(); else location.reload(); } });
+      ReconcileUI.renderOrderSplitAndFlag(el, { stall: st, order: ord, apiCall: Settle.call, onUpdated: function(){ if (window.softRefresh) softRefresh(); else location.reload(); } });
     });
   }
   function hydrateSlots(){
@@ -444,6 +459,8 @@ start();
     if (!slots.length) return;
     var stall = slots[0].getAttribute('data-stall') || 's1';
     if (_metaCache[stall]) { mountSlots(slots, _metaCache[stall]); return; }
+    var pre = window.__p12MetaPrefill && window.__p12MetaPrefill[stall];   // 登入時已一併帶回梯次，免再呼叫一次
+    if (pre) { _metaCache[stall] = pre; mountSlots(slots, pre); return; }
     if (_metaCache[stall] === false) return;
     _metaCache[stall] = false;
     Settle.call({ action: 'fulfillmentMeta', stall: stall }).then(function(meta){

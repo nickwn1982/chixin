@@ -10,7 +10,7 @@
   var DEFAULT_VARS = {
     coordinator: '溫國政',
     deadline: '2026-12-13',
-    settleDeadline: '待公告',
+    settleDeadline: '2026-12-13（日）23:59:59',
     stalls: {
       s1: {
         key: 's1', booth: '第一攤', name: '吃心絕對', title: '第一攤 吃心絕對',
@@ -19,13 +19,13 @@
       },
       s2: {
         key: 's2', booth: '第二攤', name: '天父的暖暖包', title: '第二攤 天父的暖暖包',
-        finance: '陳麗如', finMode: '全額', finNote: '款項全額交麗如',
+        finance: '陳麗如', finMode: '利潤', finNote: '成本於取貨時交廠商窗口，利潤交財務',
         leads: '周淑芬、陳麗如', vendors: '永生花＋苔球（周淑芬）、希望種子咖啡（周淑芬）、法鉑（周淑芬）', cutoffDate: '2026-12-13'
       },
       s3: {
         key: 's3', booth: '第三攤', name: '啵啵 快樂製造所', title: '第三攤 啵啵 快樂製造所',
-        finance: '翁玲芝', finMode: '待定', finNote: '交全額或交利潤待確認',
-        leads: '江貞儀、陳湘盈', vendors: '蛋捲（馮惠英）、海苔（江貞儀）', cutoffDate: '2026-12-13'
+        finance: '翁玲芝', finMode: '利潤', finNote: '成本於取貨時交廠商窗口，利潤交財務',
+        leads: '陳湘盈、江貞儀', vendors: '蛋捲（馮惠英）、海苔（江貞儀）', cutoffDate: '2026-12-13'
       }
     }
   };
