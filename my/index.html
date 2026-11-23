@@ -93,7 +93,7 @@
     <label class="chk"><input type="checkbox" id="remember"> 記住這支手機（下次免輸入）</label>
     <div class="err" id="err" hidden role="alert"></div>
     <button type="button" class="btn" id="go">查看我的訂單</button>
-    <p class="hint" style="margin-top:12px">通關碼只有您自己的，請不要轉給別人。忘記請聯絡統籌溫國政。</p>
+    <p class="hint" style="margin-top:12px">通關碼只有您自己的，請不要轉給別人。忘記請聯絡統籌<span class="coord-name"></span>。</p>
   </section>
 
   <section id="vMain" hidden>
@@ -137,7 +137,7 @@
         <div class="err" id="pwErr" hidden role="alert"></div>
         <div class="ok" id="pwOk" hidden>已更改 ✓ 下次請用新的通關碼登入。</div>
         <button type="button" class="btn" id="pwGo">更改通關碼</button>
-        <p class="hint" style="margin-top:10px">忘記通關碼時，請聯絡統籌溫國政協助重設。</p>
+        <p class="hint" style="margin-top:10px">忘記通關碼時，請聯絡統籌<span class="coord-name"></span>協助重設。</p>
       </details>
     </div>
   </section>
@@ -302,18 +302,26 @@ var STALL_SHEET_ID = {
   s3: '1H7hoko3RH1Gr8vqL79uagLSa-tOw4OzHeFa5GCUZ9Xo'
 };
 var STALL_FULL_LABEL = { s1: '第一攤 吃心絕對', s2: '第二攤 天父的暖暖包', s3: '第三攤 啵啵 快樂製造所' };
-var FINANCE_FALLBACK = { '吳雨儂': ['s1'], '陳麗如': ['s2'], '翁玲芝': ['s3'] };
 
+/** 統籌姓名：讀設定表（登入後的 guideVars，或上次存在手機的說明變數） */
+function fillCoordName(gv) {
+  var n = (gv && gv.coordinator) || '';
+  if (!n) { try { n = (JSON.parse(localStorage.getItem('chixin_guide_vars_v2') || '{}') || {}).coordinator || ''; } catch (e) {} }
+  Array.prototype.forEach.call(document.querySelectorAll('.coord-name'), function (el) { el.textContent = n; });
+}
+fillCoordName(null);
 function renderSheetEntry() {
+  if (S.data) fillCoordName(S.data.guideVars);
   var box = $('sheetEntry'), linksEl = $('sheetLinks');
   if (!box || !linksEl || !S.data) return;
   var name = String(S.data.name || '').trim();
-  var isCoord = (name === '溫國政' || name === '温國政');
+  var gv = S.data.guideVars || {}, gst = gv.stalls || {};   // 2026/11/23：統籌與各攤財務改讀設定表（guideVars），不寫死姓名
+  var isCoord = !!name && name === String(gv.coordinator || '').trim();
   var keys = [];
   if (isCoord) {
     keys = ['s1', 's2', 's3'];
   } else {
-    var finKeys = (S.led && Array.isArray(S.led.financeOf) && S.led.financeOf.length) ? S.led.financeOf : (FINANCE_FALLBACK[name] || []);
+    var finKeys = (S.led && Array.isArray(S.led.financeOf) && S.led.financeOf.length) ? S.led.financeOf : Object.keys(gst).filter(function (k) { return String((gst[k] || {}).finance || '').trim() === name; });
     finKeys.forEach(function (k) { if (STALL_SHEET_ID[k] && keys.indexOf(k) < 0) keys.push(k); });
   }
   if (!keys.length) { box.hidden = true; linksEl.innerHTML = ''; return; }
@@ -419,7 +427,7 @@ document.addEventListener('click', function (ev) {
   if (sx) {
     var stl = S.data.stalls.filter(function (x) { return x.key === sx.getAttribute('data-st'); })[0];
     var od = stl && stl.orders.filter(function (x) { return x.id === sx.getAttribute('data-id'); })[0];
-    if (od) Settle.setStatus(stl.key, od, sx.getAttribute('data-sx'), sx, function () { recalc(); render(); loadLedger(); });
+    if (od) Settle.setStatus(stl.key, od, sx.getAttribute('data-sx'), sx, function (phase) { recalc(); render(); if (phase !== 'pending') loadLedger(); });
     return;
   }
   var t = ev.target.closest('[data-k]'); if (t) { S.tab = t.dataset.k; S.filter = 'all'; render(); return; }

@@ -38,18 +38,30 @@
     handed: { on: '已交', off: '未交', set: '標記已交', unset: '取消已交' }
   };
 
-  /** o：訂單物件（需有 id、paid/delivered/handed）。成功時直接改 o 的值並呼叫 done() */
+  /**
+   * o：訂單物件（需有 id、paid/delivered/handed）。
+   * 2026/11/23 樂觀更新：確認後畫面立即顯示新狀態（done('pending')），背景送出；
+   * 成功 → done('ok')；失敗 → 自動改回原狀態並提示（done('revert')）。
+   */
   function setStatus(stall, o, field, btn, done) {
     if (!armed(btn)) return;
     var cur = !!o[field], next = !cur;
-    btn.disabled = true; btn.textContent = '更新中…';
+    if (o._pending && o._pending[field]) { toast('這筆正在同步中，請稍候', true); return; }
+    o._pending = o._pending || {}; o._pending[field] = true;
+    o[field] = next;
+    toast(o.id + '：已記錄，背景同步中…');
+    if (done) done('pending');
+    function revert(msg) {
+      o._pending[field] = false; o[field] = cur;
+      toast(o.id + '：' + msg + '（已改回原狀態）', true);
+      if (done) done('revert');
+    }
     call({ action: 'setStatus', stall: stall, id: o.id, field: field, value: next, expect: cur }).then(function (r) {
-      btn.disabled = false;
-      if (!r || !r.ok) { btn.innerHTML = btn._label || ''; toast(failMsg(r), true); return; }
-      o[field] = next;
+      if (!r || !r.ok) { revert(failMsg(r)); return; }
+      o._pending[field] = false;
       toast(o.id + '：已更新 ✓（已留下異動紀錄）');
-      if (done) done();
-    })['catch'](function () { btn.disabled = false; btn.innerHTML = btn._label || ''; toast('網路好像不太穩，請再按一次', true); });
+      if (done) done('ok');
+    })['catch'](function () { revert('網路好像不太穩，請再按一次'); });
   }
 
   function statusBtn(stall, o, field, label) {

@@ -186,7 +186,7 @@ function weightOf(p) {
   return '';
 }
 var API = 'https://script.google.com/macros/s/AKfycbytFW6MJ_rOL10k075H36grVXJ9mXF2_oe75Ef_sE1x88pr5A9t5-mqPw9iOw-yTr9j/exec';
-var ALIAS = { guozheng:'溫國政', yuwen:'李玉雯', yifen:'李益芬', yicai:'呂衣綵', huichun:'房惠純', h3k9:'吳雨儂', yunong:'吳雨儂', chuanxia:'王傳霞', wenqi:'楊雯祺',
+var ALIAS = { guozheng:'温國政', yuwen:'李玉雯', yifen:'李益芬', yicai:'呂衣綵', huichun:'房惠純', h3k9:'吳雨儂', yunong:'吳雨儂', chuanxia:'王傳霞', wenqi:'楊雯祺',
   shufen:'周淑芬', yaling:'曾雅玲', liru:'陳麗如', yuhua:'符玉華', feibi:'Feibi 君愛', huimin:'房惠敏', xiaowen:'林筱雯',
   naiyi:'劉乃一', yuping:'劉玉萍', huiying:'馮惠英', yingxuan:'沈盈暄', lingzhi:'翁玲芝', xiangying:'陳湘盈', naiqing:'李乃青', zhenyi:'江貞儀' };
 function api(body, ms) {
@@ -398,12 +398,19 @@ function send() {
 var started = false;
 function loadBoot() {
   show('vLoading');
-  api({ action: 'boot', params: bootParams() }, 30000).then(function (r) {
+  /* 2026/11/23：先用手機上存的上次商品資料立即顯示，背景再更新（送單時伺服器仍以最新資料驗證） */
+  var p = bootParams(), key = 'boot_bobo_v1_' + JSON.stringify(p), cached = null;
+  try { cached = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) {}
+  if (cached && !started) { BOOT = cached; if (BOOT.title) document.title = BOOT.title; started = true; init(); }
+  api({ action: 'boot', params: p }, 30000).then(function (r) {
     if (!r || !r.ok || !r.boot) throw new Error('bad boot');
+    var s = JSON.stringify(r.boot); try { localStorage.setItem(key, s); } catch (e) {}
+    if (cached) { if (JSON.stringify(cached) !== s && !window.__touched) location.reload(); return; }
     BOOT = r.boot; if (BOOT.title) document.title = BOOT.title;
     if (!started) { started = true; init(); } else { location.reload(); }
-  })['catch'](function (e) { if (window.console) console.error(e); show('vFail'); });
+  })['catch'](function (e) { if (window.console) console.error(e); if (started) return; show('vFail'); });
 }
+document.addEventListener('input', function () { window.__touched = true; }, true);   // 使用者開始填單後，背景更新不重載畫面
 document.addEventListener('DOMContentLoaded', function () { $('retry').addEventListener('click', loadBoot); loadBoot(); });
 </script>
 </body>

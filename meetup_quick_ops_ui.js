@@ -2,14 +2,7 @@
   'use strict';
 
   var API_URL = 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';
-  var MEMBERS = [
-    {n:'溫國政',r:'統籌'},{n:'李玉雯'},{n:'李益芬'},{n:'呂衣綵'},{n:'房惠純'},
-    {n:'吳雨儂',f:true,r:'一攤財務'},{n:'王傳霞',v:true,r:'豆乾/肉桂捲'},{n:'楊雯祺'},
-    {n:'周淑芬',v:true,r:'一三攤永生花'},{n:'曾雅玲'},{n:'陳麗如',f:true,r:'二攤財務'},
-    {n:'符玉華'},{n:'Feibi 君愛'},{n:'房惠敏'},{n:'林筱雯'},
-    {n:'劉乃一'},{n:'劉玉萍'},{n:'馮惠英',v:true,r:'蛋捲'},{n:'沈盈暄'},
-    {n:'翁玲芝',f:true,r:'三攤財務'},{n:'陳湘盈'},{n:'李乃青'},{n:'江貞儀',v:true,r:'海苔'}
-  ];
+  var MEMBERS = [];   // 2026/11/23：人員名單與角色改由後端 meetupSummary 依設定表回傳（people），不再寫死
 
   var style = document.createElement('style');
   style.textContent =
@@ -162,6 +155,8 @@
         return;
       }
       me = res.me;
+      if (Array.isArray(res.people) && res.people.length) MEMBERS = res.people;
+      window.__mqSummary = res;   // 供「操作說明」顯示各攤財務與成本窗口
       panel.classList.remove('mq-hidden');
       toggleBtn.textContent = '收合碰面速辦';
       if (res.pendingToApprove && res.pendingToApprove.length) {

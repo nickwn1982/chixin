@@ -396,7 +396,7 @@ var API = 'https://script.google.com/macros/s/AKfycbynCbGcHSBtHLNn897vHd6y_x1Tj9
 
 // 同學代碼 → 姓名（?s=代碼 會換成 ?s=姓名；也可以直接用 ?s=中文姓名）。新增同學就加一行。
 var ALIAS = {
-    guozheng:'溫國政', yuwen:'李玉雯', yifen:'李益芬', yicai:'呂衣綵', huichun:'房惠純',
+    guozheng:'温國政', yuwen:'李玉雯', yifen:'李益芬', yicai:'呂衣綵', huichun:'房惠純',
     h3k9:'吳雨儂', chuanxia:'王傳霞', wenqi:'楊雯祺',
     shufen:'周淑芬', yaling:'曾雅玲', liru:'陳麗如', yuhua:'符玉華', feibi:'Feibi 君愛',
     huimin:'房惠敏', xiaowen:'林筱雯',
@@ -441,18 +441,29 @@ function load() {
   var params = bootParams();
   var qs = new URLSearchParams(params).toString();
   $('oldLink').href = API + (qs ? '?' + qs : '');
-  api({ action: 'boot', params: params }, 30000).then(function (r) {
-    if (!r || !r.ok || !r.boot) throw new Error('bad boot');
-    BOOT = r.boot;
+  /* 2026/11/23：先用手機上存的上次商品資料立即顯示，背景再更新（送單時伺服器仍以最新資料驗證） */
+  var key = 'boot_s1_v1_' + qs, cached = null;
+  try { cached = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) {}
+  function apply(b) {
+    BOOT = b;
     OPEN = BOOT.products.filter(function (p) { return p.open; });
     state.sellerLocked = !!BOOT.lockedSeller;
     if (BOOT.title) document.title = BOOT.title;
     init();
+  }
+  if (cached && !window.__bootShown) { window.__bootShown = true; apply(cached); }
+  api({ action: 'boot', params: params }, 30000).then(function (r) {
+    if (!r || !r.ok || !r.boot) throw new Error('bad boot');
+    var s = JSON.stringify(r.boot); try { localStorage.setItem(key, s); } catch (e) {}
+    if (window.__bootShown) { if (JSON.stringify(cached) !== s && !window.__touched) location.reload(); return; }
+    window.__bootShown = true; apply(r.boot);
   })['catch'](function (e) {
     if (window.console) console.error(e);
+    if (window.__bootShown) return;
     show('vFail');
   });
 }
+document.addEventListener('input', function () { window.__touched = true; }, true);   // 使用者開始填單後，背景更新不重載畫面
 $('retry').addEventListener('click', load);
 load();
 </script>

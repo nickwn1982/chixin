@@ -1,16 +1,37 @@
 (function () {
   'use strict';
 
-  var ROLE_MAP = {
-    '溫國政': { badge: '統籌管理員', tip: '你擁有三攤完整收款、交貨、審核待確認與撤銷權限；碰面時點對方名字即可一次核對三攤分卡。' },
-    '吳雨儂': { badge: '第一攤財務（吃心絕對）', tip: '第一攤收「利潤」（運費自理不入帳）。碰面收現金請直接按「確認收款入帳」，當晚記得清空「🔔 待核准」紅點。' },
-    '陳麗如': { badge: '第二攤財務（天父的暖暖包）', tip: '第二攤採「僅交利潤」：成本於取貨時交產品窗口（周淑芬），利潤交麗如。碰面收款請直接按「確認收款入帳」，累計達應交利潤系統會自動勾選已交麗如。' },
-    '翁玲芝': { badge: '第三攤財務（啵啵快樂製造所）', tip: '第三攤採「僅交利潤」：成本於取貨時交產品窗口，利潤交玲芝。碰面收款請直接按「確認收款入帳」，並於當晚核准同學送出的待確認紀錄。' },
-    '王傳霞': { badge: '廠商窗口（豆乾／肉桂捲）＋同學', tip: '點其他同學進「📦 交貨」可同步勾選登記已繳成本；點財務則切換為個人交錢核對視角。' },
-    '周淑芬': { badge: '廠商窗口（一、三攤永生花／苔球）＋同學', tip: '系統已將第一攤與第三攤永生花分卡獨立記帳，點交貨時請依攤位分開確認，不會混帳。' },
-    '馮惠英': { badge: '廠商窗口（第三攤蛋捲）＋同學', tip: '點取貨同學進「📦 交貨」，預設勾選「同步登記已繳成本」；若對方先拿貨後給錢，請務必取消勾選。' },
-    '江貞儀': { badge: '廠商窗口（第三攤海苔）＋同學', tip: '點取貨同學進「📦 交貨」，預設勾選「同步登記已繳成本」；若對方先拿貨後給錢，請務必取消勾選。' }
-  };
+  /* 2026/11/23：身分提示與速查表改由「碰面速辦」後端資料（設定表）產生，不再寫死姓名 */
+  function summary() { return window.__mqSummary || null; }
+  function roleInfo(n) {
+    var s = summary(); if (!s || !n) return null;
+    if (s.coordinator && n === s.coordinator) return { badge: '統籌管理員', tip: '你擁有三攤完整收款、交貨、審核待確認與撤銷權限；碰面時點對方名字即可一次核對三攤分卡。' };
+    var fin = s.finance || {}, mine = Object.keys(fin).filter(function (k) { return fin[k] && fin[k].name === n; });
+    if (mine.length) {
+      var f = fin[mine[0]], lb = String(f.label || '');
+      var badge = lb.replace(/（/, '財務（');
+      var tip = /全額/.test(f.rule || '')
+        ? '本攤採「全額交財務」。碰面收款請直接按「確認收款入帳」，累計達應交總額系統會自動勾選已交出納。'
+        : '本攤採「僅交利潤」：成本於取貨時交產品窗口，利潤交給你。碰面收現金請直接按「確認收款入帳」，當晚記得清空「🔔 待核准」紅點。';
+      return { badge: badge, tip: tip };
+    }
+    var vr = (s.vendors || {})[n];
+    if (vr && vr.length) {
+      var labels = vr.map(function (x) { return String(x.stall || '').replace('s', '') + '攤' + x.label; });
+      return { badge: '廠商窗口（' + labels.join('、') + '）＋同學', tip: '點取貨同學進「📦 交貨」，預設勾選「同步登記已繳成本」；負責多攤時系統會依攤位分卡獨立記帳。若對方先拿貨後給錢，請取消勾選。' };
+    }
+    return null;
+  }
+  function rulesRows() {
+    var s = summary();
+    if (!s || !s.finance) return '<tr><td colspan="4">按「開啟碰面速辦」後，這裡會自動顯示各攤財務與成本窗口。</td></tr>';
+    var by = {};
+    Object.keys(s.vendors || {}).forEach(function (who) { (s.vendors[who] || []).forEach(function (x) { (by[x.stall] = by[x.stall] || []).push(x.label + '：' + who); }); });
+    return Object.keys(s.finance).sort().map(function (k) {
+      var f = s.finance[k] || {}, lb = String(f.label || k).replace('（', '<br>').replace('）', '');
+      return '<tr><td>' + lb + '</td><td>' + (f.name || '（未設定）') + '</td><td>' + (f.rule || '') + '</td><td>' + ((by[k] || []).join('<br>') || '—') + '</td></tr>';
+    }).join('');
+  }
 
   var css = document.createElement('style');
   css.textContent =
@@ -39,7 +60,8 @@
 
   function renderRoleBanner(el) {
     var n = detectUserName();
-    var info = ROLE_MAP[n];
+    var info = roleInfo(n);
+    var rb = document.getElementById('mqgRulesBody'); if (rb) rb.innerHTML = rulesRows();
     if (info) {
       el.innerHTML = '<strong>👤 你目前的身分：' + n + '（' + info.badge + '）</strong><div style="margin-top:4px;font-size:13px;">' + info.tip + '</div>';
     } else if (n) {
@@ -76,9 +98,7 @@
         '<strong>一、三攤收款與廠商窗口速查</strong>' +
         '<table class="mqg-tbl">' +
           '<tr><th>攤位</th><th>財務</th><th>應交規則</th><th>成本窗口</th></tr>' +
-          '<tr><td>第一攤<br>吃心絕對</td><td>吳雨儂</td><td>僅交利潤<br>(運費自理)</td><td>豆乾/肉桂捲：王傳霞<br>永生花/苔球：周淑芬</td></tr>' +
-          '<tr><td>第二攤<br>天父的暖暖包</td><td>陳麗如</td><td>僅交利潤</td><td>永生花／苔球等：周淑芬</td></tr>' +
-          '<tr><td>第三攤<br>啵啵快樂製造所</td><td>翁玲芝</td><td>僅交利潤</td><td>蛋捲：馮惠英／海苔：江貞儀<br>永生花盅/串：周淑芬</td></tr>' +
+          '<tbody id="mqgRulesBody"></tbody>' +
         '</table>' +
         '<strong>二、四條現場默契（行政 SOP）</strong>' +
         '<div class="mqg-step">' +
@@ -94,7 +114,7 @@
         '<div class="mqg-qa"><div class="mqg-q">Q2：如果實收金額比系統顯示的尚欠金額多（溢繳）怎麼辦？</div><div>系統會跳出黃燈防呆警告，必須在備註欄填寫簡短原因（例如「新單尚未同步／預收」）並再次確認才會放行。</div></div>' +
         '<div class="mqg-qa"><div class="mqg-q">Q3：同學先按了「待確認」，財務不小心又直接收款會重複記帳嗎？</div><div>不會。後端會自動偵測未結的待確認紀錄並彈窗攔截，同時設有「5 分鐘防手抖保護」，擋掉重複入帳。</div></div>' +
         '<div class="mqg-qa"><div class="mqg-q">Q4：買家還沒付錢給我，我可以先跟窗口取貨嗎？</div><div>可以。系統已將「窗口交貨」與「買家收款」拆開，不會卡住現場取貨，但記得依規則繳交成本，收到買家錢後再回「我的入口」勾已收款。</div></div>' +
-        '<div class="mqg-qa"><div class="mqg-q">Q5：按錯了或買家要取消訂單怎麼辦？</div><div>「取消訂單」不開放網頁操作，請聯絡統籌溫國政處理；若結算金額記錯，由統籌進行沖銷更正（系統保留完整異動 LOG）。</div></div>' +
+        '<div class="mqg-qa"><div class="mqg-q">Q5：按錯了或買家要取消訂單怎麼辦？</div><div>「取消訂單」不開放網頁操作，請聯絡統籌温國政處理；若結算金額記錯，由統籌進行沖銷更正（系統保留完整異動 LOG）。</div></div>' +
       '</div>';
 
     box.querySelectorAll('.mqg-tab').forEach(function (t) {

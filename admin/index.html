@@ -234,7 +234,7 @@ function rBoards() {
       if (window.ReconcileUI && !document.getElementById('admin-p2-wrap')) {
         var w = document.createElement('div'); w.id = 'admin-p2-wrap'; w.style.marginTop = '16px';
         $('bvroot').parentNode.insertBefore(w, $('bvroot').nextSibling);
-        var call = function(q){ return fetch(API, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(Object.assign({ name: P.name || '溫國政', code: P.code || '' }, q)) }).then(function(r){ return r.json(); }); };
+        var call = function(q){ return fetch(API, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(Object.assign({ name: P.name || '温國政', code: P.code || '' }, q)) }).then(function(r){ return r.json(); }); };
         ReconcileUI.renderLineReminderPanel(w, { stall: P.booth || 's1', apiCall: call });
       }
   }

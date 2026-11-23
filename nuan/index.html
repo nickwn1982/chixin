@@ -147,7 +147,7 @@
 <script>
 var BOOT = null;
 var API = 'https://script.google.com/macros/s/AKfycbzxrsWpZad2dExrd6GJ3oE89WWI-BKIEMexIoVf4VGG5N4MYAaQdxXd23zMMRoUam7I/exec';
-var ALIAS = { guozheng:'溫國政', yuwen:'李玉雯', yifen:'李益芬', yicai:'呂衣綵', huichun:'房惠純', h3k9:'吳雨儂', yunong:'吳雨儂', chuanxia:'王傳霞', wenqi:'楊雯祺',
+var ALIAS = { guozheng:'温國政', yuwen:'李玉雯', yifen:'李益芬', yicai:'呂衣綵', huichun:'房惠純', h3k9:'吳雨儂', yunong:'吳雨儂', chuanxia:'王傳霞', wenqi:'楊雯祺',
   shufen:'周淑芬', yaling:'曾雅玲', liru:'陳麗如', yuhua:'符玉華', feibi:'Feibi 君愛', huimin:'房惠敏', xiaowen:'林筱雯',
   naiyi:'劉乃一', yuping:'劉玉萍', huiying:'馮惠英', yingxuan:'沈盈暄', lingzhi:'翁玲芝', xiangying:'陳湘盈', naiqing:'李乃青', zhenyi:'江貞儀' };
 function api(body, ms) {
@@ -204,10 +204,22 @@ function startPage() {
     el.addEventListener('blur', function () { this.value = qv(s.code); refresh(); });
   });
   /* 商品圖：由伺服器讀雲端硬碟後回傳，載入完才顯示 */
+  /* 2026/11/23：手機上有存的圖直接顯示；其餘一次向伺服器要（原本一張圖一支請求） */
+  var refs = [], idx = {};
   BOOT.groups.forEach(function (g, gi) {
     if (!g.img) return;
-    api({ action: 'img', ref: g.img }, 45000).then(function (r) { var el = $('pic' + gi); if (r && r.uri && el) { el.src = r.uri; el.style.display = 'block'; } })['catch'](function () {});
+    var hit = null; try { hit = localStorage.getItem('nuan_img_' + g.img); } catch (e) {}
+    if (hit) { var el0 = $('pic' + gi); if (el0) { el0.src = hit; el0.style.display = 'block'; } return; }
+    (idx[g.img] = idx[g.img] || []).push(gi); if (refs.indexOf(g.img) < 0) refs.push(g.img);
   });
+  if (refs.length) api({ action: 'imgs', refs: refs }, 45000).then(function (r) {
+    var u = (r && r.uris) || {};
+    refs.forEach(function (ref) {
+      if (!u[ref]) return;
+      try { localStorage.setItem('nuan_img_' + ref, u[ref]); } catch (e) {}
+      idx[ref].forEach(function (gi) { var el = $('pic' + gi); if (el) { el.src = u[ref]; el.style.display = 'block'; } });
+    });
+  })['catch'](function () {});
   Array.prototype.forEach.call(document.querySelectorAll('.pic'), function (im) {
     im.addEventListener('click', function () { $('zoom').firstChild.src = im.src; $('zoom').style.display = 'flex'; });
   });
@@ -269,12 +281,19 @@ function loadBoot() {
   $('v-loading').classList.remove('hide'); $('v-fail').classList.add('hide');
   var p = bootParams(), qs = new URLSearchParams(p).toString();
   $('oldLink').href = API + (qs ? '?' + qs : '');
+  /* 2026/11/23：先用手機上存的上次商品資料立即顯示，背景再更新（送單時伺服器仍以最新資料驗證） */
+  var key = 'boot_nuan_v1_' + qs, cached = null;
+  try { cached = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) {}
+  function apply(b) { BOOT = b; if (BOOT.title) document.title = BOOT.title; $('v-loading').classList.add('hide'); startPage(); }
+  if (cached && !window.__bootShown) { window.__bootShown = true; apply(cached); }
   api({ action: 'boot', params: p }, 30000).then(function (r) {
     if (!r || !r.ok || !r.boot) throw new Error('bad boot');
-    BOOT = r.boot; if (BOOT.title) document.title = BOOT.title;
-    $('v-loading').classList.add('hide'); startPage();
-  })['catch'](function (e) { if (window.console) console.error(e); $('v-loading').classList.add('hide'); $('v-fail').classList.remove('hide'); });
+    var s = JSON.stringify(r.boot); try { localStorage.setItem(key, s); } catch (e) {}
+    if (window.__bootShown) { if (JSON.stringify(cached) !== s && !window.__touched) location.reload(); return; }
+    window.__bootShown = true; apply(r.boot);
+  })['catch'](function (e) { if (window.console) console.error(e); if (window.__bootShown) return; $('v-loading').classList.add('hide'); $('v-fail').classList.remove('hide'); });
 }
+document.addEventListener('input', function () { window.__touched = true; }, true);   // 使用者開始填單後，背景更新不重載畫面
 document.addEventListener('DOMContentLoaded', function () { $('retry').addEventListener('click', loadBoot); loadBoot(); });
 </script>
 </body>
