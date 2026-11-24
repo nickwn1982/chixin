@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8"><script src="../env.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="preconnect" href="https://script.google.com" crossorigin>
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
@@ -151,7 +151,7 @@
   <script src="../phase2_reconcile_ui.js"></script>
 <script>
 // ====== 設定（部署後只需要改這一行：整合查詢 API 的 /exec 網址）======
-var API = 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';
+var API = window.CHIXIN_API_OVERRIDE || 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';   // 2026/11/24：?test=1 時改走測試後端（env.js）
 var BASE = 'https://nickwn1982.github.io/chixin/';      // GitHub Pages 根網址（第 1 攤）
 var STALL_PATH = { s1: '', s2: 'nuan/', s3: 'bobo/' };    // 各攤的 GitHub Pages 路徑
 var S3_READY = true;   // 第3攤 GitHub 訂購頁（bobo/）上線後，改成 true 才會顯示第3攤的專屬連結

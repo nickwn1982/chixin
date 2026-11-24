@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var API_URL = 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';
+  var API_URL = window.CHIXIN_API_OVERRIDE || 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';   // 2026/11/24：測試模式（env.js）
   var MEMBERS = [];   // 2026/11/23：人員名單與角色改由後端 meetupSummary 依設定表回傳（people），不再寫死
 
   var style = document.createElement('style');
