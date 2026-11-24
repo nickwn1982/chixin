@@ -4,7 +4,7 @@
  * 測試模式下 localStorage／sessionStorage 改用 t_ 前綴，不會和正式的名字、通關碼、快取互相干擾。
  * 必須在每頁 <head> 最先載入（早於任何讀 API 或 localStorage 的程式）。 */
 (function () {
-  var TEST_API = '';   // ← 測試後端部署後填入 https://script.google.com/macros/s/…/exec
+  var TEST_API = 'https://script.google.com/macros/s/AKfycbwdN-J6pI5lVGJq10JUlCnGwuzspnmGYFSNWpacgk-mf8rh8sF0jluPjKEF-ixe7ZEpxQ/exec';   // 測試後端（三攤整合查詢API_測試）
   var FLAG = 'chixin_test', P = 't_', CODE = '666666';
   var rawS, rawL;
   try { rawS = window.sessionStorage; rawL = window.localStorage; } catch (e) { return; }
