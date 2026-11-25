@@ -310,10 +310,33 @@ function fillCoordName(gv) {
   Array.prototype.forEach.call(document.querySelectorAll('.coord-name'), function (el) { el.textContent = n; });
 }
 fillCoordName(null);
+function renderGroupSheetsSection(authorizedSheets) {
+  var box = $('sheetEntry'), linksEl = $('sheetLinks');
+  if (!box || !linksEl) return;
+  if (!Array.isArray(authorizedSheets) || !authorizedSheets.length) {
+    box.hidden = true;
+    linksEl.innerHTML = '';
+    return;
+  }
+  $('sheetHint').textContent = '您有權限存取以下訂單試算表，可直接開啟核對與編輯。';
+  linksEl.innerHTML = authorizedSheets.map(function (item) {
+    var k = item.key || ('s' + String(item.num || ''));
+    var label = item.label || STALL_FULL_LABEL[k] || item.name || k;
+    var url = item.url || (STALL_SHEET_ID[k] ? 'https://docs.google.com/spreadsheets/d/' + STALL_SHEET_ID[k] + '/edit' : '');
+    if (!url) return '';
+    return '<a class="btn ghost" style="margin-top:10px" target="_blank" rel="noopener" href="' + esc(url) + '">開啟 ' + esc(label) + ' 試算表 ↗</a>';
+  }).join('');
+  box.hidden = !linksEl.innerHTML;
+}
+
 function renderSheetEntry() {
   if (S.data) fillCoordName(S.data.guideVars);
   var box = $('sheetEntry'), linksEl = $('sheetLinks');
   if (!box || !linksEl || !S.data) return;
+  if (Array.isArray(S.data.authorizedSheets)) {
+    renderGroupSheetsSection(S.data.authorizedSheets);
+    return;
+  }
   var name = String(S.data.name || '').trim();
   var gv = S.data.guideVars || {}, gst = gv.stalls || {};   // 2026/11/23：統籌與各攤財務改讀設定表（guideVars），不寫死姓名
   var isCoord = !!name && name === String(gv.coordinator || '').trim();
