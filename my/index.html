@@ -64,6 +64,9 @@
   .spin { width:36px; height:36px; margin:0 auto 10px; border:4px solid var(--line); border-top-color:var(--red); border-radius:50%; animation:sp .8s linear infinite; }
   @keyframes sp { to { transform:rotate(360deg); } }
   [hidden] { display:none !important; }
+  .dmq { margin-top:16px; border-top:1px dashed var(--line); padding-top:8px; }
+  .dmq h3 { margin:6px 0 0; font-size:17px; }
+  .dmq-out img { display:block; width:100%; border-radius:10px; border:1px solid var(--line); margin-top:10px; }
   footer { text-align:center; color:var(--mute); font-size:13px; margin-top:22px; }
 </style>
 <link rel="stylesheet" href="../settle.css">
@@ -149,6 +152,8 @@
 <script src="../guide_ui.js"></script>
   <script src="../phase1_fulfillment_ui.js"></script>
   <script src="../phase2_reconcile_ui.js"></script>
+  <script src="../order_more_ui.js"></script>
+  <script src="../dm_qr_ui.js"></script>
 <script>
 // ====== 設定（部署後只需要改這一行：整合查詢 API 的 /exec 網址）======
 var API = window.CHIXIN_API_OVERRIDE || 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';   // 2026/11/24：?test=1 時改走測試後端（env.js）
@@ -417,6 +422,7 @@ function renderLinks() {
       '<a class="btn ghost small" target="_blank" rel="noopener" href="https://line.me/R/share?text=' + encodeURIComponent('巴拿巴宣教募款｜' + STALL_TITLE[k] + ' 預購\n' + u) + '">用 LINE 分享</a>';
   });
   $('links').innerHTML = h;
+  if (window.DmQrUI && window.chixinFeature && chixinFeature('dmqr')) DmQrUI.render($('links'), { linkOf: myLink, name: S.data.slug });   // 2026/11/26 專屬 QR DM（測試中）
 }
 
 function copyText(text, btn) {
@@ -480,8 +486,10 @@ start();
       if (el.getAttribute('data-cancelled') === '1') return;
       var ord = { id: el.getAttribute('data-oid'), delivered: el.getAttribute('data-delivered') === '1', batchCode: el.getAttribute('data-batch') || '', logisticsState: el.getAttribute('data-logi') || '' };   // 2026/11/23：帶入目前梯次／物流，修正選完又跳回預設
       var st = el.getAttribute('data-stall') || 's1';
-      FulfillmentUI.renderOrderControls(el, { stall: st, order: ord, batches: batches, apiCall: Settle.call, onUpdated: function(){ if (window.softRefresh) softRefresh(); else location.reload(); } });
-      ReconcileUI.renderOrderSplitAndFlag(el, { stall: st, order: ord, apiCall: Settle.call, onUpdated: function(){ if (window.softRefresh) softRefresh(); else location.reload(); } });
+      var upd = function(){ if (window.softRefresh) softRefresh(); else location.reload(); };
+      if (window.OrderMoreUI && window.chixinFeature && chixinFeature('ui2')) { OrderMoreUI.render(el, { stall: st, order: ord, batches: batches, apiCall: Settle.call, onUpdated: upd }); return; }   // 2026/11/26 新版樣式（測試中）
+      FulfillmentUI.renderOrderControls(el, { stall: st, order: ord, batches: batches, apiCall: Settle.call, onUpdated: upd });
+      ReconcileUI.renderOrderSplitAndFlag(el, { stall: st, order: ord, apiCall: Settle.call, onUpdated: upd });
     });
   }
   function hydrateSlots(){

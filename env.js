@@ -17,6 +17,10 @@
   var on = false;
   try { on = rawS.getItem(FLAG) === '1'; } catch (e) {}
   window.CHIXIN_TEST = on;
+  /* 2026/11/26：換版開關。新功能先只在測試模式出現；Nick 驗收後把功能名稱加進 PROMOTED，正式網址才看得到。
+   * 用法：if (window.chixinFeature('ui2')) { 新畫面 } else { 舊畫面 } */
+  var PROMOTED = [];
+  window.chixinFeature = function (name) { return on || PROMOTED.indexOf(name) >= 0; };
   if (!on) return;
 
   window.CHIXIN_API_OVERRIDE = TEST_API || 'https://invalid.invalid/test-backend-not-ready';

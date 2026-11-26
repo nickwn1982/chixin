@@ -23,6 +23,19 @@
     '.mq-muted{font-size:13px;color:#64748b;}' +
     '.mq-badge{font-size:12px;padding:2px 8px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:600;}' +
     '.mq-hidden{display:none !important;}';
+  /* 2026/11/26：新版配色（測試中）——改成與「我的入口」相同的奶油底、磚紅、綠色 */
+  if (window.chixinFeature && window.chixinFeature('ui2')) style.textContent +=
+    '.mq-bar,.mq-panel{border-color:#e4d8c4;border-radius:14px;box-shadow:none;color:#2e2a26;}' +
+    '.mq-btn{border:2px solid #2f6b4f;background:#fff;color:#2f6b4f;border-radius:10px;font-size:15px;}' +
+    '.mq-btn-pri{background:#a8321f;border-color:#a8321f;color:#fff;}' +
+    '.mq-btn-ok{background:#2f6b4f;border-color:#2f6b4f;color:#fff;}' +
+    '.mq-btn-warn{background:#fff;border-color:#c8963e;color:#8a5a00;}' +
+    '.mq-btn-armed{background:#a8321f !important;border-color:#a8321f !important;}' +
+    '.mq-card{background:#faf5ea;border-color:#e4d8c4;}' +
+    '.mq-person{border:2px solid #e4d8c4;color:#2e2a26;font-size:15px;}.mq-person small{color:#8a5a00;}' +
+    '.mq-inp{border:2px solid #e4d8c4;border-radius:10px;font-size:16px;color:#2e2a26;}' +
+    '.mq-sec{color:#7f2416;border-left-color:#a8321f;}' +
+    '.mq-muted{color:#7a7168;}.mq-badge{background:#dcefe2;color:#17472f;}';
   document.head.appendChild(style);
 
   function getAuth() {
@@ -87,7 +100,7 @@
       '<div id="mqPanel" class="mq-panel mq-hidden">' +
         '<div id="mqStep1">' +
           '<div class="mq-row" style="margin-bottom:8px;">' +
-            '<button type="button" class="mq-btn mq-btn-pri mq-tab" data-f="all">全部 (23)</button>' +
+            '<button type="button" class="mq-btn mq-btn-pri mq-tab" data-f="all">全部</button>' +
             '<button type="button" class="mq-btn mq-tab" data-f="vendor">廠商窗口</button>' +
             '<button type="button" class="mq-btn mq-tab" data-f="finance">各攤財務</button>' +
           '</div>' +

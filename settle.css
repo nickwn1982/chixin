@@ -49,3 +49,15 @@ table.ct tr.sum td{font-weight:700}
 #stoast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(120px);max-width:92vw;background:#2f6b4f;color:#fff;font-weight:700;padding:10px 16px;border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,.2);transition:transform .25s;z-index:99;font-size:16px}
 #stoast.show{transform:translateX(-50%) translateY(0)}
 #stoast.bad{background:#a8321f}
+/* 2026/11/26：訂單「更多」區（order_more_ui.js），與 /my 同一套奶油底＋綠框按鈕 */
+.omore{margin-top:10px;border-top:1px dashed #e4d8c4;padding-top:6px;font-size:15px}
+.omore summary{cursor:pointer;color:#2f6b4f;font-weight:700;padding:6px 0;list-style-position:inside}
+.omore summary b{font-weight:400;color:#2e2a26}
+.omore .orow{margin-top:8px}
+.omore label{display:block;font-size:14px;color:#7a7168;margin-bottom:2px}
+.omore .oline{display:flex;gap:6px;align-items:center}
+.omore select,.omore input{flex:1;min-width:0;font:inherit;font-size:16px;padding:8px;border:2px solid #e4d8c4;border-radius:10px;background:#fff;color:#2e2a26}
+.omore .om-flagbox{margin-top:8px}
+.sbtn.warnb{border-color:#c8963e;color:#8a5a00}
+.om-msg{margin-top:8px;background:#dcefe2;color:#17472f;border-radius:10px;padding:8px 12px;font-size:14px}
+.om-msg.bad{background:#fdecea;color:#8a1f10}
