@@ -19,7 +19,7 @@
   window.CHIXIN_TEST = on;
   /* 2026/11/26：換版開關。新功能先只在測試模式出現；Nick 驗收後把功能名稱加進 PROMOTED，正式網址才看得到。
    * 用法：if (window.chixinFeature('ui2')) { 新畫面 } else { 舊畫面 } */
-  var PROMOTED = [];
+  var PROMOTED = ['ui2', 'dmqr', 'search', 'items', 'pay', 'health', 'costwin'];   // 2026/11/27 Nick 驗收：A～E 上正式
   window.chixinFeature = function (name) { return on || PROMOTED.indexOf(name) >= 0; };
   if (!on) return;
 
