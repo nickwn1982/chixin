@@ -230,6 +230,7 @@ function startPage() {
   else { fillSel($('seller'), '請選擇', true); $('sellerPick').classList.remove('hide'); }
   $('seller').addEventListener('change', function () { $('sellerOther').classList.toggle('hide', this.value !== '__other__'); });
   $('pickups').innerHTML = BOOT.pickups.map(function (p) { return '<label class="radio"><input type="radio" name="pickup" value="' + esc(p) + '"' + (BOOT.pickups.length === 1 ? ' checked' : '') + '><span>' + esc(p) + '</span></label>'; }).join('');
+  if (BOOT.seller === '漢堡') Array.prototype.forEach.call(document.querySelectorAll('input[name=pickup]'), function (r) { if (/^學院同工/.test(r.value)) r.checked = true; });   // 2026/11/27 漢堡（?s=hannah）連結預設「學院同工」取貨
 
   function collect() {
     var pk = document.querySelector('input[name=pickup]:checked');

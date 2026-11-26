@@ -343,6 +343,7 @@ function init() {
   $('pickups').innerHTML = BOOT.pickups.map(function (k) {
     return '<label class="radio"><input type="radio" name="pickup" id="pk_' + k.id + '" value="' + k.id + '"><span>' + esc(k.label) + '</span></label>'; }).join('');
   if (BOOT.pickups.length) $('pk_' + BOOT.pickups[0].id).checked = true;
+  if (BOOT.lockedSeller === '漢堡' && $('pk_academy')) $('pk_academy').checked = true;   // 2026/11/27 漢堡（?s=hannah）連結預設「學院同工」取貨
   document.addEventListener('click', function (ev) {
     var z = ev.target.closest('img[data-zoom]');
     if (z) { $('zoomImg').src = z.src.replace(/sz=w\d+/, 'sz=w1600'); $('zoom').hidden = false; return; }
