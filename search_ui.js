@@ -15,6 +15,7 @@
       '<div class="meta">' + esc(STALL_NO[o.stall] || o.stall) + '・' + esc(o.id) + '・' + esc(o.time) + '・介紹同學 <b>' + esc(o.seller) + '</b></div>' +
       '<div>' + (lines || esc(o.content)) + '</div>' + (o.partial ? '<div class="hint">只顯示你負責廠商的品項</div>' : '') +
       (o.cancelled ? '<span class="tag no">已取消</span>' : '<span class="tag ' + (o.paid ? 'ok">已收款' : 'no">未收款') + '</span><span class="tag ' + (o.delivered ? 'ok">已交貨' : '">待交貨') + '</span>') +
+      (!o.cancelled ? '<div class="sq-items" data-st="' + o.stall + '" data-id="' + esc(o.id) + '"></div>' : '') +
       (canMove && !o.cancelled ? '<div class="oline sq-move"><select data-st="' + o.stall + '" data-id="' + esc(o.id) + '" data-from="' + esc(o.seller) + '"></select><button type="button" class="sbtn sm sq-move-go">改介紹同學</button></div>' : '') +
       '</div>';
   }
@@ -48,12 +49,21 @@
         if (!r || !r.ok) { out.innerHTML = '<div class="err">' + esc((r && r.error) || '搜尋失敗') + '</div>'; return; }
         if (!r.orders.length) { out.innerHTML = '<p class="hint">' + esc(r.message || '查無或無權限') + '</p>'; return; }
         out.innerHTML = r.orders.map(function (o) { return orderCard(o, canMoveStall(o.stall)); }).join('') + (r.more ? '<p class="hint">結果太多，只列前 30 筆，請輸入更完整的編號或姓名。</p>' : '');
+        mountItems(out);
         Array.prototype.forEach.call(out.querySelectorAll('.sq-move select'), function (sel) {
           var from = sel.getAttribute('data-from');
           var list = names.indexOf(from) >= 0 ? names : [from].concat(names);
           sel.innerHTML = list.map(function (n) { return '<option' + (n === from ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('');
         });
       }, function () { out.innerHTML = '<div class="err">網路不穩，請再按一次</div>'; });
+    }
+    function mountItems(root) {
+      if (!global.ItemUI || !global.chixinFeature || !global.chixinFeature('items')) return;
+      var call = function (body) { return api(Object.assign(body, auth())); };
+      Array.prototype.forEach.call(root.querySelectorAll('.sq-items'), function (el) {
+        if (el.getAttribute('data-init')) return; el.setAttribute('data-init', '1');
+        global.ItemUI.mount(el, { stall: el.getAttribute('data-st'), orderId: el.getAttribute('data-id'), apiCall: call });
+      });
     }
     $('.sq-go').addEventListener('click', search);
     $('.sq-q').addEventListener('keydown', function (e) { if (e.key === 'Enter') search(); });
@@ -101,6 +111,7 @@
         '<div class="hint">⚠ 內部資料，請勿截圖外傳；DM、訂購頁一律不顯示成本。</div></div>';
     });
     container.parentNode.insertBefore(box, container);
+    mountItems(box);
   }
   global.SearchUI = { render: render };
 })(window);
