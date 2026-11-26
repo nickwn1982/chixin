@@ -64,6 +64,12 @@
   .spin { width:36px; height:36px; margin:0 auto 10px; border:4px solid var(--line); border-top-color:var(--red); border-radius:50%; animation:sp .8s linear infinite; }
   @keyframes sp { to { transform:rotate(360deg); } }
   [hidden] { display:none !important; }
+  .sq .oline { display:flex; gap:6px; margin-top:8px; } .sq .oline input, .sq .oline select { flex:1; min-width:0; font-size:16px; padding:10px; border:1px solid #d8cdb8; border-radius:10px; }
+  .sq > select { margin-top:6px; }
+  .sq-pcard { position:relative; overflow:hidden; background:#faf5ea; border-radius:12px; padding:12px; margin-top:10px; font-size:16px; }
+  .sq-pcard::after { content:attr(data-wm); position:absolute; inset:0; display:flex; align-items:center; justify-content:center; transform:rotate(-18deg); font-size:20px; font-weight:700; color:rgba(168,50,31,.10); pointer-events:none; white-space:nowrap; }
+  .sq-pnum { font-size:18px; margin:6px 0; } .sq-pnum b { color:var(--red-d); }
+  .sq-pcard ul { margin:6px 0 4px; padding-left:20px; }
   .dmq { margin-top:16px; border-top:1px dashed var(--line); padding-top:8px; }
   .dmq h3 { margin:6px 0 0; font-size:17px; }
   .dmq-out img { display:block; width:100%; border-radius:10px; border:1px solid var(--line); margin-top:10px; }
@@ -154,6 +160,7 @@
   <script src="../phase2_reconcile_ui.js"></script>
   <script src="../order_more_ui.js"></script>
   <script src="../dm_qr_ui.js"></script>
+  <script src="../search_ui.js"></script>
 <script>
 // ====== 設定（部署後只需要改這一行：整合查詢 API 的 /exec 網址）======
 var API = window.CHIXIN_API_OVERRIDE || 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';   // 2026/11/24：?test=1 時改走測試後端（env.js）
@@ -267,9 +274,15 @@ Settle.init({ api: api, auth: function () { return { name: S.name, code: S.code 
 
 /** 收款狀態與結算（後端尚未更新時會失敗，畫面維持唯讀） */
 function loadLedger() {
-  Settle.call({ action: 'ledgerMine' }).then(function (r) { if (r && r.ok) { S.led = r; renderSheetEntry(); renderStall(); } })['catch'](function () {});
+  Settle.call({ action: 'ledgerMine' }).then(function (r) { if (r && r.ok) { S.led = r; renderSheetEntry(); renderStall(); mountSearch(); } })['catch'](function () {});
 }
 /** 更新物流／異常後就地重抓資料（不整頁重新載入；畫面、頁籤與捲動位置保留） */
+function mountSearch() {
+  if (!window.SearchUI || !window.chixinFeature || !chixinFeature('search')) return;
+  var old = document.querySelectorAll('.sq'); for (var i=0;i<old.length;i++) old[i].remove();
+  try { SearchUI.render($('links'), {state:S, api:api, auth:function(){return {name:S.name, code:S.code};}, onPhone:softRefresh}); } catch(e) { console.error(e); }
+}
+
 function softRefresh() {
   if (!S.name || !S.code) { location.reload(); return; }
   api({ action: 'login', name: S.name, code: S.code }).then(function (r) {
@@ -375,7 +388,7 @@ function render() {
   $('tabs').innerHTML = d.stalls.map(function (s, i) {
     return '<button type="button" role="tab" data-k="' + s.key + '" aria-selected="' + (s.key === S.tab) + '">第' + (i + 1) + '攤<small>' + esc(s.name) + '・' + s.summary.count + ' 筆</small></button>';
   }).join('');
-  renderStall(); renderLinks();
+  renderStall(); renderLinks(); mountSearch();
 }
 
 function renderStall() {
