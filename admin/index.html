@@ -71,6 +71,7 @@
 var API = window.CHIXIN_API_OVERRIDE || 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';   // 2026/11/24：?test=1 時改走測試後端（env.js）
 var $ = function (id) { return document.getElementById(id); };
 var TABS = [['boards', '各攤與總覽'], ['vendors', '廠商'], ['products', '商品與成本'], ['members', '同學通知'], ['booths', '各攤權限'], ['codes', '同學通關碼'], ['settings', '通知設定與紀錄']];
+if (window.chixinFeature && chixinFeature('costwin')) TABS.splice(2, 0, ['costwin', '理貨窗口']);   // 2026/11/27 測試中
 var TYPES = { deadline: '截止提醒', final: '最終出貨單', payment: '收款提醒' };
 var S = { code: '', d: null, tab: 'boards', busy: false, boards: null, bsel: 'total' };
 
@@ -137,7 +138,7 @@ function render() {
     (st.lastWarn ? '<div class="msg warn">' + esc(st.lastWarn) + '</div>' : '') +
     '<button class="btn o" id="reload">重新整理</button><button type="button" class="g-btn admin-theme" id="openGuide">📖 操作說明</button>';
   $('tabs').innerHTML = TABS.map(function (t) { return '<button type="button" data-tab="' + t[0] + '" aria-selected="' + (S.tab === t[0]) + '">' + t[1] + '</button>'; }).join('');
-  ({ boards: rBoards, vendors: rVendors, products: rProducts, members: rMembers, booths: rBooths, codes: rCodes, settings: rSettings })[S.tab]();
+  ({ boards: rBoards, vendors: rVendors, products: rProducts, members: rMembers, booths: rBooths, costwin: rCostwin, codes: rCodes, settings: rSettings })[S.tab]();
 }
 
 function ownerOptions(sel) {
@@ -186,6 +187,21 @@ function rBooths() {
       '<td><button class="btn r" style="margin:0;padding:6px 10px" data-del="booths" data-i="' + i + '">刪</button></td></tr>';
   });
   h += '</table></div><button class="btn o" data-add="booths">＋新增</button><button class="btn g" data-save="booths">儲存各攤權限</button></div>';
+  $('body').innerHTML = h;
+}
+
+function rCostwin() {   // 2026/11/27 理貨窗口＝「成本窗口」分頁：該攤該廠商的成本交給誰、誰去跟廠商拿貨
+  if (!S.d.costWindows) S.d.costWindows = [];
+  var vs = S.d.vendors.map(function (v) { return v.name; });
+  var h = '<div class="card"><h2>理貨窗口（攤位 × 廠商 → 同學）</h2><div class="hint">設定後：這一攤這個廠商的商品，<b>成本交給理貨窗口</b>，由他統一跟廠商拿貨、付款。他在「我的入口」會看到理貨窗口看板，同學的「匯款與付款」也會指向他。<b>沒設定的廠商</b>：成本交給廠商窗口（廠商分頁的負責同學）。一個廠商在同一攤只能設一位。碰面速辦的成本窗口也讀這張表。</div><div class="scroll"><table><tr><th>攤位</th><th>廠商</th><th>理貨窗口</th><th>顯示名稱（可空白）</th><th></th></tr>';
+  S.d.costWindows.forEach(function (w, i) {
+    h += '<tr><td><select data-sec="costWindows" data-i="' + i + '" data-k="stall">' + ['s1', 's2', 's3'].map(function (k) { return '<option value="' + k + '"' + (k === w.stall ? ' selected' : '') + '>第' + k.slice(1) + '攤</option>'; }).join('') + '</select></td>' +
+      '<td><select data-sec="costWindows" data-i="' + i + '" data-k="vendor"><option value="">（選廠商）</option>' + vs.map(function (v) { return '<option' + (v === w.vendor ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('') + '</select></td>' +
+      '<td><select data-sec="costWindows" data-i="' + i + '" data-k="who">' + ownerOptions(w.who) + '</select></td>' +
+      '<td><input type="text" maxlength="30" style="width:150px" data-sec="costWindows" data-i="' + i + '" data-k="label" value="' + esc(w.label || '') + '" placeholder="例：豆乾／肉桂捲"></td>' +
+      '<td><button class="btn r" style="margin:0;padding:6px 10px" data-del="costWindows" data-i="' + i + '">刪</button></td></tr>';
+  });
+  h += '</table></div><button class="btn o" data-add="costWindows">＋新增</button><button class="btn g" data-save="costwin">儲存理貨窗口</button></div>';
   $('body').innerHTML = h;
 }
 
@@ -287,6 +303,7 @@ function collect(sec) {
   if (sec === 'members') return d.members;
   if (sec === 'products') return d.products.map(function (p) { return { stall: p.stall, code: p.code, name: p.name, spec: p.spec, vendor: p.vendor, booth: p.booth, liaison: p.liaison, cost: p.cost }; });
   if (sec === 'booths') return d.booths;
+  if (sec === 'costwin') return d.costWindows || [];
   if (sec === 'reminders') return d.reminders;
   if (sec === 'settings') return [{ interval: $('s_interval').value, hour: $('s_hour').value, adminEmail: $('s_admin').value.trim() }];
 }
@@ -342,6 +359,7 @@ document.addEventListener('click', function (ev) {
   var ad = e.closest('[data-add]'); if (ad) {
     if (ad.dataset.add === 'vendors') S.d.vendors.push({ name: '新廠商', owner: '', email: '', enabled: true, note: '' });
     else if (ad.dataset.add === 'booths') S.d.booths.push({ booth: 's1', name: '', role: 'view' });
+    else if (ad.dataset.add === 'costWindows') S.d.costWindows.push({ stall: 's1', vendor: '', who: '', label: '' });
     else S.d.reminders.push({ date: '', type: 'deadline', desc: '', enabled: true });
     render(); return;
   }
