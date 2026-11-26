@@ -66,6 +66,15 @@
   [hidden] { display:none !important; }
   .sq .oline { display:flex; gap:6px; margin-top:8px; } .sq .oline input, .sq .oline select { flex:1; min-width:0; font-size:16px; padding:10px; border:1px solid #d8cdb8; border-radius:10px; }
   .sq > select { margin-top:6px; }
+  .tq h3 { font-size:17px; margin:16px 0 6px; } .tq .tq-t, .tq .tq-row { background:#fff; border:1px solid #e4d8c4; border-radius:12px; padding:10px; margin-top:8px; }
+  .tq .top { display:flex; justify-content:space-between; gap:8px; } .tq .amt { color:var(--red-d); font-size:15px; }
+  .tq .tq-acct { margin:6px 0; font-size:16px; word-break:break-all; } .tq .tq-open { margin-top:6px; }
+  .tq input, .tq select { display:block; width:100%; box-sizing:border-box; font-size:16px; padding:10px; border:1px solid #d8cdb8; border-radius:10px; margin-top:8px; }
+  .tq .oline { display:flex; gap:6px; } .tq .oline input { flex:1; min-width:0; }
+  .tq .tq-send, .tq .tq-save { margin-top:8px; width:100%; } .tq .tag { margin-left:6px; }
+  .tq summary { cursor:pointer; font-weight:700; color:#2f6b4f; margin-top:16px; padding:6px 0; }
+  .tq-tbl { width:100%; border-collapse:collapse; font-size:15px; margin-top:8px; } .tq-tbl th, .tq-tbl td { border-bottom:1px solid #e4d8c4; padding:6px 4px; text-align:right; }
+  .tq-tbl th:first-child, .tq-tbl td:first-child { text-align:left; } .tq-tbl small { display:block; color:#7a7168; font-size:12px; }
   .sq-pcard { position:relative; overflow:hidden; background:#faf5ea; border-radius:12px; padding:12px; margin-top:10px; font-size:16px; }
   .sq-pcard::after { content:attr(data-wm); position:absolute; inset:0; display:flex; align-items:center; justify-content:center; transform:rotate(-18deg); font-size:20px; font-weight:700; color:rgba(168,50,31,.10); pointer-events:none; white-space:nowrap; }
   .sq-pnum { font-size:18px; margin:6px 0; } .sq-pnum b { color:var(--red-d); }
@@ -162,6 +171,7 @@
   <script src="../dm_qr_ui.js"></script>
   <script src="../search_ui.js"></script>
   <script src="../item_ui.js"></script>
+  <script src="../transfer_ui.js"></script>
 <script>
 // ====== 設定（部署後只需要改這一行：整合查詢 API 的 /exec 網址）======
 var API = window.CHIXIN_API_OVERRIDE || 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';   // 2026/11/24：?test=1 時改走測試後端（env.js）
@@ -283,6 +293,10 @@ function mountSearch() {
   var old = document.querySelectorAll('.sq'); for (var i=0;i<old.length;i++) old[i].remove();
   try { SearchUI.render($('links'), {state:S, api:api, auth:function(){return {name:S.name, code:S.code};}, onPhone:softRefresh}); } catch(e) { console.error(e); }
 }
+function mountTransfer() {   // 2026/11/26 E 階段：匯款與付款（只建一次，換頁籤不重抓）
+  if (!window.TransferUI || !window.chixinFeature || !chixinFeature('pay') || document.querySelector('.tq')) return;
+  try { TransferUI.render($('links'), {api:api, auth:function(){return {name:S.name, code:S.code};}}); } catch(e) { console.error(e); }
+}
 
 function softRefresh() {
   if (!S.name || !S.code) { location.reload(); return; }
@@ -389,7 +403,7 @@ function render() {
   $('tabs').innerHTML = d.stalls.map(function (s, i) {
     return '<button type="button" role="tab" data-k="' + s.key + '" aria-selected="' + (s.key === S.tab) + '">第' + (i + 1) + '攤<small>' + esc(s.name) + '・' + s.summary.count + ' 筆</small></button>';
   }).join('');
-  renderStall(); renderLinks(); mountSearch();
+  renderStall(); renderLinks(); mountSearch(); mountTransfer();
 }
 
 function renderStall() {
