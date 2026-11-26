@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>我的入口新功能教學</title>
+<style>
+  :root { --bg:#f6efe4; --card:#fffdf8; --red:#a8321f; --red-d:#7f2416; --green:#2f6b4f; --ink:#2e241f; --mute:#7a7168; --line:#e4d8c4; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif; font-size:17px; line-height:1.65; }
+  header { background:#341812; color:#fbf6ec; padding:28px 16px 22px; }
+  header small { color:#c8963e; letter-spacing:.08em; }
+  header h1 { margin:6px 0 4px; font-size:26px; line-height:1.3; }
+  header p { margin:0; color:#e9dccb; font-size:15px; }
+  main { max-width:560px; margin:0 auto; padding:8px 16px 40px; }
+  nav { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-top:16px; }
+  nav b { display:block; margin-bottom:4px; }
+  nav a { display:block; color:var(--green); text-decoration:none; padding:5px 0; border-top:1px dashed var(--line); }
+  nav a:first-of-type { border-top:0; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; margin-top:16px; }
+  h2 { margin:0 0 4px; font-size:21px; color:var(--red-d); line-height:1.35; }
+  .who { display:inline-block; font-size:13px; background:#f1e7d6; color:var(--mute); border-radius:99px; padding:1px 10px; margin-bottom:8px; }
+  ol { padding-left:22px; margin:8px 0; } li { margin:4px 0; }
+  img { display:block; width:100%; height:auto; border:1px solid var(--line); border-radius:12px; margin:10px 0; background:#fff; }
+  .tip { background:#eaf3ec; border-left:4px solid var(--green); border-radius:8px; padding:8px 12px; font-size:15px; margin-top:8px; }
+  .warn { background:#fdecea; border-left:4px solid var(--red); border-radius:8px; padding:8px 12px; font-size:15px; margin-top:8px; }
+  .case { background:#faf5ea; border-radius:10px; padding:10px 12px; font-size:15px; margin-top:8px; }
+  table { width:100%; border-collapse:collapse; font-size:15px; margin-top:8px; }
+  td, th { border-bottom:1px solid var(--line); padding:6px 4px; text-align:left; vertical-align:top; }
+  .back { display:block; text-align:center; margin-top:20px; color:var(--green); font-weight:700; }
+  footer { text-align:center; color:var(--mute); font-size:13px; margin-top:18px; }
+</style>
+</head>
+<body>
+<header>
+  <small>巴拿巴宣教學院・國際志工募款｜美食攤團購</small>
+  <h1>「我的入口」新功能教學</h1>
+  <p>找訂單、逐項記帳、匯款不用再私訊。畫面為示範資料，人名、帳號皆為虛構。</p>
+</header>
+<main>
+  <nav>
+    <b>目錄</b>
+    <a href="#search">1. 找訂單：輸入編號或名字</a>
+    <a href="#bought">2. 我自己訂的：別組同學幫你下的單</a>
+    <a href="#price">3. 價格速查：售價、成本、利潤交給誰</a>
+    <a href="#items">4. 逐項登記：哪一樣交了、收了、成本付了</a>
+    <a href="#pay">5. 匯款與付款：帳號、我已匯款</a>
+    <a href="#window">6. 理貨窗口：確認收到、看誰還沒交</a>
+    <a href="#faq">7. 常見問題</a>
+  </nav>
+
+  <section id="search">
+    <h2>1. 找訂單</h2>
+    <span class="who">每位同學</span>
+    <ol>
+      <li>在「🔍 找訂單」輸入<b>訂單編號</b>（例 P1126-038）或<b>名字</b>。</li>
+      <li>按「搜尋」。</li>
+      <li>找到後可以直接按「逐項登記」。</li>
+    </ol>
+    <img src="img-1125/search.png" alt="找訂單畫面：輸入訂單編號，找到張美玲的訂單" loading="lazy">
+    <div class="tip">只找得到<b>你介紹的</b>、<b>你自己訂的</b>，以及<b>你負責的範圍</b>（財務、組長、理貨窗口）。別人的單會顯示「查無或無權限」，這是正常的。</div>
+  </section>
+
+  <section id="bought">
+    <h2>2. 我自己訂的</h2>
+    <span class="who">自己也有下單的同學</span>
+    <ol>
+      <li>在「🛍 我自己訂的」填你<b>下單時留的手機</b>，按「綁定手機」。</li>
+      <li>重新整理後，別組同學幫你下的單（訂購人寫你的名字）就會出現。</li>
+    </ol>
+    <img src="img-1125/bought.png" alt="我自己訂的：已綁定手機，看到別組同學幫你下的苔球訂單" loading="lazy">
+    <div class="tip">要「名字」和「手機」都對得上才會出現，所以綁別人的手機也看不到別人的單。</div>
+  </section>
+
+  <section id="price">
+    <h2>3. 價格速查</h2>
+    <span class="who">每位同學（內部資料）</span>
+    <ol>
+      <li>在「💲 價格速查」選商品。</li>
+      <li>看售價、成本、利潤，以及<b>成本交給誰、利潤交給誰</b>。</li>
+    </ol>
+    <img src="img-1125/price.png" alt="價格速查：豆乾辣味售價100、成本60、利潤40，成本交理貨窗口、利潤交財務" loading="lazy">
+    <div class="warn">卡片上有「內部資料勿外傳」浮水印。<b>請不要截圖傳到親友群組</b>；DM、訂購頁、LINE 貼文一律不寫成本。</div>
+  </section>
+
+  <section id="items">
+    <h2>4. 逐項登記：交貨、收款、成本</h2>
+    <span class="who">介紹同學（財務、組長也可以）</span>
+    <ol>
+      <li>在訂單卡片按「更多」→「逐項登記：交貨／收款／成本」。</li>
+      <li>每樣商品有三排：<b>已交貨</b>、<b>已收款</b>、<b>成本已付</b>。按「＋」「−」或「全部」，<b>按一下就存好</b>。</li>
+      <li>下面會自動加總「已收款 $／應收 $」「成本已付 $／應付 $」。</li>
+    </ol>
+    <img src="img-1125/items.png" alt="逐項登記：海苔已交2已收2成本付1、豆乾都還沒、肉桂卷已交已收成本未付" loading="lazy">
+    <div class="case"><b>例子</b>：張美玲訂海苔 2、豆乾 3、肉桂卷 1。海苔交了也收錢了，成本先付 1 包；肉桂卷拿到也收錢了，但成本還沒付；豆乾都還沒。照上圖這樣按，大家一看就知道。</div>
+    <div class="tip">每樣都收齊時，會出現「全部收齊 → 整單標已收」按鈕，按兩下就把整筆標成已收。整筆已經標「已收」或「已交貨」的單，每樣都算完成，不用再逐項按。</div>
+    <div class="warn">按錯了？再按「−」改回來就好，每次修改都會留下紀錄。</div>
+  </section>
+
+  <section id="pay">
+    <h2>5. 匯款與付款</h2>
+    <span class="who">每位同學</span>
+    <ol>
+      <li>「💸 匯款與付款」會列出<b>你要付錢給誰</b>：成本交給理貨窗口（或廠商窗口），利潤交給本攤財務，還有對方的帳號。</li>
+      <li>按「複製帳號」去網銀轉帳。</li>
+      <li>轉完按「我已匯款給 ○○」，填<b>金額</b>和<b>你的帳號末五碼</b>，按「送出，請對方確認」。</li>
+      <li>對方按「有收到」之後，「我匯出的」會變成<b>已確認</b>。</li>
+    </ol>
+    <img src="img-1125/pay.png" alt="匯款與付款：列出財務李阿姨、理貨窗口王小玉、林小華與各自帳號" loading="lazy">
+    <img src="img-1125/paid-form.png" alt="我已匯款表單：填金額與末五碼" loading="lazy">
+    <div class="tip">你是理貨窗口或財務的話，請在最下面「🏦 我的匯款帳號」填好帳號。<b>只有要付錢給你的同學看得到</b>，不想給了可以清空帳號再按儲存。</div>
+  </section>
+
+  <section id="window">
+    <h2>6. 理貨窗口：確認收款、看誰還沒交</h2>
+    <span class="who">理貨窗口（先從十二籃開始）</span>
+    <ol>
+      <li>「📥 別人匯給我的」出現同學的匯款：對一下你的帳戶，<b>有收到</b>就按「有收到」（按兩下），沒收到按「沒收到」。</li>
+      <li>「📦 理貨窗口」表格：每位同學<b>應交</b>多少成本、<b>逐項已付</b>多少、<b>匯款已確認</b>多少。</li>
+    </ol>
+    <img src="img-1125/window.png" alt="理貨窗口看板：陳大文應交120待確認，小美應交630逐項已付180匯款已確認450" loading="lazy">
+    <div class="tip">同一筆錢只記一種就好：當面給現金的，在訂單「逐項登記」按成本已付；用匯款的，按「有收到」。兩邊都記會重複算。</div>
+  </section>
+
+  <section id="faq">
+    <h2>7. 常見問題</h2>
+    <table>
+      <tr><th>情況</th><th>怎麼做</th></tr>
+      <tr><td>找不到某筆單</td><td>那筆不是你介紹、也不是你訂的。請介紹同學或本攤財務幫你查。</td></tr>
+      <tr><td>親友只付了一部分</td><td>用「逐項登記」把有付的那幾樣按「已收款」。</td></tr>
+      <tr><td>貨分兩次交</td><td>「已交貨」按到實際交出的數量，例如 1/3。</td></tr>
+      <tr><td>對方還沒填帳號</td><td>請他到「我的入口」最下面填，或先當面給。</td></tr>
+      <tr><td>匯款被按「沒收到」</td><td>請對方再查一次帳戶，確認後重新送出。</td></tr>
+      <tr><td>介紹同學登記錯人</td><td>請本攤財務或組長在「找訂單」結果按「改介紹同學」。</td></tr>
+    </table>
+  </section>
+
+  <a class="back" id="back" href="./">← 回我的入口</a>
+  <script>document.getElementById('back').href = './' + location.search;</script>
+  <footer>有問題請找統籌。本頁畫面為示範資料。</footer>
+</main>
+</body>
+</html>

@@ -27,7 +27,7 @@
     var box = document.createElement('div');
     box.className = 'card sq';
     box.innerHTML =
-      '<h2>🔍 找訂單</h2><div class="hint">輸入訂單編號（例 P1126-038）或人名。只會找到你介紹的、你自己訂的，以及你負責的範圍。</div>' +
+      '<h2>🔍 找訂單</h2><div class="hint">輸入訂單編號（例 P1126-038）或人名。只會找到你介紹的、你自己訂的，以及你負責的範圍。<a href="tutorial-1125.html' + esc(location.search) + '">📖 新功能教學</a></div>' +
       '<div class="oline"><input type="search" class="sq-q" maxlength="30" placeholder="訂單編號或姓名"><button type="button" class="sbtn sq-go">搜尋</button></div>' +
       '<div class="sq-out"></div>' +
       '<h2 style="margin-top:18px">🛍 我自己訂的</h2>' +

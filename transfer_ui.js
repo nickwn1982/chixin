@@ -16,7 +16,7 @@
     var call = function (b) { return opts.api(Object.assign(b, opts.auth())); };
     var box = document.createElement('div');
     box.className = 'card tq';
-    box.innerHTML = '<h2>💸 匯款與付款</h2><div class="hint">成本、利潤要匯給誰，對方的帳號都在這裡，不用再私訊要帳號。</div>' +
+    box.innerHTML = '<h2>💸 匯款與付款</h2><div class="hint">成本、利潤要匯給誰，對方的帳號都在這裡，不用再私訊要帳號。<a href="tutorial-1125.html' + esc(location.search) + '#pay">📖 怎麼用</a></div>' +
       '<div class="tq-pay"><p class="hint">讀取中…</p></div>' +
       '<h3>📥 別人匯給我的</h3><div class="tq-in"></div>' +
       '<h3>📤 我匯出的</h3><div class="tq-out"></div>' +

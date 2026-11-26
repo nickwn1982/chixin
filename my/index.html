@@ -74,6 +74,8 @@
   .tq .tq-send, .tq .tq-save { margin-top:8px; width:100%; } .tq .tag { margin-left:6px; }
   .tq summary { cursor:pointer; font-weight:700; color:#2f6b4f; margin-top:16px; padding:6px 0; }
   .tq-tbl { width:100%; border-collapse:collapse; font-size:15px; margin-top:8px; } .tq-tbl th, .tq-tbl td { border-bottom:1px solid #e4d8c4; padding:6px 4px; text-align:right; }
+  .hc-f { display:flex; gap:8px; background:#fff; border:1px solid #e4d8c4; border-radius:10px; padding:8px 10px; margin-top:6px; font-size:15px; } .hc-f small { display:block; color:#7a7168; font-size:13px; }
+  .hc-f.lv-error { border-left:4px solid #a8321f; } .hc-f.lv-warn { border-left:4px solid #c8963e; } .hc-ok { color:#2f6b4f; font-weight:700; } .hc .hc-go { margin-top:8px; width:100%; }
   .tq-tbl th:first-child, .tq-tbl td:first-child { text-align:left; } .tq-tbl small { display:block; color:#7a7168; font-size:12px; }
   .sq-pcard { position:relative; overflow:hidden; background:#faf5ea; border-radius:12px; padding:12px; margin-top:10px; font-size:16px; }
   .sq-pcard::after { content:attr(data-wm); position:absolute; inset:0; display:flex; align-items:center; justify-content:center; transform:rotate(-18deg); font-size:20px; font-weight:700; color:rgba(168,50,31,.10); pointer-events:none; white-space:nowrap; }
@@ -172,6 +174,7 @@
   <script src="../search_ui.js"></script>
   <script src="../item_ui.js"></script>
   <script src="../transfer_ui.js"></script>
+  <script src="../health_ui.js"></script>
 <script>
 // ====== 設定（部署後只需要改這一行：整合查詢 API 的 /exec 網址）======
 var API = window.CHIXIN_API_OVERRIDE || 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';   // 2026/11/24：?test=1 時改走測試後端（env.js）
@@ -285,13 +288,19 @@ Settle.init({ api: api, auth: function () { return { name: S.name, code: S.code 
 
 /** 收款狀態與結算（後端尚未更新時會失敗，畫面維持唯讀） */
 function loadLedger() {
-  Settle.call({ action: 'ledgerMine' }).then(function (r) { if (r && r.ok) { S.led = r; renderSheetEntry(); renderStall(); mountSearch(); } })['catch'](function () {});
+  Settle.call({ action: 'ledgerMine' }).then(function (r) { if (r && r.ok) { S.led = r; mountHealth(); renderSheetEntry(); renderStall(); mountSearch(); } })['catch'](function () {});
 }
 /** 更新物流／異常後就地重抓資料（不整頁重新載入；畫面、頁籤與捲動位置保留） */
 function mountSearch() {
   if (!window.SearchUI || !window.chixinFeature || !chixinFeature('search')) return;
   var old = document.querySelectorAll('.sq'); for (var i=0;i<old.length;i++) old[i].remove();
   try { SearchUI.render($('links'), {state:S, api:api, auth:function(){return {name:S.name, code:S.code};}, onPhone:softRefresh}); } catch(e) { console.error(e); }
+}
+function mountHealth() {   // 2026/11/26 系統自我檢測：統籌／組長／財務才出現
+  var L = S.led || {};
+  if (!window.HealthUI || !window.chixinFeature || !chixinFeature('health') || document.querySelector('.hc')) return;
+  if (!((L.financeOf || []).length || (L.editorOf || []).length)) return;
+  try { HealthUI.render($('links'), {api:api, auth:function(){return {name:S.name, code:S.code};}}); } catch(e) { console.error(e); }
 }
 function mountTransfer() {   // 2026/11/26 E 階段：匯款與付款（只建一次，換頁籤不重抓）
   if (!window.TransferUI || !window.chixinFeature || !chixinFeature('pay') || document.querySelector('.tq')) return;
@@ -403,7 +412,7 @@ function render() {
   $('tabs').innerHTML = d.stalls.map(function (s, i) {
     return '<button type="button" role="tab" data-k="' + s.key + '" aria-selected="' + (s.key === S.tab) + '">第' + (i + 1) + '攤<small>' + esc(s.name) + '・' + s.summary.count + ' 筆</small></button>';
   }).join('');
-  renderStall(); renderLinks(); mountSearch(); mountTransfer();
+  renderStall(); renderLinks(); mountSearch(); mountTransfer(); mountHealth();
 }
 
 function renderStall() {
