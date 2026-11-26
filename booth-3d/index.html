@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>吃心絕對｜300×300cm 攤位 2D 平面 &amp; 3D 互動設計工具</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+    body {
+      font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #FAF6F0;
+      color: #2C241E;
+      overflow-x: hidden;
+    }
+    .canvas-grid {
+      background-image:
+        linear-gradient(to right, rgba(168, 143, 120, 0.14) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(168, 143, 120, 0.14) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    #plan2dCanvas {
+      touch-action: none;
+      cursor: grab;
+    }
+    #plan2dCanvas:active {
+      cursor: grabbing;
+    }
+    #viewport3d canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+      touch-action: none;
+    }
+    .tab-btn.active {
+      background-color: #9B2C2C;
+      color: #FFFFFF;
+      box-shadow: 0 2px 6px rgba(155, 44, 44, 0.25);
+    }
+    .preset-btn.active {
+      border-color: #9B2C2C;
+      background-color: #FFF5F5;
+      color: #9B2C2C;
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F2ECE4; }
+    ::-webkit-scrollbar-thumb { background: #C8B8A6; border-radius: 999px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <header class="bg-[#2C1A17] text-[#FAF6F0] border-b border-[#4A2E28] sticky top-0 z-30">
+    <div class="max-w-[1440px] mx-auto px-3 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-[#9B2C2C] flex items-center justify-center shadow-inner shrink-0">
+          <i data-lucide="store" class="w-5 h-5 text-amber-200"></i>
+        </div>
+        <div>
+          <h1 class="text-sm sm:text-base font-bold tracking-wide leading-tight flex items-center gap-2">
+            吃心絕對｜攤位 2D 平面 &amp; 3D 設計
+            <span class="hidden sm:inline-block text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-200 border border-amber-400/30">
+              300×300 cm 帳篷
+            </span>
+          </h1>
+          <p class="text-[11px] text-amber-100/75 leading-tight">
+            12/12–12/13 大安森林公園｜2 張白桌 (180×60) ＋ 4 張椅子 ＋ 110V 供電
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1 bg-[#3D2622] p-1 rounded-xl">
+        <button id="tabSplit" class="tab-btn active px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+          <i data-lucide="columns-2" class="w-3.5 h-3.5"></i>
+          <span class="hidden md:inline">2D+3D 並列</span>
+          <span class="md:hidden">設計</span>
+        </button>
+        <button id="tab2D" class="tab-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 text-amber-100/80 hover:text-white transition">
+          <i data-lucide="grid" class="w-3.5 h-3.5"></i>
+          2D 平面
+        </button>
+        <button id="tab3D" class="tab-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 text-amber-100/80 hover:text-white transition">
+          <i data-lucide="box" class="w-3.5 h-3.5"></i>
+          3D 立體
+        </button>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <button id="btnExportJson" class="px-2.5 py-1.5 rounded-lg bg-[#3D2622] hover:bg-[#52342E] text-amber-100 text-xs font-medium flex items-center gap-1 transition" title="匯出/匯入配置檔給同工修改">
+          <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">存取配置</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="bg-[#FFF8EB] border-b border-amber-200/80 px-3 sm:px-5 py-1.5">
+    <div class="max-w-[1440px] mx-auto flex flex-wrap items-center justify-between gap-2 text-xs text-amber-950">
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1 font-bold text-[#9B2C2C]">
+          <i data-lucide="ruler" class="w-3.5 h-3.5"></i> 空間關鍵提醒：
+        </span>
+        <span>帳篷實寬 <strong>300 cm</strong>，2 張 180 cm 白桌若「直線並排」達 <strong>360 cm 會超出 60 cm</strong>，建議採 <strong>L 型</strong> 或 <strong>前後雙排</strong> 配置。</span>
+      </div>
+      <div id="boundaryStatus" class="font-semibold text-emerald-700 flex items-center gap-1">
+        <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> 所有帳內設備皆在 300×300 cm 範圍內
+      </div>
+    </div>
+  </div>
+
+  <main id="plannerView" class="flex-1 max-w-[1440px] w-full mx-auto p-3 sm:p-4 flex flex-col gap-3">
+    <section class="bg-white rounded-2xl border border-[#E6DCD1] p-3 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-1.5">
+        <span class="text-xs font-bold text-[#6E5A4B] mr-1 flex items-center gap-1">
+          <i data-lucide="layout-template" class="w-3.5 h-3.5"></i> 預設方案：
+        </span>
+        <button data-preset="L_OPEN" class="preset-btn active px-2.5 py-1.5 rounded-xl border border-[#E2D6C8] text-xs font-semibold transition">
+          方案 A：L 型開放展售（推薦）
+        </button>
+        <button data-preset="DOUBLE_ROW" class="preset-btn px-2.5 py-1.5 rounded-xl border border-[#E2D6C8] text-xs font-semibold transition">
+          方案 B：前後雙排高出餐
+        </button>
+        <button data-preset="U_CORNER" class="preset-btn px-2.5 py-1.5 rounded-xl border border-[#E2D6C8] text-xs font-semibold transition">
+          方案 C：三面展示動線
+        </button>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 border-t lg:border-t-0 pt-2 lg:pt-0 border-[#EFE7DD]">
+        <label class="inline-flex items-center gap-1.5 text-xs font-medium cursor-pointer bg-[#FAF6F0] px-2.5 py-1.5 rounded-xl border border-[#E6DCD1]">
+          <input id="chkPosters" type="checkbox" checked class="accent-[#9B2C2C] w-3.5 h-3.5" />
+          <span>3張大圖海報</span>
+        </label>
+        <label class="inline-flex items-center gap-1.5 text-xs font-medium cursor-pointer bg-[#FAF6F0] px-2.5 py-1.5 rounded-xl border border-[#E6DCD1]">
+          <input id="chkLights" type="checkbox" checked class="accent-amber-600 w-3.5 h-3.5" />
+          <span>暖光燈串</span>
+        </label>
+        <label class="inline-flex items-center gap-1.5 text-xs font-medium cursor-pointer bg-[#FAF6F0] px-2.5 py-1.5 rounded-xl border border-[#E6DCD1]">
+          <input id="chkEvening" type="checkbox" class="accent-indigo-700 w-3.5 h-3.5" />
+          <span>傍晚點燈</span>
+        </label>
+        <label class="inline-flex items-center gap-1.5 text-xs font-medium cursor-pointer bg-[#FAF6F0] px-2.5 py-1.5 rounded-xl border border-[#E6DCD1]">
+          <input id="chkRoof" type="checkbox" checked class="accent-[#1F4E3D] w-3.5 h-3.5" />
+          <span>帳篷頂棚</span>
+        </label>
+        <div class="flex items-center gap-1 bg-[#FAF6F0] px-2 py-1 rounded-xl border border-[#E6DCD1]">
+          <span class="text-[11px] text-[#6E5A4B] font-medium">桌巾：</span>
+          <button data-cloth="#9B2C2C" class="cloth-swatch w-4 h-4 rounded-full bg-[#9B2C2C] ring-2 ring-offset-1 ring-[#9B2C2C]" title="聖誕酒紅"></button>
+          <button data-cloth="#F5EFE6" class="cloth-swatch w-4 h-4 rounded-full bg-[#F5EFE6] border border-stone-300" title="奶油米白"></button>
+          <button data-cloth="#1F4E3D" class="cloth-swatch w-4 h-4 rounded-full bg-[#1F4E3D]" title="聖誕森林綠"></button>
+          <button data-cloth="#FFFFFF" class="cloth-swatch w-4 h-4 rounded-full bg-white border border-stone-300" title="原廠白桌"></button>
+        </div>
+      </div>
+    </section>
+
+    <div id="workspaceGrid" class="grid grid-cols-1 xl:grid-cols-12 gap-3 flex-1">
+      <section id="panel2D" class="xl:col-span-5 bg-white rounded-2xl border border-[#E6DCD1] shadow-sm flex flex-col overflow-hidden">
+        <div class="px-3.5 py-2.5 border-b border-[#EFE7DD] flex items-center justify-between gap-2 bg-[#FCF9F5]">
+          <div>
+            <h2 class="text-sm font-bold text-[#2C241E] flex items-center gap-1.5">
+              <i data-lucide="compass" class="w-4 h-4 text-[#9B2C2C]"></i>
+              2D 精準平面圖（可拖拉調整）
+            </h2>
+            <p class="text-[11px] text-[#7A6858]">點擊選取物件、拖曳移動（5cm 吸附）、按 R 或下方按鈕旋轉</p>
+          </div>
+          <div class="flex items-center gap-1">
+            <button id="btnAddMenu" class="px-2.5 py-1.5 rounded-lg bg-[#1F4E3D] hover:bg-[#173B2E] text-white text-xs font-semibold flex items-center gap-1 transition">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> 新增物件
+            </button>
+          </div>
+        </div>
+
+        <div id="addItemBar" class="hidden px-3 py-2 bg-[#F4EFE9] border-b border-[#E6DCD1] flex flex-wrap gap-1.5">
+          <button data-add="table" class="px-2 py-1 rounded-lg bg-white hover:bg-amber-50 border border-[#DDD0C0] text-xs font-medium">+ 白桌 (180×60)</button>
+          <button data-add="chair" class="px-2 py-1 rounded-lg bg-white hover:bg-amber-50 border border-[#DDD0C0] text-xs font-medium">+ 椅子 (45×45)</button>
+          <button data-add="rice_bucket" class="px-2 py-1 rounded-lg bg-white hover:bg-amber-50 border border-[#DDD0C0] text-xs font-medium">+ 油飯保溫桶</button>
+          <button data-add="cooler" class="px-2 py-1 rounded-lg bg-white hover:bg-amber-50 border border-[#DDD0C0] text-xs font-medium">+ 養生茶保冰桶</button>
+          <button data-add="display_rack" class="px-2 py-1 rounded-lg bg-white hover:bg-amber-50 border border-[#DDD0C0] text-xs font-medium">+ 豆乾/預購層架</button>
+          <button data-add="cashier" class="px-2 py-1 rounded-lg bg-white hover:bg-amber-50 border border-[#DDD0C0] text-xs font-medium">+ 收銀盒區</button>
+          <button data-add="sign" class="px-2 py-1 rounded-lg bg-white hover:bg-amber-50 border border-[#DDD0C0] text-xs font-medium">+ A字立牌</button>
+          <button data-add="storage" class="px-2 py-1 rounded-lg bg-white hover:bg-amber-50 border border-[#DDD0C0] text-xs font-medium">+ 備貨紙箱</button>
+        </div>
+
+        <div class="relative flex-1 min-h-[380px] sm:min-h-[440px] flex items-center justify-center p-2 canvas-grid">
+          <canvas id="plan2dCanvas" width="460" height="460" class="max-w-full h-auto rounded-xl"></canvas>
+        </div>
+
+        <div id="inspectorBar" class="px-3.5 py-2.5 border-t border-[#EFE7DD] bg-[#FCF9F5] text-xs">
+          <div id="inspectorEmpty" class="text-[#7A6858] flex items-center justify-between">
+            <span>👆 點選平面圖中的任一物件即可修改位置、尺寸、旋轉或名稱</span>
+            <span class="text-[11px] font-mono bg-white px-2 py-0.5 rounded border border-[#E6DCD1]">比例 1:1 (cm)</span>
+          </div>
+          <div id="inspectorControls" class="hidden flex flex-col gap-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5 flex-1 min-w-[140px]">
+                <span class="font-bold text-[#9B2C2C]">選取中：</span>
+                <input id="inpName" type="text" class="px-2 py-1 rounded-lg border border-[#D8CBB8] bg-white text-xs font-semibold flex-1 min-w-0" />
+              </div>
+              <div class="flex items-center gap-1">
+                <button id="btnRotate90" class="px-2 py-1 rounded-lg bg-white hover:bg-amber-50 border border-[#D8CBB8] font-medium flex items-center gap-1">
+                  <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> 轉 90°
+                </button>
+                <button id="btnDuplicate" class="px-2 py-1 rounded-lg bg-white hover:bg-amber-50 border border-[#D8CBB8] font-medium" title="複製物件">
+                  <i data-lucide="copy-plus" class="w-3.5 h-3.5"></i>
+                </button>
+                <button id="btnDelete" class="px-2 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-medium" title="刪除物件">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+            <div class="grid grid-cols-4 gap-1.5">
+              <label class="flex flex-col gap-0.5">
+                <span class="text-[10px] text-[#7A6858]">X 位置 (cm)</span>
+                <input id="inpX" type="number" step="5" class="px-2 py-1 rounded-lg border border-[#D8CBB8] bg-white font-mono text-xs" />
+              </label>
+              <label class="flex flex-col gap-0.5">
+                <span class="text-[10px] text-[#7A6858]">Y 位置 (cm)</span>
+                <input id="inpY" type="number" step="5" class="px-2 py-1 rounded-lg border border-[#D8CBB8] bg-white font-mono text-xs" />
+              </label>
+              <label class="flex flex-col gap-0.5">
+                <span class="text-[10px] text-[#7A6858]">寬 W (cm)</span>
+                <input id="inpW" type="number" step="5" min="15" max="300" class="px-2 py-1 rounded-lg border border-[#D8CBB8] bg-white font-mono text-xs" />
+              </label>
+              <label class="flex flex-col gap-0.5">
+                <span class="text-[10px] text-[#7A6858]">深 D (cm)</span>
+                <input id="inpD" type="number" step="5" min="15" max="300" class="px-2 py-1 rounded-lg border border-[#D8CBB8] bg-white font-mono text-xs" />
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="panel3D" class="xl:col-span-7 bg-white rounded-2xl border border-[#E6DCD1] shadow-sm flex flex-col overflow-hidden">
+        <div class="px-3.5 py-2.5 border-b border-[#EFE7DD] flex flex-wrap items-center justify-between gap-2 bg-[#FCF9F5]">
+          <div>
+            <h2 class="text-sm font-bold text-[#2C241E] flex items-center gap-1.5">
+              <i data-lucide="cuboid" class="w-4 h-4 text-[#9B2C2C]"></i>
+              3D 即時立體預覽（與 2D 同步）
+            </h2>
+            <p class="text-[11px] text-[#7A6858]">左鍵拖曳旋轉視角、滾輪縮放、右鍵平移｜支援即時編輯招牌文字</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-1">
+            <button data-cam="front" class="px-2 py-1 rounded-lg bg-white hover:bg-amber-50 border border-[#D8CBB8] text-[11px] font-semibold">顧客正面</button>
+            <button data-cam="iso" class="px-2 py-1 rounded-lg bg-white hover:bg-amber-50 border border-[#D8CBB8] text-[11px] font-semibold">斜角 45°</button>
+            <button data-cam="top" class="px-2 py-1 rounded-lg bg-white hover:bg-amber-50 border border-[#D8CBB8] text-[11px] font-semibold">鳥瞰俯視</button>
+            <button data-cam="staff" class="px-2 py-1 rounded-lg bg-white hover:bg-amber-50 border border-[#D8CBB8] text-[11px] font-semibold">攤內視角</button>
+          </div>
+        </div>
+
+        <div id="viewport3d" class="relative flex-1 min-h-[380px] sm:min-h-[460px] bg-gradient-to-b from-[#DDEBF7] to-[#EDE6DC]">
+          <div class="absolute bottom-3 left-3 right-3 sm:right-auto bg-white/90 backdrop-blur-sm border border-[#E2D6C8] rounded-xl px-3 py-2 shadow-sm flex flex-wrap items-center gap-2 z-10">
+            <span class="text-[11px] font-bold text-[#6E5A4B]">橫幅招牌字樣：</span>
+            <input id="inpBannerText" type="text" value="吃心絕對｜巴拿巴愛心義賣市集" class="px-2 py-1 rounded-lg border border-[#D8CBB8] bg-white text-xs font-semibold w-48 sm:w-56" />
+            <label class="inline-flex items-center gap-1 text-[11px] font-medium cursor-pointer text-[#6E5A4B]">
+              <input id="chkStaff" type="checkbox" checked class="accent-[#9B2C2C]" />
+              <span>顯示站位同工</span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="bg-white rounded-2xl border border-[#E6DCD1] p-3.5 shadow-sm">
+        <h3 class="text-xs font-bold text-[#9B2C2C] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+          <i data-lucide="utensils" class="w-3.5 h-3.5"></i> 現場開賣定價（海報輸出核對用）
+        </h3>
+        <ul class="text-xs space-y-1 text-[#3E332B]">
+          <li class="flex justify-between"><span>熊好呷油飯（單一大份 250g 葷/素）</span><strong>$120 / 份</strong></li>
+          <li class="flex justify-between"><span>天然養生茶（烏梅/白鶴/冷泡/洛神）</span><strong>$60 / 瓶</strong></li>
+          <li class="flex justify-between"><span>十二籃手工豆乾（全素 原味/辣味）</span><strong>$100 / 包</strong></li>
+          <li class="pt-1 border-t border-dashed border-[#E6DCD1] text-[11px] text-amber-800">
+            ※ 套餐價（吃飽喝足 $150/160、鹹香雙拼 $199/200、吃心全餐 $249/250）待 11/27 投票拍板再送印！
+          </li>
+        </ul>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-[#E6DCD1] p-3.5 shadow-sm">
+        <h3 class="text-xs font-bold text-[#1F4E3D] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+          <i data-lucide="gift" class="w-3.5 h-3.5"></i> 預購實品展示區（截止 12/13 23:59）
+        </h3>
+        <ul class="text-xs space-y-1 text-[#3E332B]">
+          <li class="flex justify-between"><span>手工肉桂捲（一盒 3 入）</span><strong>$200</strong></li>
+          <li class="flex justify-between"><span>永生小花束 / 玫瑰花束</span><strong>$450 / $850</strong></li>
+          <li class="flex justify-between"><span>手作苔球</span><strong>$200</strong></li>
+          <li class="pt-1 border-t border-dashed border-[#E6DCD1] text-[11px] text-[#5C4D42]">
+            ※ 實品各擺 1 件＋桌上 QR Code 立牌，由同工協助現場下單結帳。
+          </li>
+        </ul>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-[#E6DCD1] p-3.5 shadow-sm">
+        <h3 class="text-xs font-bold text-amber-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+          <i data-lucide="receipt" class="w-3.5 h-3.5"></i> 佈置採購核銷與輸出窗口提醒
+        </h3>
+        <ul class="text-xs space-y-1 text-[#3E332B]">
+          <li><strong>發票抬頭：</strong>社團法人中華榮耀之光關懷協會</li>
+          <li><strong>統一編號：</strong><span class="font-mono font-bold text-[#9B2C2C]">85185247</span>（三聯式/電子發票或店章+負責人章收據）</li>
+          <li><strong>大圖輸出：</strong>Sylvia 推薦「全方位數位輸出」（LINE 線上交檔詢價）</li>
+          <li><strong>佈置行銷組：</strong>楊雯棋 Amanda、房惠純、呂衣綵（協作：李玉雯）</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <div id="jsonModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-xl border border-[#E6DCD1] flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold text-[#2C241E]">存取 / 分享攤位配置檔 (JSON)</h3>
+        <button id="btnCloseModal" class="p-1 rounded-lg hover:bg-stone-100"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <p class="text-xs text-[#7A6858]">可將下方代碼複製傳給雯棋、玉雯或佈置組同工，貼上後按「套用配置」即可還原完全相同的 2D/3D 擺設。</p>
+      <textarea id="jsonTextarea" rows="8" class="w-full p-2.5 rounded-xl border border-[#D8CBB8] font-mono text-[11px] bg-[#FAF6F0]"></textarea>
+      <div class="flex items-center justify-end gap-2">
+        <button id="btnCopyJson" class="px-3 py-1.5 rounded-xl bg-[#FAF6F0] hover:bg-stone-200 border border-[#D8CBB8] text-xs font-semibold">複製 JSON</button>
+        <button id="btnApplyJson" class="px-3 py-1.5 rounded-xl bg-[#9B2C2C] hover:bg-[#7F2222] text-white text-xs font-semibold">套用配置</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-5 right-5 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-200 bg-[#2C1A17] text-amber-50 px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2">
+    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toastMsg">已複製</span>
+  </div>
+
+  <script>
+    const TENT_W = 300;
+    const TENT_D = 300;
+    const TENT_H = 220;
+    const STORAGE_KEY = 'chixin_booth_planner_v1';
+
+    const PRESETS = {
+      L_OPEN: {
+        name: '方案 A：L 型開放展售（推薦）',
+        items: [
+          { id: 't1', type: 'table', name: '前主桌：油飯/茶/豆乾', x: 10, y: 230, w: 180, d: 60, h: 74, rot: 0, color: '#9B2C2C' },
+          { id: 't2', type: 'table', name: '右側桌：預購實品+收銀', x: 230, y: 60, w: 60, d: 180, h: 74, rot: 0, color: '#9B2C2C' },
+          { id: 'r1', type: 'rice_bucket', name: '油飯保溫桶×2', x: 25, y: 145, w: 75, d: 45, h: 55, rot: 0, color: '#D97706' },
+          { id: 'cl1', type: 'cooler', name: '養生茶保冰桶', x: 115, y: 145, w: 70, d: 45, h: 48, rot: 0, color: '#0284C7' },
+          { id: 'rk1', type: 'display_rack', name: '豆乾層架', x: 120, y: 242, w: 60, d: 34, h: 36, rot: 0, color: '#B45309' },
+          { id: 'rk2', type: 'display_rack', name: '預購實品', x: 242, y: 75, w: 36, d: 90, h: 32, rot: 0, color: '#15803D' },
+          { id: 'ca1', type: 'cashier', name: '收銀+QR', x: 242, y: 185, w: 36, d: 42, h: 24, rot: 0, color: '#7C3AED' },
+          { id: 'c1', type: 'chair', name: '椅子1', x: 20, y: 20, w: 45, d: 45, h: 82, rot: 0, color: '#4B5563' },
+          { id: 'c2', type: 'chair', name: '椅子2', x: 75, y: 20, w: 45, d: 45, h: 82, rot: 0, color: '#4B5563' },
+          { id: 'c3', type: 'chair', name: '椅子3', x: 130, y: 20, w: 45, d: 45, h: 82, rot: 0, color: '#4B5563' },
+          { id: 'c4', type: 'chair', name: '椅子4', x: 185, y: 20, w: 45, d: 45, h: 82, rot: 0, color: '#4B5563' },
+          { id: 'st1', type: 'storage', name: '備貨/提袋箱', x: 15, y: 80, w: 70, d: 45, h: 40, rot: 0, color: '#92400E' },
+          { id: 'sg1', type: 'sign', name: '套餐立牌', x: 215, y: 312, w: 55, d: 35, h: 95, rot: 0, color: '#9B2C2C' }
+        ]
+      },
+      DOUBLE_ROW: {
+        name: '方案 B：前後雙排高出餐',
+        items: [
+          { id: 't1', type: 'table', name: '前展售桌：茶/豆乾/收銀', x: 60, y: 230, w: 180, d: 60, h: 74, rot: 0, color: '#9B2C2C' },
+          { id: 't2', type: 'table', name: '後作業桌：油飯盛裝備餐', x: 60, y: 65, w: 180, d: 60, h: 74, rot: 0, color: '#9B2C2C' },
+          { id: 'r1', type: 'rice_bucket', name: '油飯保溫桶×2', x: 75, y: 75, w: 75, d: 42, h: 55, rot: 0, color: '#D97706' },
+          { id: 'cl1', type: 'cooler', name: '養生茶保冰桶', x: 165, y: 75, w: 65, d: 42, h: 48, rot: 0, color: '#0284C7' },
+          { id: 'rk1', type: 'display_rack', name: '豆乾+預購展示', x: 75, y: 242, w: 85, d: 34, h: 36, rot: 0, color: '#B45309' },
+          { id: 'ca1', type: 'cashier', name: '收銀+QR', x: 185, y: 242, w: 42, d: 36, h: 24, rot: 0, color: '#7C3AED' },
+          { id: 'c1', type: 'chair', name: '椅子1', x: 15, y: 15, w: 45, d: 45, h: 82, rot: 0, color: '#4B5563' },
+          { id: 'c2', type: 'chair', name: '椅子2', x: 65, y: 15, w: 45, d: 45, h: 82, rot: 0, color: '#4B5563' },
+          { id: 'c3', type: 'chair', name: '椅子3', x: 190, y: 15, w: 45, d: 45, h: 82, rot: 0, color: '#4B5563' },
+          { id: 'c4', type: 'chair', name: '椅子4', x: 240, y: 15, w: 45, d: 45, h: 82, rot: 0, color: '#4B5563' },
+          { id: 'st1', type: 'storage', name: '備貨箱', x: 120, y: 15, w: 60, d: 40, h: 40, rot: 0, color: '#92400E' },
+          { id: 'sg1', type: 'sign', name: '套餐立牌', x: 10, y: 310, w: 55, d: 35, h: 95, rot: 0, color: '#9B2C2C' }
+        ]
+      },
+      U_CORNER: {
+        name: '方案 C：三面展示動線',
+        items: [
+          { id: 't1', type: 'table', name: '前主桌：油飯+豆乾', x: 60, y: 230, w: 180, d: 60, h: 74, rot: 0, color: '#9B2C2C' },
+          { id: 't2', type: 'table', name: '右側桌：預購花束+收銀', x: 235, y: 45, w: 60, d: 180, h: 74, rot: 0, color: '#9B2C2C' },
+          { id: 'cl1', type: 'cooler', name: '左前養生茶冰桶區', x: 10, y: 155, w: 45, d: 75, h: 52, rot: 0, color: '#0284C7' },
+          { id: 'r1', type: 'rice_bucket', name: '油飯保溫桶×2', x: 95, y: 145, w: 80, d: 45, h: 55, rot: 0, color: '#D97706' },
+          { id: 'rk1', type: 'display_rack', name: '豆乾層架', x: 75, y: 242, w: 65, d: 34, h: 36, rot: 0, color: '#B45309' },
+          { id: 'rk2', type: 'display_rack', name: '預購實品+QR', x: 247, y: 60, w: 36, d: 95, h: 32, rot: 0, color: '#15803D' },
+          { id: 'ca1', type: 'cashier', name: '收銀區', x: 247, y: 170, w: 36, d: 42, h: 24, rot: 0, color: '#7C3AED' },
+          { id: 'c1', type: 'chair', name: '椅子1', x: 15, y: 20, w: 45, d: 45, h: 82, rot: 0, color: '#4B5563' },
+          { id: 'c2', type: 'chair', name: '椅子2', x: 65, y: 20, w: 45, d: 45, h: 82, rot: 0, color: '#4B5563' },
+          { id: 'c3', type: 'chair', name: '椅子3', x: 115, y: 20, w: 45, d: 45, h: 82, rot: 0, color: '#4B5563' },
+          { id: 'c4', type: 'chair', name: '椅子4', x: 165, y: 20, w: 45, d: 45, h: 82, rot: 0, color: '#4B5563' },
+          { id: 'sg1', type: 'sign', name: '左前導引立牌', x: 5, y: 312, w: 50, d: 35, h: 95, rot: 0, color: '#9B2C2C' }
+        ]
+      }
+    };
+
+    let state = {
+      activeTab: 'split',
+      activePreset: 'L_OPEN',
+      selectedId: null,
+      decor: {
+        bannerText: '吃心絕對｜巴拿巴愛心義賣市集',
+        tableclothColor: '#9B2C2C',
+        showPosters: true,
+        showLights: true,
+        showRoof: true,
+        showStaff: true,
+        eveningMode: false
+      },
+      items: JSON.parse(JSON.stringify(PRESETS.L_OPEN.items))
+    };
+
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && Array.isArray(parsed.items)) {
+          state = { ...state, ...parsed, decor: { ...state.decor, ...(parsed.decor || {}) } };
+        }
+      }
+    } catch (e) {}
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          activePreset: state.activePreset,
+          decor: state.decor,
+          items: state.items
+        }));
+      } catch (e) {}
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      t.classList.remove('opacity-0', 'translate-y-2');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        t.classList.add('opacity-0', 'translate-y-2');
+      }, 2400);
+    }
+
+    function copyText(text, successMsg) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => showToast(successMsg)).catch(() => fallbackCopy(text, successMsg));
+      } else {
+        fallbackCopy(text, successMsg);
+      }
+    }
+
+    function fallbackCopy(text, successMsg) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast(successMsg);
+      } catch (e) {
+        showToast('複製失敗，請手動選取');
+      }
+      document.body.removeChild(ta);
+    }
+
+    const canvas2d = document.getElementById('plan2dCanvas');
+    const ctx2d = canvas2d.getContext('2d');
+    const PAD_L = 54, PAD_T = 46, SCALE = 1.08;
+
+    function cmToPxX(cm) { return PAD_L + cm * SCALE; }
+    function cmToPxY(cm) { return PAD_T + cm * SCALE; }
+    function pxToCmX(px) { return (px - PAD_L) / SCALE; }
+    function pxToCmY(px) { return (px - PAD_T) / SCALE; }
+
+    function isItemOutOfBounds(item) {
+      if (item.type === 'sign') return false;
+      return item.x < 0 || item.y < 0 || (item.x + item.w) > TENT_W || (item.y + item.d) > TENT_D;
+    }
+
+    function draw2D() {
+      const W = canvas2d.width;
+      const H = canvas2d.height;
+      ctx2d.clearRect(0, 0, W, H);
+
+      ctx2d.fillStyle = '#EFE9E0';
+      ctx2d.fillRect(cmToPxX(0), cmToPxY(TENT_D), TENT_W * SCALE, 75 * SCALE);
+      ctx2d.fillStyle = '#8C7866';
+      ctx2d.font = '600 12px "Noto Sans TC", sans-serif';
+      ctx2d.textAlign = 'center';
+      ctx2d.fillText('▲ 顧客走道 / 點餐動線方向 ▲', cmToPxX(TENT_W / 2), cmToPxY(TENT_D + 52));
+
+      ctx2d.fillStyle = '#FFFDF9';
+      ctx2d.fillRect(cmToPxX(0), cmToPxY(0), TENT_W * SCALE, TENT_D * SCALE);
+
+      ctx2d.strokeStyle = 'rgba(160, 140, 120, 0.25)';
+      ctx2d.lineWidth = 1;
+      for (let g = 50; g < TENT_W; g += 50) {
+        ctx2d.beginPath();
+        ctx2d.moveTo(cmToPxX(g), cmToPxY(0));
+        ctx2d.lineTo(cmToPxX(g), cmToPxY(TENT_D));
+        ctx2d.stroke();
+        ctx2d.beginPath();
+        ctx2d.moveTo(cmToPxX(0), cmToPxY(g));
+        ctx2d.lineTo(cmToPxX(TENT_W), cmToPxY(g));
+        ctx2d.stroke();
+      }
+
+      ctx2d.strokeStyle = '#9B2C2C';
+      ctx2d.lineWidth = 2.5;
+      ctx2d.setLineDash([7, 4]);
+      ctx2d.strokeRect(cmToPxX(0), cmToPxY(0), TENT_W * SCALE, TENT_D * SCALE);
+      ctx2d.setLineDash([]);
+
+      const poles = [[0, 0], [TENT_W, 0], [0, TENT_D], [TENT_W, TENT_D]];
+      poles.forEach(([px, py]) => {
+        ctx2d.fillStyle = '#2C241E';
+        ctx2d.fillRect(cmToPxX(px) - 5, cmToPxY(py) - 5, 10, 10);
+      });
+
+      drawDimLine(cmToPxX(0), PAD_T - 18, cmToPxX(TENT_W), PAD_T - 18, '帳篷寬 300 cm');
+      drawDimLineV(PAD_L - 22, cmToPxY(0), PAD_L - 22, cmToPxY(TENT_D), '深 300 cm');
+
+      ctx2d.fillStyle = '#9B8A7B';
+      ctx2d.font = '500 10px "Noto Sans TC", sans-serif';
+      ctx2d.textAlign = 'center';
+      ctx2d.fillText('帳篷後方（110V 電源接點區）', cmToPxX(TENT_W / 2), cmToPxY(12));
+
+      const order = { table: 1, chair: 2, storage: 3, rice_bucket: 4, cooler: 5, display_rack: 6, cashier: 7, sign: 8 };
+      const sorted = [...state.items].sort((a, b) => (order[a.type] || 5) - (order[b.type] || 5));
+
+      let anyOut = false;
+      sorted.forEach(item => {
+        const out = isItemOutOfBounds(item);
+        if (out) anyOut = true;
+        const x = cmToPxX(item.x);
+        const y = cmToPxY(item.y);
+        const w = item.w * SCALE;
+        const d = item.d * SCALE;
+        const isSel = item.id === state.selectedId;
+
+        ctx2d.save();
+        let fill = item.color;
+        if (item.type === 'table') {
+          fill = state.decor.tableclothColor === '#FFFFFF' ? '#F8FAFC' : state.decor.tableclothColor;
+        }
+        ctx2d.fillStyle = out ? 'rgba(220, 38, 38, 0.28)' : hexToRgba(fill, item.type === 'table' ? 0.22 : 0.85);
+        ctx2d.strokeStyle = out ? '#DC2626' : (isSel ? '#2563EB' : fill);
+        ctx2d.lineWidth = isSel ? 3 : 1.8;
+
+        roundRect(ctx2d, x, y, w, d, 6);
+        ctx2d.fill();
+        ctx2d.stroke();
+
+        ctx2d.clip();
+        const isLightFill = item.type === 'table' || out;
+        ctx2d.fillStyle = out ? '#991B1B' : (isLightFill ? '#2C241E' : '#FFFFFF');
+        if (item.type === 'table') {
+          ctx2d.font = '700 10px "Noto Sans TC", sans-serif';
+          ctx2d.textAlign = 'left';
+          ctx2d.textBaseline = 'top';
+          ctx2d.fillText(item.name, x + 6, y + 6);
+          ctx2d.font = '500 9px monospace';
+          ctx2d.fillStyle = out ? '#991B1B' : '#6E5A4B';
+          ctx2d.fillText(`${item.w}×${item.d}cm`, x + 6, y + 20);
+        } else {
+          ctx2d.font = `700 ${w < 48 ? 8.5 : 10.5}px "Noto Sans TC", sans-serif`;
+          ctx2d.textAlign = 'center';
+          ctx2d.textBaseline = 'middle';
+          ctx2d.fillText(item.name, x + w / 2, y + d / 2 - (d > 40 ? 6 : 0));
+          if (d > 40) {
+            ctx2d.font = '500 8.5px monospace';
+            ctx2d.fillStyle = out ? '#991B1B' : 'rgba(255,255,255,0.88)';
+            ctx2d.fillText(`${item.w}×${item.d}cm`, x + w / 2, y + d / 2 + 8);
+          }
+        }
+        ctx2d.restore();
+      });
+
+      const statusEl = document.getElementById('boundaryStatus');
+      if (anyOut) {
+        statusEl.className = 'font-bold text-red-600 flex items-center gap-1';
+        statusEl.innerHTML = '<i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> 注意：有紅色標示物件超出 300×300 cm 帳篷範圍！';
+      } else {
+        statusEl.className = 'font-semibold text-emerald-700 flex items-center gap-1';
+        statusEl.innerHTML = '<i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> 所有帳內設備皆在 300×300 cm 範圍內';
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function drawDimLine(x1, y1, x2, y2, text) {
+      ctx2d.strokeStyle = '#6E5A4B';
+      ctx2d.lineWidth = 1;
+      ctx2d.beginPath();
+      ctx2d.moveTo(x1, y1);
+      ctx2d.lineTo(x2, y2);
+      ctx2d.stroke();
+      ctx2d.fillStyle = '#6E5A4B';
+      ctx2d.font = '700 11px "Noto Sans TC", sans-serif';
+      ctx2d.textAlign = 'center';
+      ctx2d.fillText(text, (x1 + x2) / 2, y1 - 6);
+    }
+
+    function drawDimLineV(x1, y1, x2, y2, text) {
+      ctx2d.save();
+      ctx2d.strokeStyle = '#6E5A4B';
+      ctx2d.lineWidth = 1;
+      ctx2d.beginPath();
+      ctx2d.moveTo(x1, y1);
+      ctx2d.lineTo(x2, y2);
+      ctx2d.stroke();
+      ctx2d.translate(x1 - 8, (y1 + y2) / 2);
+      ctx2d.rotate(-Math.PI / 2);
+      ctx2d.fillStyle = '#6E5A4B';
+      ctx2d.font = '700 11px "Noto Sans TC", sans-serif';
+      ctx2d.textAlign = 'center';
+      ctx2d.fillText(text, 0, 0);
+      ctx2d.restore();
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    function hexToRgba(hex, alpha) {
+      const c = hex.replace('#', '');
+      const bigint = parseInt(c.length === 3 ? c.split('').map(x => x + x).join('') : c, 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
+
+    let dragItem = null;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+
+    function getCanvasCoords(evt) {
+      const rect = canvas2d.getBoundingClientRect();
+      const sx = canvas2d.width / rect.width;
+      const sy = canvas2d.height / rect.height;
+      return {
+        px: (evt.clientX - rect.left) * sx,
+        py: (evt.clientY - rect.top) * sy
+      };
+    }
+
+    canvas2d.addEventListener('pointerdown', (e) => {
+      const { px, py } = getCanvasCoords(e);
+      const cmX = pxToCmX(px);
+      const cmY = pxToCmY(py);
+
+      const order = { table: 1, chair: 2, storage: 3, rice_bucket: 4, cooler: 5, display_rack: 6, cashier: 7, sign: 8 };
+      const sorted = [...state.items].sort((a, b) => (order[b.type] || 5) - (order[a.type] || 5));
+      const hit = sorted.find(it => cmX >= it.x && cmX <= it.x + it.w && cmY >= it.y && cmY <= it.y + it.d);
+
+      if (hit) {
+        state.selectedId = hit.id;
+        dragItem = hit;
+        dragOffsetX = cmX - hit.x;
+        dragOffsetY = cmY - hit.y;
+        canvas2d.setPointerCapture(e.pointerId);
+      } else {
+        state.selectedId = null;
+      }
+      updateInspector();
+      draw2D();
+    });
+
+    canvas2d.addEventListener('pointermove', (e) => {
+      if (!dragItem) return;
+      const { px, py } = getCanvasCoords(e);
+      const rawX = pxToCmX(px) - dragOffsetX;
+      const rawY = pxToCmY(py) - dragOffsetY;
+      dragItem.x = Math.round(rawX / 5) * 5;
+      dragItem.y = Math.round(rawY / 5) * 5;
+      updateInspector();
+      draw2D();
+      rebuild3DItems();
+    });
+
+    canvas2d.addEventListener('pointerup', () => {
+      if (dragItem) {
+        dragItem = null;
+        saveState();
+      }
+    });
+
+    function updateInspector() {
+      const empty = document.getElementById('inspectorEmpty');
+      const ctrls = document.getElementById('inspectorControls');
+      const item = state.items.find(i => i.id === state.selectedId);
+      if (!item) {
+        empty.classList.remove('hidden');
+        ctrls.classList.add('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      ctrls.classList.remove('hidden');
+      document.getElementById('inpName').value = item.name;
+      document.getElementById('inpX').value = item.x;
+      document.getElementById('inpY').value = item.y;
+      document.getElementById('inpW').value = item.w;
+      document.getElementById('inpD').value = item.d;
+    }
+
+    ['inpName', 'inpX', 'inpY', 'inpW', 'inpD'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        const item = state.items.find(i => i.id === state.selectedId);
+        if (!item) return;
+        item.name = document.getElementById('inpName').value;
+        item.x = parseInt(document.getElementById('inpX').value, 10) || 0;
+        item.y = parseInt(document.getElementById('inpY').value, 10) || 0;
+        item.w = Math.max(15, parseInt(document.getElementById('inpW').value, 10) || 40);
+        item.d = Math.max(15, parseInt(document.getElementById('inpD').value, 10) || 40);
+        draw2D();
+        rebuild3DItems();
+        saveState();
+      });
+    });
+
+    document.getElementById('btnRotate90').addEventListener('click', () => {
+      const item = state.items.find(i => i.id === state.selectedId);
+      if (!item) return;
+      const cx = item.x + item.w / 2;
+      const cy = item.y + item.d / 2;
+      const tmp = item.w;
+      item.w = item.d;
+      item.d = tmp;
+      item.x = Math.round((cx - item.w / 2) / 5) * 5;
+      item.y = Math.round((cy - item.d / 2) / 5) * 5;
+      updateInspector();
+      draw2D();
+      rebuild3DItems();
+      saveState();
+    });
+
+    document.getElementById('btnDuplicate').addEventListener('click', () => {
+      const item = state.items.find(i => i.id === state.selectedId);
+      if (!item) return;
+      const copy = { ...item, id: 'it_' + Date.now(), x: item.x + 15, y: item.y + 15 };
+      state.items.push(copy);
+      state.selectedId = copy.id;
+      updateInspector();
+      draw2D();
+      rebuild3DItems();
+      saveState();
+      showToast('已複製物件');
+    });
+
+    document.getElementById('btnDelete').addEventListener('click', () => {
+      state.items = state.items.filter(i => i.id !== state.selectedId);
+      state.selectedId = null;
+      updateInspector();
+      draw2D();
+      rebuild3DItems();
+      saveState();
+      showToast('已刪除物件');
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if ((e.key === 'r' || e.key === 'R') && state.selectedId) {
+        document.getElementById('btnRotate90').click();
+      }
+    });
+
+    let scene, camera, renderer;
+    let tentGroup, itemsGroup, lightsGroup, postersGroup, staffGroup;
+    let ambientLight, sunLight, boothPointLight;
+    let bannerMesh = null;
+
+    const camState = {
+      theta: 0.36,
+      phi: 1.26,
+      radius: 5.9,
+      target: new THREE.Vector3(0, 1.05, 0.15)
+    };
+
+    function init3D() {
+      const container = document.getElementById('viewport3d');
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xE8EEF2);
+
+      camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 50);
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      container.insertBefore(renderer.domElement, container.firstChild);
+
+      ambientLight = new THREE.AmbientLight(0xffffff, 0.68);
+      scene.add(ambientLight);
+
+      sunLight = new THREE.DirectionalLight(0xFFF6E5, 0.9);
+      sunLight.position.set(5, 9, 6);
+      sunLight.castShadow = true;
+      sunLight.shadow.mapSize.width = 1024;
+      sunLight.shadow.mapSize.height = 1024;
+      scene.add(sunLight);
+
+      boothPointLight = new THREE.PointLight(0xFFD27D, 0.9, 6.5);
+      boothPointLight.position.set(0, 2.05, 0.3);
+      scene.add(boothPointLight);
+
+      const grass = new THREE.Mesh(
+        new THREE.PlaneGeometry(18, 18),
+        new THREE.MeshStandardMaterial({ color: 0x8CA97B, roughness: 0.95 })
+      );
+      grass.rotation.x = -Math.PI / 2;
+      grass.position.y = -0.02;
+      grass.receiveShadow = true;
+      scene.add(grass);
+
+      const plaza = new THREE.Mesh(
+        new THREE.PlaneGeometry(6.5, 6.5),
+        new THREE.MeshStandardMaterial({ color: 0xDED8CE, roughness: 0.9 })
+      );
+      plaza.rotation.x = -Math.PI / 2;
+      plaza.receiveShadow = true;
+      scene.add(plaza);
+
+      const floorMat = new THREE.Mesh(
+        new THREE.PlaneGeometry(3.0, 3.0),
+        new THREE.MeshStandardMaterial({ color: 0xECE5DA, roughness: 0.85 })
+      );
+      floorMat.rotation.x = -Math.PI / 2;
+      floorMat.position.y = 0.005;
+      floorMat.receiveShadow = true;
+      scene.add(floorMat);
+
+      tentGroup = new THREE.Group();
+      itemsGroup = new THREE.Group();
+      lightsGroup = new THREE.Group();
+      postersGroup = new THREE.Group();
+      staffGroup = new THREE.Group();
+
+      scene.add(tentGroup);
+      scene.add(itemsGroup);
+      scene.add(lightsGroup);
+      scene.add(postersGroup);
+      scene.add(staffGroup);
+
+      buildTent();
+      buildStringLights();
+      buildHangingPosters();
+      buildStaffFigures();
+      rebuild3DItems();
+      applyDecor3D();
+      updateCameraPosition();
+
+      let isDragging = false;
+      let isPanning = false;
+      let prevX = 0, prevY = 0;
+
+      renderer.domElement.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        isPanning = e.button === 2 || e.shiftKey;
+        prevX = e.clientX;
+        prevY = e.clientY;
+        renderer.domElement.setPointerCapture(e.pointerId);
+      });
+
+      renderer.domElement.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - prevX;
+        const dy = e.clientY - prevY;
+        prevX = e.clientX;
+        prevY = e.clientY;
+        if (isPanning) {
+          camState.target.x -= dx * 0.005;
+          camState.target.y += dy * 0.005;
+        } else {
+          camState.theta -= dx * 0.008;
+          camState.phi = Math.max(0.18, Math.min(1.48, camState.phi - dy * 0.008));
+        }
+        updateCameraPosition();
+      });
+
+      renderer.domElement.addEventListener('pointerup', () => { isDragging = false; });
+      renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
+      renderer.domElement.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        camState.radius = Math.max(2.4, Math.min(11, camState.radius + e.deltaY * 0.004));
+        updateCameraPosition();
+      }, { passive: false });
+
+      window.addEventListener('resize', resize3D);
+      animate3D();
+    }
+
+    function updateCameraPosition() {
+      const { theta, phi, radius, target } = camState;
+      camera.position.x = target.x + radius * Math.sin(phi) * Math.sin(theta);
+      camera.position.y = target.y + radius * Math.cos(phi);
+      camera.position.z = target.z + radius * Math.sin(phi) * Math.cos(theta);
+      camera.lookAt(target);
+    }
+
+    function resize3D() {
+      if (!renderer || !camera) return;
+      const container = document.getElementById('viewport3d');
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      if (w < 10 || h < 10) return;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+
+    function animate3D() {
+      requestAnimationFrame(animate3D);
+      if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+      }
+    }
+
+    function makeCanvasTexture(width, height, drawFn) {
+      const c = document.createElement('canvas');
+      c.width = width;
+      c.height = height;
+      const g = c.getContext('2d');
+      drawFn(g, width, height);
+      const tex = new THREE.CanvasTexture(c);
+      tex.needsUpdate = true;
+      return tex;
+    }
+
+    function buildTent() {
+      const poleMat = new THREE.MeshStandardMaterial({ color: 0x3A3F45, metalness: 0.4, roughness: 0.5 });
+      const poleGeo = new THREE.CylinderGeometry(0.025, 0.025, 2.2, 10);
+      [[-1.48, -1.48], [1.48, -1.48], [-1.48, 1.48], [1.48, 1.48]].forEach(([x, z]) => {
+        const pole = new THREE.Mesh(poleGeo, poleMat);
+        pole.position.set(x, 1.1, z);
+        pole.castShadow = true;
+        tentGroup.add(pole);
+
+        const bag = new THREE.Mesh(
+          new THREE.BoxGeometry(0.18, 0.24, 0.18),
+          new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.9 })
+        );
+        bag.position.set(x, 0.12, z);
+        tentGroup.add(bag);
+      });
+
+      const beamMat = new THREE.MeshStandardMaterial({ color: 0x525860, metalness: 0.3 });
+      const b1 = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.04, 0.04), beamMat);
+      b1.position.set(0, 2.2, 1.48);
+      tentGroup.add(b1);
+      const b2 = b1.clone(); b2.position.set(0, 2.2, -1.48); tentGroup.add(b2);
+      const b3 = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 3.0), beamMat);
+      b3.position.set(-1.48, 2.2, 0); tentGroup.add(b3);
+      const b4 = b3.clone(); b4.position.set(1.48, 2.2, 0); tentGroup.add(b4);
+
+      const roofGroup = new THREE.Group();
+      roofGroup.name = 'roofMesh';
+      const pyramidGeo = new THREE.ConeGeometry(2.14, 0.78, 4);
+      pyramidGeo.rotateY(Math.PI / 4);
+      const canopyMat = new THREE.MeshStandardMaterial({ color: 0xFBFBF9, roughness: 0.7, side: THREE.DoubleSide });
+      const pyramid = new THREE.Mesh(pyramidGeo, canopyMat);
+      pyramid.position.set(0, 2.59, 0);
+      pyramid.castShadow = true;
+      roofGroup.add(pyramid);
+
+      const valMat = new THREE.MeshStandardMaterial({ color: 0xF5F3EE, roughness: 0.8 });
+      const vBack = new THREE.Mesh(new THREE.BoxGeometry(3.02, 0.26, 0.02), valMat);
+      vBack.position.set(0, 2.12, -1.5);
+      roofGroup.add(vBack);
+      const vLeft = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.26, 3.02), valMat);
+      vLeft.position.set(-1.5, 2.12, 0);
+      roofGroup.add(vLeft);
+      const vRight = vLeft.clone();
+      vRight.position.set(1.5, 2.12, 0);
+      roofGroup.add(vRight);
+
+      tentGroup.add(roofGroup);
+
+      bannerMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(2.96, 0.36, 0.03),
+        new THREE.MeshStandardMaterial({ roughness: 0.6 })
+      );
+      bannerMesh.position.set(0, 2.12, 1.51);
+      tentGroup.add(bannerMesh);
+      updateBannerTexture();
+    }
+
+    function updateBannerTexture() {
+      if (!bannerMesh) return;
+      const tex = makeCanvasTexture(1024, 140, (g, w, h) => {
+        g.fillStyle = '#9B2C2C';
+        g.fillRect(0, 0, w, h);
+        g.strokeStyle = '#F5C469';
+        g.lineWidth = 6;
+        g.strokeRect(8, 8, w - 16, h - 16);
+        g.fillStyle = '#FFFDF7';
+        g.font = '900 50px "Noto Sans TC", sans-serif';
+        g.textAlign = 'center';
+        g.textBaseline = 'middle';
+        g.fillText(state.decor.bannerText || '吃心絕對｜愛心義賣', w / 2, h / 2 + 2);
+      });
+      bannerMesh.material.map = tex;
+      bannerMesh.material.needsUpdate = true;
+    }
+
+    function buildStringLights() {
+      const bulbMat = new THREE.MeshStandardMaterial({
+        color: 0xFFE599,
+        emissive: 0xFFB703,
+        emissiveIntensity: 1.5
+      });
+      const bulbGeo = new THREE.SphereGeometry(0.032, 8, 8);
+      for (let i = 0; i <= 12; i++) {
+        const x = -1.4 + (2.8 * i) / 12;
+        const sag = Math.sin((i / 12) * Math.PI) * 0.12;
+        const b = new THREE.Mesh(bulbGeo, bulbMat);
+        b.position.set(x, 1.92 - sag, 1.48);
+        lightsGroup.add(b);
+      }
+      for (let i = 1; i <= 6; i++) {
+        const z = -1.3 + (2.6 * i) / 7;
+        const bL = new THREE.Mesh(bulbGeo, bulbMat);
+        bL.position.set(-1.46, 1.98, z);
+        lightsGroup.add(bL);
+        const bR = new THREE.Mesh(bulbGeo, bulbMat);
+        bR.position.set(1.46, 1.98, z);
+        lightsGroup.add(bR);
+      }
+    }
+
+    function buildHangingPosters() {
+      const posterSpecs = [
+        { x: -0.92, title: '熊好呷油飯', sub: '客家葷 / 芋頭紫米素', price: '$120 / 份', bg: '#FFF7ED', accent: '#C2410C' },
+        { x: 0, title: '天然養生茶', sub: '烏梅・白鶴・冷泡・洛神', price: '$60 / 瓶', bg: '#F0FDF4', accent: '#15803D' },
+        { x: 0.92, title: '十二籃手工豆乾', sub: '全素 230g 原味 / 辣味', price: '$100 / 包', bg: '#FEF2F2', accent: '#9B2C2C' }
+      ];
+
+      posterSpecs.forEach(p => {
+        const tex = makeCanvasTexture(360, 500, (g, w, h) => {
+          g.fillStyle = p.bg;
+          g.fillRect(0, 0, w, h);
+          g.fillStyle = p.accent;
+          g.fillRect(0, 0, w, 92);
+          g.fillStyle = '#FFFFFF';
+          g.font = '900 38px "Noto Sans TC", sans-serif';
+          g.textAlign = 'center';
+          g.fillText(p.title, w / 2, 60);
+
+          g.fillStyle = '#3E332B';
+          g.font = '600 24px "Noto Sans TC", sans-serif';
+          g.fillText(p.sub, w / 2, 180);
+
+          g.beginPath();
+          g.arc(w / 2, 305, 84, 0, Math.PI * 2);
+          g.fillStyle = p.accent;
+          g.fill();
+          g.fillStyle = '#FFFDF7';
+          g.font = '900 34px "Noto Sans TC", sans-serif';
+          g.fillText(p.price, w / 2, 316);
+
+          g.fillStyle = '#7A6858';
+          g.font = '600 20px "Noto Sans TC", sans-serif';
+          g.fillText('巴拿巴宣教義賣｜吃心絕對', w / 2, 455);
+          g.strokeStyle = p.accent;
+          g.lineWidth = 8;
+          g.strokeRect(4, 4, w - 8, h - 8);
+        });
+
+        const mesh = new THREE.Mesh(
+          new THREE.BoxGeometry(0.72, 1.0, 0.02),
+          new THREE.MeshStandardMaterial({ map: tex, roughness: 0.65 })
+        );
+        mesh.position.set(p.x, 1.48, -1.44);
+        mesh.castShadow = true;
+        postersGroup.add(mesh);
+      });
+    }
+
+    function buildStaffFigures() {
+      const positions = [[-0.45, 0.35], [0.55, 0.15]];
+      const shirtColors = [0x9B2C2C, 0x1F4E3D];
+      positions.forEach(([x, z], idx) => {
+        const g = new THREE.Group();
+        const body = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.16, 0.2, 0.85, 12),
+          new THREE.MeshStandardMaterial({ color: shirtColors[idx], roughness: 0.8 })
+        );
+        body.position.y = 0.85;
+        body.castShadow = true;
+        g.add(body);
+
+        const legs = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.14, 0.13, 0.55, 10),
+          new THREE.MeshStandardMaterial({ color: 0x374151, roughness: 0.9 })
+        );
+        legs.position.y = 0.28;
+        g.add(legs);
+
+        const head = new THREE.Mesh(
+          new THREE.SphereGeometry(0.13, 14, 14),
+          new THREE.MeshStandardMaterial({ color: 0xF3D2B3, roughness: 0.7 })
+        );
+        head.position.y = 1.42;
+        head.castShadow = true;
+        g.add(head);
+
+        g.position.set(x, 0, z);
+        staffGroup.add(g);
+      });
+    }
+
+    function rebuild3DItems() {
+      if (!itemsGroup) return;
+      while (itemsGroup.children.length > 0) {
+        itemsGroup.remove(itemsGroup.children[0]);
+      }
+
+      const tables = state.items.filter(i => i.type === 'table');
+      function isOnTable(it) {
+        if (it.type === 'table' || it.type === 'chair' || it.type === 'sign' || it.type === 'storage') return false;
+        const cx = it.x + it.w / 2;
+        const cy = it.y + it.d / 2;
+        return tables.some(t => cx >= t.x && cx <= t.x + t.w && cy >= t.y && cy <= t.y + t.d);
+      }
+
+      state.items.forEach(it => {
+        const w = it.w / 100;
+        const d = it.d / 100;
+        const h = (it.h || 50) / 100;
+        const cx = (it.x + it.w / 2 - TENT_W / 2) / 100;
+        const cz = (it.y + it.d / 2 - TENT_D / 2) / 100;
+        const out = isItemOutOfBounds(it);
+
+        const group = new THREE.Group();
+        const baseY = isOnTable(it) ? 0.74 : 0;
+
+        if (it.type === 'table') {
+          const clothCol = out ? 0xDC2626 : new THREE.Color(state.decor.tableclothColor);
+          const top = new THREE.Mesh(
+            new THREE.BoxGeometry(w, 0.05, d),
+            new THREE.MeshStandardMaterial({ color: clothCol, roughness: 0.7 })
+          );
+          top.position.y = h - 0.025;
+          top.castShadow = true;
+          top.receiveShadow = true;
+          group.add(top);
+
+          if (state.decor.tableclothColor !== '#FFFFFF') {
+            const skirt = new THREE.Mesh(
+              new THREE.BoxGeometry(w - 0.01, h - 0.04, d - 0.01),
+              new THREE.MeshStandardMaterial({ color: clothCol, roughness: 0.85 })
+            );
+            skirt.position.y = (h - 0.04) / 2;
+            skirt.castShadow = true;
+            group.add(skirt);
+          } else {
+            const legMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+            [[-w / 2 + 0.08, -d / 2 + 0.08], [w / 2 - 0.08, -d / 2 + 0.08],
+             [-w / 2 + 0.08, d / 2 - 0.08], [w / 2 - 0.08, d / 2 - 0.08]].forEach(([lx, lz]) => {
+              const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, h - 0.04, 8), legMat);
+              leg.position.set(lx, (h - 0.04) / 2, lz);
+              group.add(leg);
+            });
+          }
+        } else if (it.type === 'chair') {
+          const seatMat = new THREE.MeshStandardMaterial({ color: out ? 0xDC2626 : 0x525B66, roughness: 0.7 });
+          const seat = new THREE.Mesh(new THREE.BoxGeometry(w, 0.05, d), seatMat);
+          seat.position.y = 0.44;
+          seat.castShadow = true;
+          group.add(seat);
+          const back = new THREE.Mesh(new THREE.BoxGeometry(w, 0.38, 0.05), seatMat);
+          back.position.set(0, 0.64, -d / 2 + 0.03);
+          group.add(back);
+          const legMat = new THREE.MeshStandardMaterial({ color: 0x2D3136 });
+          [[-w/2+0.04, -d/2+0.04], [w/2-0.04, -d/2+0.04], [-w/2+0.04, d/2-0.04], [w/2-0.04, d/2-0.04]].forEach(([lx, lz]) => {
+            const leg = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.44, 0.03), legMat);
+            leg.position.set(lx, 0.22, lz);
+            group.add(leg);
+          });
+        } else if (it.type === 'rice_bucket') {
+          const steel = new THREE.MeshStandardMaterial({ color: 0xCBD5E1, metalness: 0.65, roughness: 0.3 });
+          const lid = new THREE.MeshStandardMaterial({ color: 0xD97706, roughness: 0.5 });
+          const r = Math.min(w / 4.2, d / 2.2);
+          [-w / 4, w / 4].forEach(ox => {
+            const cyl = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 0.92, h, 16), steel);
+            cyl.position.set(ox, h / 2, 0);
+            cyl.castShadow = true;
+            group.add(cyl);
+            const topLid = new THREE.Mesh(new THREE.CylinderGeometry(r * 1.03, r * 1.03, 0.04, 16), lid);
+            topLid.position.set(ox, h + 0.02, 0);
+            group.add(topLid);
+          });
+        } else if (it.type === 'cooler') {
+          const body = new THREE.Mesh(
+            new THREE.BoxGeometry(w, h, d),
+            new THREE.MeshStandardMaterial({ color: 0x0284C7, roughness: 0.45 })
+          );
+          body.position.y = h / 2;
+          body.castShadow = true;
+          group.add(body);
+          const lid = new THREE.Mesh(
+            new THREE.BoxGeometry(w + 0.02, 0.06, d + 0.02),
+            new THREE.MeshStandardMaterial({ color: 0xF8FAFC, roughness: 0.4 })
+          );
+          lid.position.y = h + 0.03;
+          group.add(lid);
+        } else if (it.type === 'display_rack') {
+          const wood = new THREE.MeshStandardMaterial({ color: 0xB07D4F, roughness: 0.75 });
+          const tier1 = new THREE.Mesh(new THREE.BoxGeometry(w, 0.12, d), wood);
+          tier1.position.y = 0.06;
+          tier1.castShadow = true;
+          group.add(tier1);
+          const tier2 = new THREE.Mesh(new THREE.BoxGeometry(w * 0.92, 0.14, d * 0.55), wood);
+          tier2.position.set(0, 0.19, -d * 0.18);
+          tier2.castShadow = true;
+          group.add(tier2);
+          const prodCol = it.color === '#15803D' ? 0xEC4899 : 0xD97706;
+          for (let k = -1; k <= 1; k++) {
+            const p = new THREE.Mesh(
+              new THREE.BoxGeometry(0.11, 0.14, 0.09),
+              new THREE.MeshStandardMaterial({ color: prodCol, roughness: 0.6 })
+            );
+            p.position.set(k * (w * 0.28), 0.32, -d * 0.16);
+            group.add(p);
+          }
+        } else if (it.type === 'sign') {
+          const tex = makeCanvasTexture(260, 380, (g, cw, ch) => {
+            g.fillStyle = '#FFFDF7';
+            g.fillRect(0, 0, cw, ch);
+            g.fillStyle = '#9B2C2C';
+            g.fillRect(0, 0, cw, 74);
+            g.fillStyle = '#FFFFFF';
+            g.font = '900 32px "Noto Sans TC", sans-serif';
+            g.textAlign = 'center';
+            g.fillText('吃心絕對', cw / 2, 48);
+            g.fillStyle = '#2C241E';
+            g.font = '700 24px "Noto Sans TC", sans-serif';
+            g.fillText('油飯 $120', cw / 2, 138);
+            g.fillText('養生茶 $60', cw / 2, 188);
+            g.fillText('手工豆乾 $100', cw / 2, 238);
+            g.fillStyle = '#15803D';
+            g.font = '700 22px "Noto Sans TC", sans-serif';
+            g.fillText('✨ 超值組合套餐 ✨', cw / 2, 310);
+            g.strokeStyle = '#9B2C2C';
+            g.lineWidth = 8;
+            g.strokeRect(4, 4, cw - 8, ch - 8);
+          });
+          const board = new THREE.Mesh(
+            new THREE.BoxGeometry(w, h, 0.05),
+            new THREE.MeshStandardMaterial({ map: tex, roughness: 0.6 })
+          );
+          board.position.y = h / 2;
+          board.rotation.x = -0.14;
+          board.castShadow = true;
+          group.add(board);
+        } else {
+          const box = new THREE.Mesh(
+            new THREE.BoxGeometry(w, h, d),
+            new THREE.MeshStandardMaterial({ color: out ? 0xDC2626 : new THREE.Color(it.color), roughness: 0.7 })
+          );
+          box.position.y = h / 2;
+          box.castShadow = true;
+          group.add(box);
+        }
+
+        group.position.set(cx, baseY, cz);
+        itemsGroup.add(group);
+      });
+    }
+
+    function applyDecor3D() {
+      if (!scene) return;
+      postersGroup.visible = state.decor.showPosters;
+      lightsGroup.visible = state.decor.showLights;
+      staffGroup.visible = state.decor.showStaff;
+      const roof = tentGroup.getObjectByName('roofMesh');
+      if (roof) roof.visible = state.decor.showRoof;
+
+      if (state.decor.eveningMode) {
+        scene.background = new THREE.Color(0x1E293B);
+        ambientLight.intensity = 0.28;
+        sunLight.intensity = 0.2;
+        boothPointLight.intensity = state.decor.showLights ? 1.85 : 0.45;
+      } else {
+        scene.background = new THREE.Color(0xE8EEF2);
+        ambientLight.intensity = 0.68;
+        sunLight.intensity = 0.9;
+        boothPointLight.intensity = state.decor.showLights ? 0.8 : 0.1;
+      }
+      updateBannerTexture();
+      rebuild3DItems();
+    }
+
+    function setTab(tab) {
+      state.activeTab = tab;
+      const panel2D = document.getElementById('panel2D');
+      const panel3D = document.getElementById('panel3D');
+
+      ['tabSplit', 'tab2D', 'tab3D'].forEach(id => {
+        document.getElementById(id).classList.remove('active');
+        document.getElementById(id).classList.add('text-amber-100/80');
+      });
+
+      if (tab === 'split') {
+        document.getElementById('tabSplit').classList.add('active');
+        document.getElementById('tabSplit').classList.remove('text-amber-100/80');
+        panel2D.className = 'xl:col-span-5 bg-white rounded-2xl border border-[#E6DCD1] shadow-sm flex flex-col overflow-hidden';
+        panel3D.className = 'xl:col-span-7 bg-white rounded-2xl border border-[#E6DCD1] shadow-sm flex flex-col overflow-hidden';
+      } else if (tab === '2d') {
+        document.getElementById('tab2D').classList.add('active');
+        document.getElementById('tab2D').classList.remove('text-amber-100/80');
+        panel2D.className = 'xl:col-span-12 bg-white rounded-2xl border border-[#E6DCD1] shadow-sm flex flex-col overflow-hidden';
+        panel3D.className = 'hidden';
+      } else if (tab === '3d') {
+        document.getElementById('tab3D').classList.add('active');
+        document.getElementById('tab3D').classList.remove('text-amber-100/80');
+        panel2D.className = 'hidden';
+        panel3D.className = 'xl:col-span-12 bg-white rounded-2xl border border-[#E6DCD1] shadow-sm flex flex-col overflow-hidden';
+      }
+
+      setTimeout(() => {
+        draw2D();
+        resize3D();
+      }, 40);
+    }
+
+    document.getElementById('tabSplit').addEventListener('click', () => setTab('split'));
+    document.getElementById('tab2D').addEventListener('click', () => setTab('2d'));
+    document.getElementById('tab3D').addEventListener('click', () => setTab('3d'));
+
+    document.querySelectorAll('[data-preset]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.getAttribute('data-preset');
+        state.activePreset = key;
+        state.items = JSON.parse(JSON.stringify(PRESETS[key].items));
+        state.selectedId = null;
+        document.querySelectorAll('[data-preset]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updateInspector();
+        draw2D();
+        rebuild3DItems();
+        saveState();
+        showToast(`已切換：${PRESETS[key].name}`);
+      });
+    });
+
+    document.getElementById('btnAddMenu').addEventListener('click', () => {
+      document.getElementById('addItemBar').classList.toggle('hidden');
+    });
+
+    const ADD_TEMPLATES = {
+      table: { type: 'table', name: '白桌 (180×60)', w: 180, d: 60, h: 74, color: '#9B2C2C' },
+      chair: { type: 'chair', name: '折疊椅', w: 45, d: 45, h: 82, color: '#4B5563' },
+      rice_bucket: { type: 'rice_bucket', name: '油飯保溫桶', w: 75, d: 45, h: 55, color: '#D97706' },
+      cooler: { type: 'cooler', name: '養生茶保冰桶', w: 70, d: 45, h: 48, color: '#0284C7' },
+      display_rack: { type: 'display_rack', name: '陳列層架', w: 60, d: 35, h: 36, color: '#B45309' },
+      cashier: { type: 'cashier', name: '收銀盒區', w: 38, d: 38, h: 24, color: '#7C3AED' },
+      sign: { type: 'sign', name: 'A字立牌', w: 55, d: 35, h: 95, color: '#9B2C2C' },
+      storage: { type: 'storage', name: '備貨紙箱', w: 60, d: 40, h: 40, color: '#92400E' }
+    };
+
+    document.querySelectorAll('[data-add]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.getAttribute('data-add');
+        const tpl = ADD_TEMPLATES[key];
+        const newItem = {
+          ...tpl,
+          id: 'it_' + Date.now(),
+          x: key === 'sign' ? 120 : 80,
+          y: key === 'sign' ? 310 : 120,
+          rot: 0
+        };
+        state.items.push(newItem);
+        state.selectedId = newItem.id;
+        updateInspector();
+        draw2D();
+        rebuild3DItems();
+        saveState();
+        showToast(`已新增：${tpl.name}`);
+      });
+    });
+
+    document.getElementById('chkPosters').checked = state.decor.showPosters;
+    document.getElementById('chkLights').checked = state.decor.showLights;
+    document.getElementById('chkEvening').checked = state.decor.eveningMode;
+    document.getElementById('chkRoof').checked = state.decor.showRoof;
+    document.getElementById('chkStaff').checked = state.decor.showStaff;
+    document.getElementById('inpBannerText').value = state.decor.bannerText;
+
+    document.getElementById('chkPosters').addEventListener('change', (e) => { state.decor.showPosters = e.target.checked; applyDecor3D(); saveState(); });
+    document.getElementById('chkLights').addEventListener('change', (e) => { state.decor.showLights = e.target.checked; applyDecor3D(); saveState(); });
+    document.getElementById('chkEvening').addEventListener('change', (e) => { state.decor.eveningMode = e.target.checked; applyDecor3D(); saveState(); });
+    document.getElementById('chkRoof').addEventListener('change', (e) => { state.decor.showRoof = e.target.checked; applyDecor3D(); saveState(); });
+    document.getElementById('chkStaff').addEventListener('change', (e) => { state.decor.showStaff = e.target.checked; applyDecor3D(); saveState(); });
+    document.getElementById('inpBannerText').addEventListener('input', (e) => { state.decor.bannerText = e.target.value; updateBannerTexture(); saveState(); });
+
+    document.querySelectorAll('.cloth-swatch').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const col = btn.getAttribute('data-cloth');
+        state.decor.tableclothColor = col;
+        document.querySelectorAll('.cloth-swatch').forEach(b => b.classList.remove('ring-2', 'ring-offset-1', 'ring-[#9B2C2C]'));
+        btn.classList.add('ring-2', 'ring-offset-1', 'ring-[#9B2C2C]');
+        draw2D();
+        rebuild3DItems();
+        saveState();
+      });
+    });
+
+    document.querySelectorAll('[data-cam]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-cam');
+        if (mode === 'front') { camState.theta = 0; camState.phi = 1.32; camState.radius = 5.2; camState.target.set(0, 1.05, 0); }
+        if (mode === 'iso') { camState.theta = 0.52; camState.phi = 1.1; camState.radius = 5.4; camState.target.set(0, 1.05, 0.15); }
+        if (mode === 'top') { camState.theta = 0; camState.phi = 0.18; camState.radius = 5.8; camState.target.set(0, 0.2, 0.1); }
+        if (mode === 'staff') { camState.theta = Math.PI - 0.35; camState.phi = 1.18; camState.radius = 4.6; camState.target.set(0, 0.95, 0.2); }
+        updateCameraPosition();
+      });
+    });
+
+    const jsonModal = document.getElementById('jsonModal');
+    const jsonTextarea = document.getElementById('jsonTextarea');
+    document.getElementById('btnExportJson').addEventListener('click', () => {
+      jsonTextarea.value = JSON.stringify({ activePreset: state.activePreset, decor: state.decor, items: state.items }, null, 2);
+      jsonModal.classList.remove('hidden');
+    });
+    document.getElementById('btnCloseModal').addEventListener('click', () => jsonModal.classList.add('hidden'));
+    document.getElementById('btnCopyJson').addEventListener('click', () => copyText(jsonTextarea.value, '已複製配置檔 JSON'));
+    document.getElementById('btnApplyJson').addEventListener('click', () => {
+      try {
+        const parsed = JSON.parse(jsonTextarea.value);
+        if (!Array.isArray(parsed.items)) throw new Error('格式錯誤');
+        state.items = parsed.items;
+        if (parsed.decor) state.decor = { ...state.decor, ...parsed.decor };
+        state.selectedId = null;
+        document.getElementById('chkPosters').checked = state.decor.showPosters;
+        document.getElementById('chkLights').checked = state.decor.showLights;
+        document.getElementById('chkEvening').checked = state.decor.eveningMode;
+        document.getElementById('chkRoof').checked = state.decor.showRoof;
+        document.getElementById('chkStaff').checked = state.decor.showStaff;
+        document.getElementById('inpBannerText').value = state.decor.bannerText;
+        updateInspector();
+        draw2D();
+        applyDecor3D();
+        saveState();
+        jsonModal.classList.add('hidden');
+        showToast('已成功套用配置檔！');
+      } catch (err) {
+        showToast('JSON 格式不正確，請重新確認');
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+      draw2D();
+      init3D();
+    });
+  </script>
+</body>
+</html>
