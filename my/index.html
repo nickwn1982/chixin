@@ -257,6 +257,7 @@ function login(auto, fresh) {
     try {
       var c = JSON.parse(sessionStorage.getItem(swrKey(name)) || (persisted() ? localStorage.getItem(swrKey(name)) : null) || 'null');
       if (c && c.ok && c.name === name) {
+        if (S.name && S.name !== name) clearUserCards();
         S.name = name; S.code = code; S.data = c; S.tab = S.tab || firstTab(c); S.led = c.led || null; if (c.batches) window.__p12MetaPrefill = c.batches;
         render(); $('hUpd').textContent = '資料時間 ' + c.updated + '（背景更新中…）'; show('vMain'); showedSwr = true;
       }
@@ -273,6 +274,7 @@ function login(auto, fresh) {
     try { sessionStorage.setItem('nm', name); sessionStorage.setItem('cd', code); sessionStorage.setItem(swrKey(name), JSON.stringify(r)); } catch (e) {}
     try { if ($('remember').checked) localStorage.setItem(swrKey(name), JSON.stringify(r)); else localStorage.removeItem(swrKey(name)); } catch (e) {}
     if (r.batches) window.__p12MetaPrefill = r.batches;
+    if (S.name && S.name !== name) clearUserCards();
     S.name = name; S.code = code; S.data = r; if (!showedSwr || !S.tab) S.tab = firstTab(r); S.filter = S.filter || 'all'; S.led = r.led || null;
     render(); show('vMain');
     if (window.GuideUI) GuideUI.renderFirstTimeTip($('vMain').firstElementChild, openMyGuide);
@@ -308,6 +310,9 @@ function mountTransfer() {   // 2026/11/26 E 階段：匯款與付款（只建�
   if (!window.TransferUI || !window.chixinFeature || !chixinFeature('pay') || document.querySelector('.tq')) return;
   try { TransferUI.render($('links'), {api:api, auth:function(){return {name:S.name, code:S.code};}}); } catch(e) { console.error(e); }
 }
+
+/** 2026/11/27：換人登入時，清掉上一位的個人卡片（匯款與付款、自我檢測、未處理、找訂單） */
+function clearUserCards() { var old = document.querySelectorAll('.tq,.hc,.st,.sq'); for (var i = 0; i < old.length; i++) old[i].remove(); }
 
 function softRefresh() {
   if (!S.name || !S.code) { location.reload(); return; }
@@ -510,7 +515,7 @@ function openMyGuide() {
 }
 $('openGuide').addEventListener('click', openMyGuide);
 $('refresh').addEventListener('click', function () { $('remember').checked = persisted(); login(true, true); });
-$('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); if (S.name) { sessionStorage.removeItem(swrKey(S.name)); localStorage.removeItem(swrKey(S.name)); } } catch (e) {} store('cd', null); $('code').value = ''; S.data = null; show('vLogin'); });
+$('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); if (S.name) { sessionStorage.removeItem(swrKey(S.name)); localStorage.removeItem(swrKey(S.name)); } } catch (e) {} store('cd', null); $('code').value = ''; S.data = null; S.name = ''; S.code = ''; S.led = null; clearUserCards(); show('vLogin'); location.reload(); });   // 2026/11/27：登出後整頁重載，避免下一位登入的人看到上一位的匯款／理貨卡片
 $('retry').addEventListener('click', start);
 start();
 </script>
