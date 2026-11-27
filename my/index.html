@@ -174,6 +174,7 @@
   <script src="../search_ui.js"></script>
   <script src="../item_ui.js"></script>
   <script src="../transfer_ui.js"></script>
+  <script src="../followup_ui.js"></script>
   <script src="../health_ui.js"></script>
 <script>
 // ====== 設定（部署後只需要改這一行：整合查詢 API 的 /exec 網址）======
@@ -301,6 +302,7 @@ function mountHealth() {   // 2026/11/26 系統自我檢測：統籌／組長／
   if (!window.HealthUI || !window.chixinFeature || !chixinFeature('health') || document.querySelector('.hc')) return;
   if (!((L.financeOf || []).length || (L.editorOf || []).length)) return;
   try { HealthUI.render($('links'), {api:api, auth:function(){return {name:S.name, code:S.code};}}); } catch(e) { console.error(e); }
+  if (window.StaleUI && (L.editorOf || []).length && !document.querySelector('.st')) { try { StaleUI.render($('links'), {api:api, auth:function(){return {name:S.name, code:S.code};}}); } catch(e) { console.error(e); } }   // 2026/11/27 久未處理
 }
 function mountTransfer() {   // 2026/11/26 E 階段：匯款與付款（只建一次，換頁籤不重抓）
   if (!window.TransferUI || !window.chixinFeature || !chixinFeature('pay') || document.querySelector('.tq')) return;

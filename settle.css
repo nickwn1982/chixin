@@ -72,5 +72,15 @@ table.ct tr.sum td{font-weight:700}
 .itm-btn{flex:none;width:44px;height:44px;border-radius:10px;border:2px solid #2f6b4f;background:#fff;color:#2f6b4f;font-size:22px;line-height:1}
 .itm-all{height:44px;padding:0 8px;white-space:nowrap;flex:none;border-radius:10px;border:2px solid #e4d8c4;background:#faf5ea;color:#2e2a26;font-size:14px}
 .itm-btn:disabled,.itm-all:disabled{opacity:.35}
+.itm-lineall{margin-left:auto;height:36px;padding:0 10px;border-radius:10px;border:2px solid #2f6b4f;background:#fff;color:#2f6b4f;font-size:14px;font-weight:700;white-space:nowrap}
+.itm>.itm-open{margin-top:8px}
+.itm-name{flex-wrap:wrap;align-items:center}
 .itm-sum{margin-top:10px;font-size:15px}.itm-sum b{color:#a8321f}
 .itm .itm-order{margin-top:8px;width:100%}
+/* 2026/11/27：我自己訂的——還沒付清；久未處理清單 */
+.sq-duebox{background:#fff7e6;border:2px solid #e9b949;border-radius:12px;padding:12px;margin:8px 0}
+.sq-duebox.ok{background:#eef6f0;border-color:#2f6b4f;color:#2f6b4f;font-weight:700}
+.sq-duetitle{font-size:18px;margin-bottom:6px}.sq-dueord{border-top:1px dashed #e4d8c4;padding-top:8px;margin-top:8px}
+.sq-dueord ul{margin:4px 0;padding-left:20px}
+.st-grp{border:1px solid #e4d8c4;border-radius:12px;padding:10px;margin-top:8px;background:#fff}
+.st-grp.never{border:2px solid #a8321f;background:#fff4f1}.st-grp ul{margin:4px 0;padding-left:20px;font-size:15px}

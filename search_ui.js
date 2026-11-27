@@ -1,6 +1,6 @@
 /* 2026/11/26：「我的入口」查詢與價格（11/25 調整 C 階段）
  *   1. 找訂單：訂單編號或人名（範圍由後端依身分限定）；財務／組長可在結果上改介紹同學
- *   2. 我自己訂的：綁定手機後，別組同學幫你下的單也看得到
+ *   2. 我自己訂的：綁定手機後，別組同學幫你下的單也看得到；2026/11/27 加「還沒付清的品項：剩多少、找誰拿貨、錢交給誰」
  *   3. 價格速查：售價／成本／利潤＋錢與貨交給誰（內部資料，加浮水印）
  * 換版開關：window.chixinFeature('search')。 */
 (function (global) {
@@ -32,7 +32,7 @@
       '<div class="sq-out"></div>' +
       '<h2 style="margin-top:18px">🛍 我自己訂的</h2>' +
       (bought.phone ? '<div class="hint">已綁定手機 ' + esc(bought.phone.replace(/^(\d{4})\d{3}/, '$1***')) + '：別組同學幫你下的單（訂購人寫你的名字）會列在這裡。</div>' +
-        (bought.orders.length ? bought.orders.map(function (o) { return orderCard(o, false); }).join('') : '<p class="hint">目前沒有。</p>')
+        (bought.orders.length ? '<div class="sq-due"><p class="hint">計算還沒付清的品項…</p></div>' + bought.orders.map(function (o) { return orderCard(o, false); }).join('') : '<p class="hint">目前沒有。</p>')
         : '<div class="hint">綁定你下單時填的手機，別組同學幫你下的單就會出現在這裡。</div>') +
       '<div class="oline" style="margin-top:8px"><input type="tel" class="sq-phone" inputmode="numeric" maxlength="12" placeholder="09xxxxxxxx" value=""><button type="button" class="sbtn sm sq-phone-go">' + (bought.phone ? '更換手機' : '綁定手機') + '</button></div>' +
       '<div class="om-msg sq-msg" hidden></div>' +
@@ -110,8 +110,26 @@
         (it.cost === null ? '<div class="warn">這項商品還沒填成本，請通知統籌。</div>' : '') +
         '<div class="hint">⚠ 內部資料，請勿截圖外傳；DM、訂購頁一律不顯示成本。</div></div>';
     });
+    function loadDue() {
+      var el = $('.sq-due'); if (!el) return;
+      api(Object.assign({ action: 'boughtDue' }, auth())).then(function (r) {
+        if (!r || !r.ok) { el.innerHTML = ''; return; }
+        if (!r.orders.length) { el.innerHTML = '<div class="sq-duebox ok">✓ 你自己訂的都已付清、交齊</div>'; return; }
+        el.innerHTML = '<div class="sq-duebox"><div class="sq-duetitle">還要付 <b>' + money(r.total) + '</b>（' + r.orders.length + ' 筆訂單）</div>' +
+          r.orders.map(function (o) {
+            return '<div class="sq-dueord"><div class="meta">' + esc(STALL_NO[o.stall] || o.stall) + '・' + esc(o.id) + '・介紹同學 <b>' + esc(o.seller) + '</b></div>' +
+              '<ul>' + o.lines.map(function (l) {
+                var nm = esc(l.name + (l.spec ? '（' + l.spec + '）' : ''));
+                return '<li>' + nm + (l.unpaidQty > 0 ? ' ×' + l.unpaidQty + ' 未付 <b>' + money(l.unpaidAmount) + '</b>' : ' 已付') + (l.unshippedQty > 0 ? '・還沒拿到 ' + l.unshippedQty + ' 個' : '・已拿到') +
+                  (l.unpaidQty > 0 && l.costAmount !== null ? '<div class="hint">介紹同學收款後：成本 ' + money(l.costAmount) + ' 交 ' + esc(l.costTo || '未設定') + '、利潤 ' + money(l.profitAmount) + ' 交 ' + esc(l.profitTo || '未設定') + '</div>' : '') + '</li>';
+              }).join('') + '</ul>' +
+              '<div class="hint">💰 錢交給：介紹同學 <b>' + esc(o.seller) + '</b>　📦 拿貨：找 <b>' + esc(o.seller) + '</b>' + (o.pickup ? '（' + esc(o.pickup) + '）' : '') + '</div></div>';
+          }).join('') + '</div>';
+      }, function () { el.innerHTML = ''; });
+    }
     container.parentNode.insertBefore(box, container);
     mountItems(box);
+    loadDue();
   }
   global.SearchUI = { render: render };
 })(window);

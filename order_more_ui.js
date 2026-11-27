@@ -64,8 +64,9 @@
       if (!reason) { msg('請先寫原因', true); return; }
       arm(btn, function () { opts.apiCall({ action: 'flagOrderIssue', stall: opts.stall, orderId: oid, issueState: '申請取消', note: reason }).then(done(btn), fail(btn)); });
     });
-    if (global.ItemUI && global.chixinFeature && global.chixinFeature('items'))   // 2026/11/26 D 階段：逐品項
-      global.ItemUI.mount(d, { stall: opts.stall, orderId: oid, apiCall: opts.apiCall, onUpdated: opts.onUpdated });
+    // 2026/11/27：逐項登記移到卡片上（原本藏在「更多」裡面不好找），放在「更多」上方
+    if (global.ItemUI && global.chixinFeature && global.chixinFeature('items'))
+      global.ItemUI.mount(container, { stall: opts.stall, orderId: oid, apiCall: opts.apiCall, onUpdated: opts.onUpdated });
     container.appendChild(d);
   }
   global.OrderMoreUI = { render: render };
