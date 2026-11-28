@@ -88,6 +88,7 @@
 </style>
 <link rel="stylesheet" href="../settle.css">
 <link rel="stylesheet" href="../guide.css">
+<link rel="stylesheet" href="../meibuy.css">
 </head>
 <body>
 <header>
@@ -176,6 +177,7 @@
   <script src="../transfer_ui.js"></script>
   <script src="../followup_ui.js"></script>
   <script src="../health_ui.js"></script>
+  <script src="../meibuy_ui.js"></script>
 <script>
 // ====== 設定（部署後只需要改這一行：整合查詢 API 的 /exec 網址）======
 var API = window.CHIXIN_API_OVERRIDE || 'https://script.google.com/macros/s/AKfycbxLvSKMlFtjzn4BY1sh4_6-f4eIp9w6nNNbD3bcEahpkoaJmEUURhSG8KuVbLEAUjOU/exec';   // 2026/11/24：?test=1 時改走測試後端（env.js）
@@ -186,6 +188,12 @@ var STALL_TITLE = { s1: '吃心絕對', s2: '天父的暖暖包', s3: '啵啵 �
 
 var $ = function (id) { return document.getElementById(id); };
 var S = { data: null, tab: 's1', filter: 'all', sending: false };
+/** 2026/11/28 小美團 MeiBuy 新版介面（chixinFeature('meibuy')：目前只在 ?test=1） */
+function mb() { return !!(window.MeiBuyUI && window.chixinFeature && chixinFeature('meibuy')); }
+function mbHost() {
+  return { S: S, api: api, auth: function () { return { name: S.name, code: S.code }; }, myLink: myLink, ledStall: ledStall, softRefresh: softRefresh,
+    refresh: function () { $('refresh').click(); }, logout: function () { $('logout').click(); }, openGuide: openMyGuide };
+}
 
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function money(n) { return '$' + String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
@@ -277,7 +285,7 @@ function login(auto, fresh) {
     if (S.name && S.name !== name) clearUserCards();
     S.name = name; S.code = code; S.data = r; if (!showedSwr || !S.tab) S.tab = firstTab(r); S.filter = S.filter || 'all'; S.led = r.led || null;
     render(); show('vMain');
-    if (window.GuideUI) GuideUI.renderFirstTimeTip($('vMain').firstElementChild, openMyGuide);
+    if (window.GuideUI && !mb()) GuideUI.renderFirstTimeTip($('vMain').firstElementChild, openMyGuide);
     if (!S.led) loadLedger();
   })['catch'](function (e) {
     S.sending = false; $('go').disabled = false; $('go').textContent = '查看我的訂單';
@@ -291,7 +299,7 @@ Settle.init({ api: api, auth: function () { return { name: S.name, code: S.code 
 
 /** 收款狀態與結算（後端尚未更新時會失敗，畫面維持唯讀） */
 function loadLedger() {
-  Settle.call({ action: 'ledgerMine' }).then(function (r) { if (r && r.ok) { S.led = r; mountHealth(); renderSheetEntry(); renderStall(); mountSearch(); } })['catch'](function () {});
+  Settle.call({ action: 'ledgerMine' }).then(function (r) { if (r && r.ok) { S.led = r; if (mb()) { renderSheetEntry(); MeiBuyUI.render(mbHost()); return; } mountHealth(); renderSheetEntry(); renderStall(); mountSearch(); } })['catch'](function () {});
 }
 /** 更新物流／異常後就地重抓資料（不整頁重新載入；畫面、頁籤與捲動位置保留） */
 function mountSearch() {
@@ -411,6 +419,7 @@ function render() {
   $('boothEntry').hidden = !d.isBooth;
   $('vendorGo').href = '../vendor/?s=' + encodeURIComponent(d.slug); $('boothGo').href = '../booth/?s=' + encodeURIComponent(d.slug);
   renderSheetEntry();
+  if (mb()) { MeiBuyUI.render(mbHost()); return; }
   $('hName').textContent = d.name; $('hUpd').textContent = '資料時間 ' + d.updated;
   $('tot').innerHTML =
     '<div><small>有效訂單</small><b>' + t.count + ' 筆</b></div><div><small>共</small><b>' + t.qty + ' 件</b></div>' +
@@ -517,6 +526,7 @@ $('openGuide').addEventListener('click', openMyGuide);
 $('refresh').addEventListener('click', function () { $('remember').checked = persisted(); login(true, true); });
 $('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); if (S.name) { sessionStorage.removeItem(swrKey(S.name)); localStorage.removeItem(swrKey(S.name)); } } catch (e) {} store('cd', null); $('code').value = ''; S.data = null; S.name = ''; S.code = ''; S.led = null; clearUserCards(); show('vLogin'); location.reload(); });   // 2026/11/27：登出後整頁重載，避免下一位登入的人看到上一位的匯款／理貨卡片
 $('retry').addEventListener('click', start);
+if (mb()) MeiBuyUI.brand();
 start();
 </script>
 
