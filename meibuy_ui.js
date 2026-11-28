@@ -357,6 +357,7 @@
       var full = Object.keys(mb.booths).filter(function (k) { return mb.booths[k].mode === '全額'; });
       full.forEach(function (k) {
         var isFin = (r.financeOf || []).indexOf(k) >= 0, isCol = (r.collectorOf || []).indexOf(k) >= 0;
+        if (isFin || isCol || r.isAdmin) h += weeklyCheatSheetCard(k);
         if (isFin || r.isAdmin) h += mondayCard(k) + surplusAdminCard(k);
         if (isCol || r.isAdmin) h += wedCard(k) + vendorPayCard(k) + surplusSendCard(k, mb);
       });
@@ -365,6 +366,13 @@
     pane.innerHTML = h;
     moveTools(pane);
     Array.prototype.forEach.call(pane.querySelectorAll('[data-autoload]'), function (el) { load(el.getAttribute('data-autoload'), el); });
+  }
+  function weeklyCheatSheetCard(k) {
+    return '<div class="mb-card mb-cheatsheet"><h3>📌 每週 3 行小抄｜' + STALL_SHORT[k] + '</h3><ol>' +
+      '<li><b>週日／週一</b>：結單對量叫貨（產出彙整 → 傳群組公告 → 歸入梯次）</li>' +
+      '<li><b>週三</b>：交給 玉華、陳麗如 發貨核對（收全額、付廠商、匯盈餘）</li>' +
+      '<li><b>最終截止</b>：12/13（日）結單、12/16（三）最終財務結帳</li>' +
+      '</ol></div>';
   }
   function moveTools(pane) {
     var box = pane.querySelector('.mb-tools'); if (!box) return;
