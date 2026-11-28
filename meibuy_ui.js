@@ -16,6 +16,14 @@
   ];
   var H = null, root = null, staffFor = '', ui = { sort: 'buyer', open: {}, shareSt: 'all', qr: false };
 
+  // 梯次日期：後端可能回 '2026-12-02' 或 Date 字串 'Wed Dec 02 2026 00:00:00 GMT+0800 (…)'，統一成 YYYY-MM-DD
+  function ymd(v) {
+    var t = String(v || ''), m = t.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+    if (m) return m[1] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[3]).slice(-2);
+    m = t.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w* (\d{1,2}) (\d{4})/);
+    if (m) return m[3] + '-' + ('0' + ('JanFebMarAprMayJunJulAugSepOctNovDec'.indexOf(m[1]) / 3 + 1)).slice(-2) + '-' + ('0' + m[2]).slice(-2);
+    return '';
+  }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function money(n) { n = Math.round(n || 0); return (n < 0 ? '-$' : '$') + String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
   function $(sel, el) { return (el || root).querySelector(sel); }
@@ -125,7 +133,7 @@
       Object.keys(by).forEach(function (k) {
         if (!stalls[k]) return;
         (by[k] || []).forEach(function (b) {
-          var dk = String(b.shipDate || '').slice(0, 10);
+          var dk = ymd(b.shipDate);
           if (!/^\d{4}-\d{2}-\d{2}$/.test(dk) || dk < today) return;
           if (strict && !want[k + '|' + b.code]) return;
           if (!best || dk < best) best = dk;
@@ -330,7 +338,7 @@
 
   function batchOptions(k, cur, extra) {
     var bs = ((H.S.data.batches || {})[k]) || [];
-    var opts = (extra || []).concat(bs.map(function (b) { return [b.code, b.code + ' ' + b.name + (b.shipDate ? '（' + String(b.shipDate).slice(5) + ' 出貨）' : '')]; }));
+    var opts = (extra || []).concat(bs.map(function (b) { return [b.code, b.code + ' ' + b.name + (ymd(b.shipDate) ? '（' + ymd(b.shipDate).slice(5).replace('-', '/') + ' 出貨）' : '')]; }));
     return opts.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (o[0] === cur ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('');
   }
 
