@@ -369,10 +369,10 @@
   }
   function weeklyCheatSheetCard(k) {
     return '<div class="mb-card mb-cheatsheet"><h3>📌 每週 3 行小抄｜' + STALL_SHORT[k] + '</h3><ol>' +
-      '<li><b>週日／週一</b>：結單對量叫貨（產出彙整 → 傳群組公告 → 歸入梯次）</li>' +
+      '<li><b>週日／週一</b>：結單對量叫貨（產出彙整 → 傳群組公告 → 複製廠商叫貨單 → 歸入梯次）</li>' +
       '<li><b>週三</b>：交給 玉華、陳麗如 發貨核對（收全額、付廠商、匯盈餘）</li>' +
       '<li><b>最終截止</b>：12/13（日）結單、12/16（三）最終財務結帳</li>' +
-      '</ol></div>';
+      '</ol><p class="mb-singletrack">💡 <b>單軌操作不重複</b>：平日點名、收款、付廠商、歸梯次全在這個網頁按按鈕，系統會自動同步寫入試算表；試算表平常只用來查總帳或取消訂單，不用再手動改一次。</p></div>';
   }
   function moveTools(pane) {
     var box = pane.querySelector('.mb-tools'); if (!box) return;
@@ -387,13 +387,14 @@
 
   function mondayCard(k) {
     return '<div class="mb-card" data-k2="' + k + '"><h3>📋 週一彙整＆下單｜' + STALL_SHORT[k] + '</h3>' +
-      '<div class="hint">選梯次 → 看三張表（廠商應付、同學應收全額、預估盈餘）→ 複製群組公告或列印週三核對單。</div>' +
+      '<div class="hint">選梯次產生三張表，接著依序完成：<b>Step 1 複製群組公告 → Step 2 複製廠商叫貨單 → Step 3 歸入本週梯次</b>。</div>' +
       '<div class="mb-form"><label>梯次</label><select data-role="batch">' + batchOptions(k, '未指派', [['未指派', '尚未指派梯次（本週新單）'], ['ALL', '全部梯次']]) + '</select></div>' +
       '<div class="mb-actions"><button type="button" class="mb-big pri" data-mb="summary" data-stall="' + k + '">產生本週彙整</button></div>' +
       '<div class="mb-out" data-role="sumOut"></div>' +
-      '<details style="margin-top:10px"><summary class="hint" style="cursor:pointer">📦 一鍵歸入本週梯次</summary><div class="mb-form">' +
-        '<label>把「尚未指派」的訂單全部歸入</label><select data-role="toBatch">' + batchOptions(k, '', []) + '</select></div>' +
-        '<div class="mb-actions"><button type="button" class="mb-big" data-mb="assign" data-stall="' + k + '">歸入這個梯次</button></div><div class="mb-msg" data-role="assignMsg"></div></details></div>';
+      '<div class="mb-assign-box"><h4>📦 Step 3｜叫貨確認後，歸入本週梯次</h4>' +
+        '<div class="hint">確認已向廠商叫貨後，請按這裡把「尚未指派」的訂單歸入本週梯次，<b>避免下週重複叫貨</b>。</div>' +
+        '<div class="mb-form"><label>把「尚未指派」的訂單全部歸入</label><select data-role="toBatch">' + batchOptions(k, '', []) + '</select></div>' +
+        '<div class="mb-actions"><button type="button" class="mb-big" data-mb="assign" data-stall="' + k + '">歸入這個梯次（按兩下確認）</button></div><div class="mb-msg" data-role="assignMsg"></div></div></div>';
   }
   function surplusAdminCard(k) {
     return '<div class="mb-card"><h3>🏦 盈餘入帳確認｜' + STALL_SHORT[k] + '</h3><div class="hint">麗如／玉華匯入公用帳戶後會出現在這裡，核對存摺末五碼後按「確認入帳」。</div>' +
@@ -407,8 +408,9 @@
   function vendorPayCard(k) {
     var cw = (((info() || {}).booths || {})[k] || {}).costWindows || [];
     return '<div class="mb-card"><h3>🧾 登記付廠商貨款｜' + STALL_SHORT[k] + '</h3><div class="mb-form" data-role="vpay" data-stall="' + k + '">' +
-      '<label>廠商</label><select data-role="vendor">' + cw.map(function (w) { return '<option>' + esc(w.vendor) + '</option>'; }).join('') + '</select>' +
-      '<label>金額</label><input type="number" inputmode="numeric" min="1" step="1" data-role="amount" placeholder="例：1200">' +
+      '<label>廠商</label><select data-role="vendor" data-stall="' + k + '">' + cw.map(function (w) { return '<option>' + esc(w.vendor) + '</option>'; }).join('') + '</select>' +
+      '<div data-autoload="vpaySummary:' + k + '" data-role="vpaySummary"><p class="hint">正在計算各廠商尚欠成本…</p></div>' +
+      '<label>實付金額（進貨成本）</label><input type="number" inputmode="numeric" min="1" step="1" data-role="amount" placeholder="例：600（請填進貨成本，非售價）">' +
       '<label class="mb-chk"><input type="checkbox" data-role="invoice" checked><span>已取得三聯發票／收據<br><small class="hint">抬頭：社團法人中華榮耀之光關懷協會｜統編：85185247</small></span></label>' +
       '<label>備註（選填）</label><input type="text" maxlength="60" data-role="note" placeholder="例：發票號碼、付款方式">' +
       '<div class="mb-actions"><button type="button" class="mb-big pri" data-mb="vpay" data-stall="' + k + '">登記付款</button></div><div class="mb-msg" data-role="msg"></div></div></div>';
@@ -464,17 +466,61 @@
                 (s.remainAll ? '已繳全額 ' + money(s.remainAll) : '✓ 已繳清') + '</button></div></div>';
           }).join('');
       }, function () { el.innerHTML = '<div class="err">網路不穩，請重新整理</div>'; });
+      return;
+    }
+    if (what === 'vpaySummary') {
+      call({ action: 'vendorPaySummary', booth: k, fresh: true }).then(function (r) {
+        if (!r || !r.ok) { el.innerHTML = '<div class="hint">尚欠金額待後端更新後顯示；請確認填寫「進貨成本」而非售價。</div>'; return; }
+        vpayCache[k] = r;
+        renderVpayHint(k, el);
+      }, function () { el.innerHTML = '<div class="hint">暫時讀不到尚欠金額；請確認填寫「進貨成本」而非售價。</div>'; });
     }
   }
 
+  var vpayCache = {};
+  function renderVpayHint(k, el) {
+    var r = vpayCache[k]; if (!r || !el) return;
+    var card = el.closest('.mb-card'), sel = card && card.querySelector('[data-role=vendor]');
+    var vn = sel ? sel.value : '';
+    var v = (r.vendors || []).filter(function (x) { return x.vendor === vn; })[0];
+    if (!v) { el.innerHTML = '<div class="mb-vpay-box">此廠商目前沒有累計訂單成本。</div>'; return; }
+    var h = '<div class="mb-vpay-box"><div class="mb-vpay-nums">' +
+      '<span>累計應付成本 <b>' + money(v.costDue) + '</b></span>' +
+      '<span>已登記 <b>' + money(v.paid) + '</b></span>' +
+      '<span class="' + (v.remain > 0 ? 'due' : 'ok') + '">尚欠 <b>' + money(v.remain) + '</b></span></div>';
+    if (v.remain > 0) h += '<button type="button" class="mb-copy-sm" data-mb="fillVpay" data-stall="' + k + '" data-amt="' + v.remain + '">一鍵帶入尚欠金額 ' + money(v.remain) + '</button>';
+    else if (v.costDue > 0) h += '<div class="hint" style="color:#17472f;font-weight:700">✓ 此廠商目前應付成本已全數登記</div>';
+    if (v.uncostedQty) h += '<div class="warn">⚠ 此廠商有 ' + v.uncostedQty + ' 件商品未設成本，尚欠金額可能偏低。</div>';
+    h += '<div class="hint" style="margin-top:4px">💡 請確認填寫的是「進貨成本」，不是同學的售價。</div></div>';
+    el.innerHTML = h;
+  }
+
   var lastSummary = {};
+  function vendorOrderFallback(r, v) {
+    var L = ['【巴拿巴義賣團購｜叫貨單】' + v.vendor + '（' + (r.label || STALL_TITLE[r.stall] || r.stall) + '｜' + r.batchLabel + '）'];
+    if (v.owner) L.push('接洽窗口：' + v.owner);
+    L.push('');
+    v.items.forEach(function (it) { L.push('・' + it.name + (it.spec ? '（' + it.spec + '）' : '') + ' × ' + it.qty + (it.unitCost == null ? '' : '（' + money(it.cost) + '）')); });
+    L.push('');
+    L.push('合計：' + v.qty + ' 件' + (v.uncostedQty ? '' : '，應付貨款 ' + money(v.cost)));
+    L.push('');
+    L.push('🧾 發票／收據開立資訊：');
+    L.push('抬頭：社團法人中華榮耀之光關懷協會');
+    L.push('統編：85185247');
+    L.push('（請開立三聯式／電子發票，或加蓋店章＋負責人章之收據，謝謝！）');
+    return L.join('\n');
+  }
   function summaryHtml(r) {
     var h = '<div class="mb-sum3"><div><small>同學應收全額</small><b>' + money(r.totals.receivable) + '</b></div><div><small>廠商應付</small><b>' + money(r.totals.vendorCost) + '</b></div>' +
       '<div class="g"><small>預估盈餘</small><b>' + money(r.totals.surplus) + '</b></div></div>';
     if (!r.totals.orders) return h + '<p class="hint">' + esc(r.batchLabel) + '沒有訂單。</p>';
-    h += '<h4 style="margin:14px 0 0">① 各廠商訂貨量與應付帳款</h4>';
-    r.vendors.forEach(function (v) {
-      h += '<table class="mb-tbl"><thead><tr><th>' + esc(v.vendor) + '</th><th>數量</th><th>成本</th></tr></thead><tbody>' +
+    h += '<h4 style="margin:14px 0 4px">① 各廠商訂貨量與應付帳款（Step 2｜複製叫貨單）</h4>' +
+      '<div class="hint">叫貨單只含品項數量、進貨成本與協會統編，不含同學名單與售價；請留意廠商備貨交期（二攤約需 7 個工作天）。</div>';
+    r.vendors.forEach(function (v, idx) {
+      var meta = [v.owner ? '窗口：' + v.owner : '', v.note || ''].filter(String).join('｜');
+      h += '<div class="mb-vhead"><div><b>' + esc(v.vendor) + '</b>' + (meta ? '<small>' + esc(meta) + '</small>' : '') + '</div>' +
+        '<button type="button" class="mb-copy-sm" data-mb="copyVendorOrder" data-stall="' + r.stall + '" data-vidx="' + idx + '">📋 複製叫貨單</button></div>' +
+        '<table class="mb-tbl"><thead><tr><th>品項</th><th>數量</th><th>成本</th></tr></thead><tbody>' +
         v.items.map(function (it) { return '<tr><td>' + esc(it.name) + (it.spec ? '<small>' + esc(it.spec) + '</small>' : '') + '</td><td>' + it.qty + '</td><td>' + (it.unitCost == null ? '未設定' : money(it.cost)) + '</td></tr>'; }).join('') +
         '</tbody><tfoot><tr><td>小計</td><td>' + v.qty + '</td><td>' + money(v.cost) + '</td></tr></tfoot></table>';
     });
@@ -485,9 +531,10 @@
       '</tbody><tfoot><tr><td>合計</td><td>' + r.totals.qty + '</td><td>' + money(r.totals.receivable) + '</td></tr></tfoot></table>' +
       '<h4 style="margin:14px 0 0">③ 週三交貨後預估盈餘</h4><div class="mb-kv"><span>總應收全額</span><b>' + money(r.totals.receivable) + '</b></div>' +
       '<div class="mb-kv"><span>－ 各廠商應付貨款</span><b>' + money(r.totals.vendorCost) + '</b></div><div class="mb-kv hl"><span>＝ 預估盈餘</span><b>' + money(r.totals.surplus) + '</b></div>' +
+      '<div class="mb-step-box"><h4>✅ Step 1｜發群組確認公告＆列印週三核對單</h4>' +
       '<div class="mb-actions"><button type="button" class="mb-big pri" data-mb="copyLine" data-stall="' + r.stall + '">複製 LINE 群組確認公告</button>' +
       '<button type="button" class="mb-big" data-mb="print" data-stall="' + r.stall + '">🖨 列印週三核對單</button></div>' +
-      '<p class="hint">群組公告只列品項數量與每人應繳金額，不含進貨成本與盈餘。</p>';
+      '<p class="hint" style="margin:6px 0 0">群組公告只列品項數量與每人應繳金額，不含進貨成本與盈餘。叫貨後別忘了往下執行 <b>Step 3 歸入本週梯次</b>！</p></div>';
     return h;
   }
   function printSheet(r) {
@@ -512,6 +559,7 @@
   function onChange(e) {
     var t = e.target;
     if (t.matches && t.matches('[data-role=wbatch]')) { var el = t.closest('.mb-card').querySelector('[data-role=roster]'); if (el) load('roster:' + t.getAttribute('data-stall'), el); }
+    if (t.matches && t.matches('[data-role=vendor]')) { var el2 = t.closest('.mb-card').querySelector('[data-role=vpaySummary]'); if (el2) renderVpayHint(t.getAttribute('data-stall'), el2); }
   }
 
   function onClick(e) {
@@ -546,7 +594,17 @@
         return;
       }
       case 'copyLine': if (lastSummary[k2]) copy(lastSummary[k2].lineText, t, '公告已複製 ✓'); return;
+      case 'copyVendorOrder': {
+        var sum = lastSummary[k2], idx = Number(t.getAttribute('data-vidx')), v = sum && sum.vendors && sum.vendors[idx];
+        if (v) copy(v.orderText || vendorOrderFallback(sum, v), t, '叫貨單已複製 ✓');
+        return;
+      }
       case 'print': if (lastSummary[k2]) printSheet(lastSummary[k2]); return;
+      case 'fillVpay': {
+        var inp = card.querySelector('[data-role=amount]');
+        if (inp) { inp.value = t.getAttribute('data-amt') || ''; inp.focus(); }
+        return;
+      }
       case 'assign': {
         var to = card.querySelector('[data-role=toBatch]').value, am = card.querySelector('[data-role=assignMsg]');
         if (!to) return msg(am, '請選擇梯次');
@@ -585,6 +643,7 @@
           if (!r || !r.ok) return msg(vm, (r && r.error) || '登記失敗');
           msg(vm, '已登記付廠商貨款 ' + money(amt) + '（' + r.id + '）✓', true);
           f.querySelector('[data-role=amount]').value = ''; f.querySelector('[data-role=note]').value = '';
+          var vs = card.querySelector('[data-role=vpaySummary]'); if (vs) load('vpaySummary:' + k2, vs);
         }, function () { t.disabled = false; msg(vm, '網路不穩，請再按一次'); });
         return;
       }

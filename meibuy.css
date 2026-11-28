@@ -90,6 +90,19 @@ body.meibuy #chixinTestFrame { border-color: #ef6c00 !important; }
 .mb-cheatsheet { background: #fffbf2; border-left: 4px solid #ef6c00; }
 .mb-cheatsheet ol { margin: 6px 0 0; padding-left: 20px; font-size: 15px; line-height: 1.65; }
 .mb-cheatsheet li { margin: 2px 0; }
+.mb-singletrack { margin: 8px 0 0; padding: 8px 10px; background: #fff; border: 1px dashed #ef6c00; border-radius: 10px; font-size: 14px; color: #5c3b09; line-height: 1.5; }
+.mb-vhead { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; padding: 6px 8px; background: #faf5ea; border-radius: 10px; }
+.mb-vhead b { font-size: 16px; color: var(--red-d); display: block; }
+.mb-vhead small { display: block; font-size: 12.5px; color: var(--mute); }
+.mb-copy-sm { font: inherit; font-size: 14px; font-weight: 700; padding: 6px 11px; border-radius: 99px; border: 1.5px solid var(--green); background: #fff; color: var(--green); cursor: pointer; white-space: nowrap; }
+.mb-copy-sm:active { background: #e3efe8; }
+.mb-step-box { margin-top: 14px; padding: 12px; background: #faf5ea; border-radius: 12px; border: 1px solid var(--line); }
+.mb-step-box h4, .mb-assign-box h4 { margin: 0 0 6px; font-size: 16px; color: var(--red-d); }
+.mb-assign-box { margin-top: 14px; padding: 12px; background: #fff7f0; border: 1.5px solid #f0b68c; border-radius: 12px; }
+.mb-vpay-box { margin-top: 8px; padding: 10px 12px; background: #faf5ea; border: 1px solid var(--line); border-radius: 12px; font-size: 14.5px; }
+.mb-vpay-nums { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+.mb-vpay-nums .due b { color: var(--red-d); font-size: 16px; }
+.mb-vpay-nums .ok b { color: var(--green); }
 .mb-form label { display: block; font-size: 14px; color: var(--mute); margin-top: 8px; }
 .mb-form select, .mb-form input[type=number], .mb-form input[type=text], .mb-form input[type=tel] { display: block; width: 100%; font: inherit; font-size: 17px; padding: 10px; border: 2px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); margin-top: 2px; }
 .mb-form .mb-chk { display: flex; gap: 8px; align-items: flex-start; font-size: 15px; color: var(--ink); margin-top: 10px; }
