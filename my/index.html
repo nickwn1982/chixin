@@ -524,7 +524,7 @@ function openMyGuide() {
 }
 $('openGuide').addEventListener('click', openMyGuide);
 $('refresh').addEventListener('click', function () { $('remember').checked = persisted(); login(true, true); });
-$('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); if (S.name) { sessionStorage.removeItem(swrKey(S.name)); localStorage.removeItem(swrKey(S.name)); } } catch (e) {} store('cd', null); $('code').value = ''; S.data = null; S.name = ''; S.code = ''; S.led = null; clearUserCards(); show('vLogin'); location.reload(); });   // 2026/11/27：登出後整頁重載，避免下一位登入的人看到上一位的匯款／理貨卡片
+$('logout').addEventListener('click', function () { try { sessionStorage.removeItem('nm'); sessionStorage.removeItem('cd'); if (S.name) { sessionStorage.removeItem(swrKey(S.name)); localStorage.removeItem(swrKey(S.name)); } } catch (e) {} store('nm', null); store('cd', null); $('code').value = ''; S.data = null; S.name = ''; S.code = ''; S.led = null; clearUserCards(); show('vLogin'); location.reload(); });   // 2026/11/27：登出後整頁重載，避免下一位登入的人看到上一位的匯款／理貨卡片（11/28 補清 nm，修正測試模式自動重登）
 $('retry').addEventListener('click', start);
 if (mb()) MeiBuyUI.brand();
 start();

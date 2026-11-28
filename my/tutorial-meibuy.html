@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>小美團 MeiBuy｜第二攤同工操作手冊（筱雯・麗如・玉華）</title>
+<style>
+  :root {
+    --cream: #fbf6ec;
+    --dark: #341812;
+    --red: #a8321f;
+    --red-d: #7f2416;
+    --crimson: #9b2b1a;
+    --green: #2f6b4f;
+    --gold: #c8963e;
+    --ink: #2e241f;
+    --mute: #7a7168;
+    --line: #dfd2be;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; background: #e9dfd0; color: var(--ink);
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .topbar {
+    position: sticky; top: 0; z-index: 100; background: #2e1712; color: #fff;
+    padding: 10px 16px; display: flex; flex-wrap: wrap; align-items: center;
+    justify-content: space-between; gap: 10px; border-bottom: 3px solid var(--gold);
+    box-shadow: 0 2px 10px rgba(0,0,0,.2);
+  }
+  .topbar-title { font-weight: 700; font-size: 16px; }
+  .topbar-title small { font-weight: 400; opacity: .8; margin-left: 8px; font-size: 13px; }
+  .topbar-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tbtn {
+    font: inherit; font-size: 14px; font-weight: 700; padding: 7px 13px;
+    border-radius: 8px; border: 0; cursor: pointer; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .tbtn.pri { background: var(--gold); color: #2e1712; }
+  .tbtn.sec { background: rgba(255,255,255,.16); color: #fff; }
+  .deck { max-width: 1120px; margin: 20px auto 48px; padding: 0 14px; display: flex; flex-direction: column; gap: 22px; }
+  .slide {
+    background: var(--cream); border-radius: 14px; box-shadow: 0 6px 24px rgba(46,36,31,.12);
+    padding: 42px 54px; min-height: 580px; position: relative;
+    display: flex; flex-direction: column; justify-content: center; overflow: hidden;
+  }
+  .slide.dark { background: var(--dark); color: #fff; }
+  .slide.crimson { background: var(--crimson); color: #fff; }
+  .pnum { position: absolute; right: 22px; bottom: 14px; font-size: 13px; color: var(--mute); opacity: .75; }
+  .slide.dark .pnum, .slide.crimson .pnum { color: rgba(255,255,255,.55); }
+  .eyebrow { font-size: 15px; font-weight: 700; color: var(--red); margin-bottom: 6px; letter-spacing: .04em; }
+  .slide.dark .eyebrow { color: #e2b46d; }
+  .slide.crimson .eyebrow { color: #ffd9a0; }
+  h1.cover-title { font-size: 52px; line-height: 1.18; margin: 6px 0 18px; font-weight: 800; }
+  .cover-sub { font-size: 22px; opacity: .94; margin: 0 0 24px; line-height: 1.5; }
+  .cover-note { font-size: 15px; opacity: .72; margin: 0; }
+  h2.stitle { font-size: 33px; line-height: 1.25; margin: 0 0 22px; color: var(--dark); font-weight: 800; }
+  .slide.dark h2.stitle, .slide.crimson h2.stitle { color: #fff; }
+  .grid2 { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 32px; align-items: center; }
+  .grid2.wide { grid-template-columns: 0.9fr 1.1fr; }
+  .steps { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 15px; }
+  .steps li { display: flex; align-items: flex-start; gap: 12px; font-size: 19px; line-height: 1.48; }
+  .num {
+    flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--red); color: #fff;
+    font-weight: 800; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; margin-top: 2px;
+  }
+  .steps small { display: block; font-size: 15px; color: var(--mute); margin-top: 2px; }
+  .bullets { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 12px; font-size: 19px; line-height: 1.5; }
+  .foot-note { margin-top: 18px; font-size: 15px; color: var(--mute); line-height: 1.5; }
+  .badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 99px; background: #dcefe2; color: #17472f; }
+  .badge.warn { background: #fde3e3; color: #8a1c1c; }
+  .badge.gold { background: #fff2d6; color: #7a4f06; }
+
+  /* 模擬手機 UI 卡片 */
+  .phone {
+    background: var(--cream); border: 2px solid #d8c8b0; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 8px 24px rgba(46,36,31,.14); width: 100%; max-width: 420px; margin: 0 auto; font-size: 13px;
+  }
+  .ph-head { background: var(--red); color: #fff; text-align: center; padding: 10px 12px 9px; border-bottom: 4px solid var(--gold); position: relative; }
+  .ph-head small { display: block; font-size: 11px; opacity: .9; }
+  .ph-head b { font-size: 17px; }
+  .ph-help { position: absolute; right: 10px; top: 12px; font-size: 11px; border: 1px solid rgba(255,255,255,.7); border-radius: 99px; padding: 2px 8px; }
+  .ph-body { padding: 12px; }
+  .ph-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+  .ph-card:last-child { margin-bottom: 0; }
+  .ph-tabs { display: grid; grid-template-columns: repeat(4,1fr); gap: 4px; margin-bottom: 10px; text-align: center; font-size: 11px; }
+  .ph-tabs span { border: 1.5px solid var(--line); border-radius: 8px; padding: 5px 2px; background: #fff; color: var(--mute); }
+  .ph-tabs span.on { border-color: var(--red); color: var(--red-d); background: #fff4f0; font-weight: 700; }
+  .ph-btn { display: block; width: 100%; text-align: center; background: var(--red); color: #fff; font-weight: 700; padding: 8px; border-radius: 9px; margin-top: 8px; font-size: 13px; }
+  .ph-btn.ghost { background: #fff; color: var(--green); border: 1.5px solid var(--green); }
+  .ph-btn.done { background: #dcefe2; color: #17472f; border: 1px solid #b8dec5; }
+  .ph-sum3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-top: 8px; text-align: center; }
+  .ph-sum3 div { background: #faf5ea; border-radius: 8px; padding: 6px 4px; }
+  .ph-sum3 small { display: block; font-size: 11px; color: var(--mute); }
+  .ph-sum3 b { font-size: 15px; }
+  .ph-sum3 .g b { color: var(--green); }
+  .ph-tbl { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
+  .ph-tbl th, .ph-tbl td { border-bottom: 1px solid var(--line); padding: 4px 2px; text-align: right; }
+  .ph-tbl th:first-child, .ph-tbl td:first-child { text-align: left; }
+  .ph-tbl tfoot td { font-weight: 700; border-top: 1.5px solid var(--line); }
+  .ph-linebox { background: #2e241f; color: #f6efe4; border-radius: 10px; padding: 10px 12px; font-size: 12px; line-height: 1.5; white-space: pre-line; margin-top: 8px; }
+  .ph-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+  .ph-bank { background: #faf5ea; border-radius: 8px; padding: 8px 10px; font-size: 12px; margin: 6px 0; }
+  .ph-input { border: 1.5px solid var(--line); border-radius: 8px; padding: 6px 8px; background: #fff; font-size: 12px; margin-top: 3px; }
+
+  .flow6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .fbox { background: #fff; border: 1.5px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .fbox .ftag { font-size: 12px; font-weight: 700; color: var(--red); margin-bottom: 4px; }
+  .fbox h3 { margin: 0 0 6px; font-size: 18px; color: var(--dark); }
+  .fbox p { margin: 0; font-size: 14px; color: var(--mute); line-height: 1.45; }
+
+  table.stbl { width: 100%; border-collapse: collapse; font-size: 18px; background: #fff; border-radius: 10px; overflow: hidden; border: 1.5px solid var(--line); }
+  table.stbl th { background: var(--dark); color: #fff; text-align: left; padding: 12px 16px; }
+  table.stbl td { padding: 13px 16px; border-bottom: 1px solid var(--line); }
+  table.stbl tr:last-child td { border-bottom: 0; }
+
+  @media (max-width: 760px) {
+    .slide { padding: 26px 18px 36px; min-height: auto; }
+    h1.cover-title { font-size: 34px; }
+    h2.stitle { font-size: 24px; }
+    .grid2, .grid2.wide, .flow6 { grid-template-columns: 1fr; gap: 16px; }
+    .steps li, .bullets { font-size: 16px; }
+    table.stbl { font-size: 14px; }
+  }
+  @page { size: 1280px 720px; margin: 0; }
+  @media print {
+    html, body { background: #fff; }
+    .topbar { display: none !important; }
+    .deck { max-width: none; margin: 0; padding: 0; gap: 0; }
+    .slide { width: 1280px; height: 720px; min-height: 720px; border-radius: 0; box-shadow: none; padding: 48px 66px; break-after: page; page-break-after: always; }
+    .slide:last-child { break-after: auto; page-break-after: auto; }
+    .grid2 { grid-template-columns: 1.05fr 0.95fr; }
+    .grid2.wide { grid-template-columns: 0.9fr 1.1fr; }
+    .flow6 { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">📖 小美團 MeiBuy｜第二攤同工操作手冊<small>筱雯學姊・麗如・玉華專用（共 8 頁）</small></div>
+  <div class="topbar-acts">
+    <button type="button" class="tbtn pri" onclick="window.print()">🖨️ 存成 PDF / 列印</button>
+    <a class="tbtn sec" href="./">← 回小美團入口</a>
+  </div>
+</div>
+
+<main class="deck">
+
+  <!-- 1. 封面 -->
+  <section class="slide dark">
+    <div class="eyebrow">巴拿巴宣教學院・義賣團購｜第二攤 天父的暖暖包</div>
+    <h1 class="cover-title">小美團 MeiBuy<br>同工操作手冊</h1>
+    <p class="cover-sub">週一彙整下單（筱雯）× 週三發貨收全額＆付貨款（麗如・玉華）× 盈餘入帳確認</p>
+    <p class="cover-note">對照漢堡流程圖 6 步驟設計｜畫面數字取自測試環境實測結果</p>
+    <span class="pnum">1 / 8</span>
+  </section>
+
+  <!-- 2. 全流程總覽 -->
+  <section class="slide">
+    <div class="eyebrow">分工合作・透明清楚</div>
+    <h2 class="stitle">第二攤「全額模式」6 步驟一目了然</h2>
+    <div class="flow6">
+      <div class="fbox">
+        <div class="ftag">步驟 1｜全班同學</div>
+        <h3>分享團購連結</h3>
+        <p>進「我要分享」一鍵複製連結／話術或出示 QR Code，親友下單自動記名。</p>
+      </div>
+      <div class="fbox">
+        <div class="ftag">步驟 2｜林筱雯（週一）</div>
+        <h3>彙整訂單＆訂貨</h3>
+        <p>在「同工專區」一鍵產出廠商應付、同學應收與預估盈餘，並複製公告傳群組。</p>
+      </div>
+      <div class="fbox">
+        <div class="ftag">步驟 3｜麗如＆玉華（週三）</div>
+        <h3>取貨＆發貨點名</h3>
+        <p>依核對單跟廠商取貨，於「週三發貨＆收款點名」按同學勾選「已領貨」。</p>
+      </div>
+      <div class="fbox">
+        <div class="ftag">步驟 4｜全體訂購同學</div>
+        <h3>領貨先繳全額</h3>
+        <p>同學在「我要交錢」只看單一應繳全額，週三領貨時先全額交給麗如／玉華。</p>
+      </div>
+      <div class="fbox">
+        <div class="ftag">步驟 5｜麗如＆玉華</div>
+        <h3>統一收款付貨款</h3>
+        <p>收齊全額後於系統登記「付廠商貨款」，勾選三聯發票／收據（協會統編 85185247）。</p>
+      </div>
+      <div class="fbox">
+        <div class="ftag">步驟 6｜麗如＆玉華 → 筱雯</div>
+        <h3>盈餘匯公用帳戶</h3>
+        <p>複製筱雯公用帳號匯出盈餘並回報末五碼；筱雯核對存摺後按「確認入帳」。</p>
+      </div>
+    </div>
+    <span class="pnum">2 / 8</span>
+  </section>
+
+  <!-- 3. 筱雯週一彙整 -->
+  <section class="slide">
+    <div class="grid2 wide">
+      <div>
+        <div class="eyebrow">每週一｜林筱雯專用</div>
+        <h2 class="stitle">一鍵產出「三合一彙整表」</h2>
+        <ol class="steps">
+          <li><span class="num">1</span><div>登入後點右下角 <b>「🛠 同工專區」</b></div></li>
+          <li><span class="num">2</span><div>在「📋 週一彙整＆下單｜二攤」選梯次<small>預設「尚未指派梯次（本週新單）」</small></div></li>
+          <li><span class="num">3</span><div>按 <b>「產生本週彙整」</b>，自動算出：<small>① 各廠商訂貨量與應付貨款<br>② 每位同學的朋友訂單與應收全額<br>③ 週三交貨後預估盈餘</small></div></li>
+        </ol>
+      </div>
+      <div>
+        <div class="phone">
+          <div class="ph-head"><small>巴拿巴義賣團購</small><b>小美團 MeiBuy</b><span class="ph-help">？怎麼用</span></div>
+          <div class="ph-body">
+            <div class="ph-tabs"><span>🧾 誰找我訂</span><span>📣 我要分享</span><span>💰 我要交錢</span><span class="on">🛠 同工專區</span></div>
+            <div class="ph-card">
+              <b>📋 週一彙整＆下單｜二攤</b>
+              <div class="ph-btn">產生本週彙整</div>
+              <div class="ph-sum3">
+                <div><small>同學應收全額</small><b>$2,960</b></div>
+                <div><small>廠商應付</small><b>$1,908</b></div>
+                <div class="g"><small>預估盈餘</small><b>$1,052</b></div>
+              </div>
+              <div style="font-weight:700;margin-top:10px;font-size:12px;">① 各廠商訂貨量與應付帳款</div>
+              <table class="ph-tbl">
+                <thead><tr><th>廠商／品項</th><th>數量</th><th>成本</th></tr></thead>
+                <tbody>
+                  <tr><td>希望種子咖啡（A/B款各1）</td><td>2</td><td>$600</td></tr>
+                  <tr><td>法鉑（經典2／檀香3／紫羅蘭3）</td><td>8</td><td>$1,308</td></tr>
+                </tbody>
+              </table>
+              <div style="font-weight:700;margin-top:8px;font-size:12px;">② 每位同學應收全額</div>
+              <table class="ph-tbl">
+                <tbody>
+                  <tr><td>周淑芬</td><td>7</td><td>$1,728</td></tr>
+                  <tr><td>李益芬／温國政／陳麗如</td><td>3</td><td>$1,232</td></tr>
+                </tbody>
+                <tfoot><tr><td>合計</td><td>10</td><td>$2,960</td></tr></tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="pnum">3 / 8</span>
+  </section>
+
+  <!-- 4. 筱雯公告與歸梯次 -->
+  <section class="slide">
+    <div class="grid2 wide">
+      <div>
+        <div class="eyebrow">每週一｜安全傳群組＋歸梯次</div>
+        <h2 class="stitle">公告自動保密成本、一鍵列印核對單</h2>
+        <ol class="steps">
+          <li><span class="num">1</span><div>點 <b>「複製 LINE 群組確認公告」</b><small>貼到群組時<b>只會顯示品項數量與每人應繳全額</b>，不會露出進貨成本與盈餘。</small></div></li>
+          <li><span class="num">2</span><div>點 <b>「🖨 列印週三核對單」</b><small>可存成 PDF 或印出紙本，方便麗如與玉華週三現場對照打勾。</small></div></li>
+          <li><span class="num">3</span><div>展開 <b>「📦 一鍵歸入本週梯次」</b><small>向廠商下完單後，將「尚未指派」的訂單全部歸入本週梯次（如 B1），下週才不會重複算到。</small></div></li>
+        </ol>
+      </div>
+      <div>
+        <div class="phone">
+          <div class="ph-body">
+            <div class="ph-card">
+              <div style="font-weight:700;margin-bottom:4px;">③ 週三交貨後預估盈餘</div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;"><span>總應收全額</span><b>$2,960</b></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;"><span>－ 各廠商應付貨款</span><b>$1,908</b></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--red-d);font-weight:700;border-top:1px dashed var(--line);padding-top:4px;margin-top:4px;"><span>＝ 預估盈餘</span><b>$1,052</b></div>
+              <div class="ph-btn">複製 LINE 群組確認公告</div>
+              <div class="ph-btn ghost">🖨 列印週三核對單</div>
+              <div class="ph-linebox">【小美團｜第二攤 天父的暖暖包】本週訂單確認
+💰 週三領貨請備妥全額（交給 陳麗如／符玉華）
+・周淑芬：7 件 $1,728
+・李益芬：1 件 $499 …
+共 4 筆、10 件，合計 $2,960</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="pnum">4 / 8</span>
+  </section>
+
+  <!-- 5. 麗如＆玉華週三點名 -->
+  <section class="slide">
+    <div class="grid2 wide">
+      <div>
+        <div class="eyebrow">每週三｜陳麗如・符玉華專用</div>
+        <h2 class="stitle">發貨＆收全額，按兩下即寫入試算表</h2>
+        <ol class="steps">
+          <li><span class="num">1</span><div>進「同工專區」找到 <b>「🚚 週三發貨＆收款點名｜二攤」</b></div></li>
+          <li><span class="num">2</span><div>同學來領貨：點 <b>「已領貨」</b><small>為避免手滑誤按，需「點一下變紅 → 再點一下確認」。</small></div></li>
+          <li><span class="num">3</span><div>收到全額：點 <b>「已繳全額 $XXX」</b><small>登記後按鈕變綠 <b>✓ 已領貨 / ✓ 已繳清</b>，同時寫入試算表「結算紀錄」。</small></div></li>
+        </ol>
+        <p class="foot-note">💡 貼心設計：第二攤同學自己的「我要交錢」頁面只會看到單一應繳全額，不會拆成成本與利潤造成誤會。</p>
+      </div>
+      <div>
+        <div class="phone">
+          <div class="ph-body">
+            <div class="ph-card">
+              <b>🚚 週三發貨＆收款點名｜二攤</b>
+              <div class="ph-card" style="margin-top:8px;padding:10px;">
+                <div style="display:flex;justify-content:space-between;"><b>周淑芬</b><span>1 筆 7 件｜本梯 $1,728</span></div>
+                <div class="ph-row2">
+                  <div class="ph-btn done" style="margin:0;">✓ 已領貨</div>
+                  <div class="ph-btn ghost" style="margin:0;">已繳全額 $1,728</div>
+                </div>
+              </div>
+              <div class="ph-card" style="padding:10px;background:#f4faf6;">
+                <div style="display:flex;justify-content:space-between;"><b>陳麗如</b><span>1 筆 1 件｜本梯 $234</span></div>
+                <div class="ph-row2">
+                  <div class="ph-btn done" style="margin:0;">✓ 已領貨</div>
+                  <div class="ph-btn done" style="margin:0;">✓ 已繳清</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="pnum">5 / 8</span>
+  </section>
+
+  <!-- 6. 付廠商貨款 -->
+  <section class="slide">
+    <div class="grid2 wide">
+      <div>
+        <div class="eyebrow">步驟 5｜陳麗如・符玉華</div>
+        <h2 class="stitle">付給廠商貨款，記得索取發票／收據</h2>
+        <ol class="steps">
+          <li><span class="num">1</span><div>在 <b>「🧾 登記付廠商貨款｜二攤」</b> 選擇廠商（希望種子咖啡／法鉑）與實付金額</div></li>
+          <li><span class="num">2</span><div>確認勾選 <b>「已取得三聯發票／收據」</b><small>抬頭：<b>社團法人中華榮耀之光關懷協會</b><br>統編：<b>85185247</b></small></div></li>
+          <li><span class="num">3</span><div>按兩下「登記付款」送出<small>畫面出現流水編號（如 <code>L0009</code>），寫入試算表「結算紀錄」供內部核對與撤銷誤按。</small></div></li>
+        </ol>
+      </div>
+      <div>
+        <div class="phone">
+          <div class="ph-body">
+            <div class="ph-card">
+              <b>🧾 登記付廠商貨款｜二攤</b>
+              <div style="margin-top:8px;font-size:12px;font-weight:700;">廠商</div>
+              <div class="ph-input">希望種子咖啡</div>
+              <div style="margin-top:6px;font-size:12px;font-weight:700;">金額</div>
+              <div class="ph-input">600</div>
+              <div style="margin-top:8px;font-size:12px;">☑ 已取得三聯發票／收據<br><span style="color:var(--mute);font-size:11px;">抬頭：社團法人中華榮耀之光關懷協會｜統編：85185247</span></div>
+              <div class="ph-btn">登記付款</div>
+              <div style="color:var(--green);font-weight:700;font-size:12px;margin-top:8px;">已登記付廠商貨款 $600（L0009）✓</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="pnum">6 / 8</span>
+  </section>
+
+  <!-- 7. 匯盈餘＆筱雯確認入帳 -->
+  <section class="slide">
+    <div class="grid2 wide">
+      <div>
+        <div class="eyebrow">步驟 6｜最後對帳閉環</div>
+        <h2 class="stitle">匯出剩餘盈餘 → 筱雯確認入帳</h2>
+        <ol class="steps">
+          <li><span class="num">1</span><div><b>麗如／玉華</b>：在「💸 匯盈餘到公用帳戶」點 <b>「一鍵複製 林筱雯 公用帳號」</b></div></li>
+          <li><span class="num">2</span><div>匯款後填入「匯款金額」與「帳號末五碼」，按兩下 <b>「回報已匯盈餘」</b></div></li>
+          <li><span class="num">3</span><div><b>筱雯學姊</b>：打開「🏦 盈餘入帳確認｜二攤」，核對存摺末五碼無誤後按 <b>「確認入帳」</b>，狀態變成綠色 <span class="badge">已確認</span> 即完成！</div></li>
+        </ol>
+      </div>
+      <div>
+        <div class="phone">
+          <div class="ph-body">
+            <div class="ph-card">
+              <b>💸 匯盈餘到公用帳戶｜二攤</b>
+              <div class="ph-bank">收款：林筱雯<br>公用帳號（一鍵複製即可匯款）</div>
+              <div class="ph-btn ghost">一鍵複製 林筱雯 公用帳號</div>
+              <div class="ph-btn">回報已匯盈餘</div>
+            </div>
+            <div class="ph-card">
+              <b>🏦 盈餘入帳確認｜二攤</b>
+              <div style="font-size:11px;color:var(--mute);margin-bottom:6px;">已確認入帳合計 $1,052</div>
+              <div style="border:1px solid var(--line);border-radius:10px;padding:8px;background:#f4faf6;">
+                <div style="display:flex;justify-content:space-between;"><b>$1,052</b><span class="badge">已確認</span></div>
+                <div style="font-size:11px;color:var(--mute);margin-top:2px;">陳麗如 → 林筱雯｜匯款｜末五碼 12345</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="pnum">7 / 8</span>
+  </section>
+
+  <!-- 8. 速查與結尾 -->
+  <section class="slide">
+    <div class="eyebrow">一頁速查｜遇到狀況怎麼辦？</div>
+    <h2 class="stitle">常見問題與聯絡窗口</h2>
+    <table class="stbl">
+      <thead><tr><th style="width:36%;">狀況</th><th>處理方式</th></tr></thead>
+      <tbody>
+        <tr><td><b>按鈕按一下沒反應？</b></td><td>所有寫入動作都採<b>「按兩下防呆確認」</b>（先變紅字「再按一次確認」→ 再點一次才送出）。</td></tr>
+        <tr><td><b>點名或付款金額按錯了？</b></td><td>記下畫面的流水編號（如 <code>L0009</code>），請有權限的組長／財務或聯絡統籌在「結算紀錄」撤銷重記。</td></tr>
+        <tr><td><b>有同學臨時要取消訂單？</b></td><td>網頁不直接刪單，請用 LINE 聯絡統籌 <b>温國政</b> 由後台取消。</td></tr>
+        <tr><td><b>忘記規則或截止日？</b></td><td>點小美團右上角 <b>「？怎麼用」</b>，所有日期、收款方式與各攤窗口都在裡面。</td></tr>
+      </tbody>
+    </table>
+    <p class="foot-note" style="font-size:17px;color:var(--ink);margin-top:24px;"><b>分工合作・透明清楚・凝聚愛心，讓宣教更有力量！</b>｜系統問題請隨時 LINE 找 <b>温國政</b>。</p>
+    <span class="pnum">8 / 8</span>
+  </section>
+
+</main>
+</body>
+</html>
