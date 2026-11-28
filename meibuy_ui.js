@@ -30,7 +30,12 @@
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function toast(m, bad) { if (global.Settle && Settle.toast) Settle.toast(m, bad); }
-  function armed(btn) { return global.Settle && Settle.armed ? Settle.armed(btn) : true; }
+  // 第二下確認後把按鈕文字還原（Settle.armed 只在逾時才還原，不重繪的卡片會一直顯示「再按一次確認」）
+  function armed(btn) {
+    var ok = global.Settle && Settle.armed ? Settle.armed(btn) : true;
+    if (ok && btn._label) btn.innerHTML = btn._label;
+    return ok;
+  }
   function call(body) { return Settle.call(body); }
 
   function copy(text, btn, done) {
